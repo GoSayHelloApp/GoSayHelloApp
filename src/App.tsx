@@ -10,7 +10,7 @@ function App() {
       <Stack direction={"row"} width={630} gap={2}>
         <Button
           variant="contained"
-          size="small"
+          size="large"
           color="info"
           disableElevation
           endIcon={<Icon icon={'material-symbols:share'} />}
