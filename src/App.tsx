@@ -1,24 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { Button, Stack } from "@mui/material";
+import { Icon } from "@iconify/react";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <Stack direction={"row"} width={630} gap={2}>
+        <Button
+          variant="contained"
+          size="small"
+          color="info"
+          disableElevation
+          endIcon={<Icon icon={'material-symbols:share'} />}
         >
-          Learn React
-        </a>
-      </header>
+          Share
+        </Button>
+        <Button
+          variant="contained"
+          size="large"
+          color="success"
+          disableElevation
+          sx={{ flex: "1 1 auto" }}
+        >
+          Directions
+        </Button>
+        <Button
+          variant="soft"
+          size="large"
+          color="inherit"
+          disableElevation
+          sx={{ flex: "1 1 auto" }}
+        >
+          Cancel
+        </Button>
+      </Stack>
     </div>
   );
 }
