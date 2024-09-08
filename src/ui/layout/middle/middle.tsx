@@ -5,6 +5,7 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { MiddleStyles } from "./style";
+import People from "../../../pages/people/people";
 
 function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -17,7 +18,7 @@ function CustomTabPanel(props: any) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ mt: 1 }}>{children}</Box>}
     </div>
   );
 }
@@ -57,7 +58,6 @@ export default function Middle() {
             aria-label="basic tabs example"
           >
             <Tab
-              sx={{ borderRight: "1px solid black" }}
               label="People"
               {...a11yProps(0)}
             />
@@ -67,7 +67,7 @@ export default function Middle() {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          Item One
+          <People />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
           Item Two

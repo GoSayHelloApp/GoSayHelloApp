@@ -1,6 +1,6 @@
 import { Container, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import Middle from "../../pages/middle/middle";
+import Middle from "./middle/middle";
 
 function Main() {
   return (
