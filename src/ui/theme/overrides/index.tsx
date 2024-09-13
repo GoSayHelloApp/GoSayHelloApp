@@ -26,7 +26,7 @@ import { button } from './components/button';
 // import { tooltip } from './components/tooltip';
 // import { badge } from './components/badge';
 // import { stepper } from './components/stepper';
-// import { tabs } from './components/tabs';
+import { tabs } from './components/tabs';
 // import { menu } from './components/menu';
 // import { accordion } from './components/accordion';
 // import { card } from './components/card';
@@ -62,7 +62,7 @@ export function componentsOverrides(theme: Theme) {
     // tooltip(theme),
     // badge(theme),
     // stepper(theme),
-    // tabs(theme),
+    tabs(theme),
     // menu(theme),
     // accordion(theme),
     // card(theme),

@@ -133,7 +133,12 @@ export function button(theme: Theme) {
         ...(textVariant && {
           paddingLeft: 10,
           paddingRight: 10
-        })
+        }),
+        [theme.breakpoints.down("lg")]: {
+          height: 40,
+          padding: "12px 16px",
+          fontSize: 12,
+        },
       })
     };
 

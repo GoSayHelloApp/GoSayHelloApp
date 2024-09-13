@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import { MiddleStyles } from "./style";
 import People from "../../../pages/people/people";
 
@@ -45,25 +45,30 @@ export default function Middle() {
 
   const { homeText, anotherHomeText } = MiddleStyles();
 
+  const theme = useTheme();
+
   return (
     <Box>
       <Typography variant="h5" sx={{ ...homeText }}>
         Home
       </Typography>
       <Box sx={{ width: "100%" }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.grey[300],
+            borderRadius: theme.shape.borderRadius * 50,
+            p: 0.75,
+          }}
+        >
           <Tabs
             value={value}
             onChange={handleChange}
             aria-label="basic tabs example"
           >
-            <Tab
-              label="People"
-              {...a11yProps(0)}
-            />
-            <Tab label="Business" {...a11yProps(1)} />
-            <Tab label="Events" {...a11yProps(2)} />
-            <Tab label="RSVP" {...a11yProps(3)} />
+            <Tab sx={{ flex: "1 1 auto" }} label="People" {...a11yProps(0)} />
+            <Tab sx={{ flex: "1 1 auto" }} label="Business" {...a11yProps(1)} />
+            <Tab sx={{ flex: "1 1 auto" }} label="Events" {...a11yProps(2)} />
+            <Tab sx={{ flex: "1 1 auto" }} label="RSVP" {...a11yProps(3)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
