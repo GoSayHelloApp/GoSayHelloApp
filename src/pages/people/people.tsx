@@ -1,6 +1,5 @@
 import { Button, Chip, Stack } from "@mui/material";
 import PeopleCard from "../../ui/components/peopleCard/peopleCard";
-import React from "react";
 
 const people = [
   {
@@ -14,6 +13,19 @@ const people = [
         <Chip color="info" label="App Developer" />
         <Chip color="info" label="Arts & Craft" />
         <Chip color="info" label="Beauty" />
+      </Stack>
+    ),
+  },
+  {
+    id: 1,
+    picture: "https://picsum.photos/120/120",
+    name: "Jaden Adams",
+    interests: 2,
+    distance: 3,
+    tags: (
+      <Stack direction={'row'} gap={1.25} flexWrap={'wrap'} mt={1}>
+        <Chip color="info" label="App Developer" />
+        <Chip color="info" label="Arts & Craft" />
       </Stack>
     ),
   },

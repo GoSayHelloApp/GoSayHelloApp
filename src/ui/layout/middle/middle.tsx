@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import { Typography, useTheme } from "@mui/material";
 import { MiddleStyles } from "./style";
 import People from "../../../pages/people/people";
+import Events from "../../../pages/events/events";
 
 function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -75,10 +76,10 @@ export default function Middle() {
           <People />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Item Two
+          Business
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          Item Three
+          <Events />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={3}>
           Item Four

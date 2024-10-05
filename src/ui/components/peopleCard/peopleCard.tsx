@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Button,
   Stack,
   Typography,
   useTheme,
