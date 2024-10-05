@@ -76,7 +76,7 @@ export default function Middle() {
           <People />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Business
+          <People />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           <Events />

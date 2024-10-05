@@ -17,6 +17,7 @@ function EventCard({
   date,
   time,
   distance,
+  group,
 }: {
   picture: string;
   type: string;
@@ -24,7 +25,7 @@ function EventCard({
   date: string;
   time: string;
   distance: number;
-  action: ReactElement;
+  group: ReactElement;
 }) {
   const { main } = EventCardStyles();
   const theme = useTheme();
@@ -56,45 +57,61 @@ function EventCard({
           }}
           src={picture}
         />
-        <Stack gap={1}>
-          <Typography
-            sx={{
-              fontSize: { xs: 15, lg: 22 },
-              width: "calc(100% - 48px)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-            fontWeight={"600"}
-          >
-            {name}
-          </Typography>
-          <Stack direction={"row"} alignItems={"center"} gap={2}>
+        <Box>
+          <Stack gap={1} maxWidth={'87%'}>
             <Typography
-              sx={{ fontSize: { xs: 12, lg: 18 } }}
-              fontWeight={"500"}
+              sx={{
+                fontSize: { xs: 15, lg: 22 },
+                width: "calc(100% - 48px)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+              fontWeight={"600"}
             >
-              {type}
+              {name}
             </Typography>
-            <Button
-              endIcon={<Icon icon="material-symbols:share" />}
-              size="small"
-              variant="contained"
-              color="info"
-            >
-              Share
-            </Button>
+            <Stack direction={"row"} alignItems={"center"} gap={2}>
+              <Typography
+                sx={{ fontSize: { xs: 12, lg: 18 } }}
+                fontWeight={"500"}
+              >
+                {type}
+              </Typography>
+              <Button
+                endIcon={<Icon icon="material-symbols:share" />}
+                size="small"
+                variant="contained"
+                color="info"
+              >
+                Share
+              </Button>
+            </Stack>
+            <Stack direction={"row"} alignItems={"center"} gap={4}>
+              <Box flex={"1 1 auto"}>
+                <Typography
+                  sx={{ fontSize: { xs: 12, lg: 18 } }}
+                  fontWeight={"500"}
+                >
+                  {date}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: { xs: 12, lg: 18 } }}
+                  fontWeight={"500"}
+                >
+                  {time}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: { xs: 12, lg: 18 } }}
+                  fontWeight={"500"}
+                >
+                  {distance} mintues walk
+                </Typography>
+              </Box>
+              {group}
+            </Stack>
           </Stack>
-          <Typography sx={{ fontSize: { xs: 12, lg: 18 } }} fontWeight={"500"}>
-            {date}
-          </Typography>
-          <Typography sx={{ fontSize: { xs: 12, lg: 18 } }} fontWeight={"500"}>
-            {time}
-          </Typography>
-          <Typography sx={{ fontSize: { xs: 12, lg: 18 } }} fontWeight={"500"}>
-            {distance} mintues walk
-          </Typography>
-        </Stack>
+        </Box>
       </Stack>
       <Stack direction={"row"} gap={2} mt={{ xs: 2, lg: 4 }}>
         <Button
