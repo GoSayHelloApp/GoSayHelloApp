@@ -12,6 +12,7 @@ import RecentPosts from "./recentPosts/recentPosts";
 import Notifications from "./notifications/notifications";
 import Messages from "./messages/messages";
 import { Icon } from "@iconify/react";
+import { RightPanelStyles } from "./style";
 
 export default function RightPanel() {
   const [expanded, setExpanded] = React.useState("panel1");
@@ -21,6 +22,7 @@ export default function RightPanel() {
   };
 
   const theme = useTheme();
+  const { main } = RightPanelStyles();
 
   const mainStackStyle = {
     gap: 1,
@@ -36,29 +38,34 @@ export default function RightPanel() {
     borderRadius: "10px",
   };
   return (
-    <>
+    <Box sx={{ ...main }}>
       <Accordion
         expanded={expanded === "panel1"}
         onChange={handleChange("panel1")}
       >
         <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-          <Stack direction={"row"} sx={{ ...mainStackStyle }}>
+          <Box sx={{ display: "block", width: "100%" }}>
             <Stack
               direction={"row"}
-              sx={{ ...mainStackStyle }}
-              flex={"1 1 auto"}
+              sx={{ ...mainStackStyle, justifyContent: "space-between" }}
             >
-              <Typography variant="h5">Recent Posts</Typography>
-              <Icon
-                icon="mdi:heart"
-                fontSize={24}
-                color={theme.palette.primary.main}
-              />
+              <Stack
+                direction={"row"}
+                sx={{ ...mainStackStyle }}
+                flex={"1"}
+              >
+                <Typography variant="h5">Recent Posts</Typography>
+                <Icon
+                  icon="mdi:heart"
+                  fontSize={24}
+                  color={theme.palette.primary.main}
+                />
+              </Stack>
+              <Box sx={{ ...BadgeStyle }}>
+                <Typography variant="subtitle2">18</Typography>
+              </Box>
             </Stack>
-            <Box sx={{ ...BadgeStyle }}>
-              <Typography variant="subtitle2">18</Typography>
-            </Box>
-          </Stack>
+          </Box>
         </AccordionSummary>
         <AccordionDetails>
           <RecentPosts />
@@ -77,7 +84,7 @@ export default function RightPanel() {
             >
               <Typography variant="h5">Notifications</Typography>
               <Icon
-                icon="line-md:bell-filled"
+                icon="fa-solid:bell"
                 fontSize={24}
                 color={theme.palette.primary.main}
               />
@@ -118,6 +125,6 @@ export default function RightPanel() {
           <Messages />
         </AccordionDetails>
       </Accordion>{" "}
-    </>
+    </Box>
   );
 }
