@@ -51,9 +51,13 @@ export default function RecentPosts() {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <Tab sx={{ flex: "1 1 auto" }} label="Nearby Users" {...a11yProps(0)} />
         <Tab
-          sx={{ flex: "1 1 auto" }}
+          sx={{ flex: "1 1 auto", fontSize: 15 }}
+          label="Nearby Users"
+          {...a11yProps(0)}
+        />
+        <Tab
+          sx={{ flex: "1 1 auto", fontSize: 15 }}
           label="Connected Users"
           {...a11yProps(1)}
         />
