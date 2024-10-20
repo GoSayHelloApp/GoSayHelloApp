@@ -1,12 +1,14 @@
 import { useTheme } from "@mui/material";
+import zIndex from "@mui/material/styles/zIndex";
 import { transform } from "lodash";
 
 export const SidebarStyles = () => {
   const theme = useTheme();
   return {
     mainStyle: {
-      position: "absolute",
+      position: "fixed",
       left: 0,
+      zIndex: 1,
       top: "50%",
       transform: "translateY(-50%)",
       minWidth: '234px',

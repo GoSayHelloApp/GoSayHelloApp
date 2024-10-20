@@ -6,7 +6,11 @@ export const LayoutStyles = () => {
         mainStyle: {
             display: 'block',
             width: '100%',
-            marginRight: '250px'
+            marginLeft: '250px'
         },
+        layoutStyle: {
+            display: 'block',
+            marginLeft: '234px',
+        }
     }
 }

@@ -7,7 +7,7 @@ import {
   ListItemText,
   useTheme,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { SidebarStyles } from "./style";
 import { Icon } from "@iconify/react";
 
@@ -60,8 +60,8 @@ export default function Sidebar() {
         {sidebarItems.map((index) => (
           <ListItem key={index.id}>
             <ListItemButton
-              LinkComponent={"a"}
-              href={index.path}
+              component={Link}
+              to={index.path}
               sx={{
                 ...(location.pathname === index.path ? activeStyle : {}),
               }}
