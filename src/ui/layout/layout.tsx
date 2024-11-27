@@ -4,12 +4,14 @@ import { Box } from "@mui/material";
 import { LayoutStyles } from "./layoutStyle";
 import Main from "./main";
 import Home from "../../pages/home/home";
+import Navbar from "./navbar/navbar";
 
 function Layout() {
   const { mainStyle } = LayoutStyles();
   return (
     <Router>
       <Box>
+        <Navbar />
         <Sidebar />
         <Main />
       </Box>
