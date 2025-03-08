@@ -11,21 +11,22 @@ import Middle from "../../ui/layout/middle/middle";
 import React from "react";
 import RightPanel from "../../ui/components/rightPanel/rightPanel";
 import { LayoutStyles } from "../../ui/layout/layoutStyle";
+import { Outlet } from "react-router-dom";
 
-function Main() {
+function Home() {
   const [expanded, setExpanded] = React.useState("panel1");
 
   const handleChange = (panel: any) => (event: any, newExpanded: any) => {
     setExpanded(newExpanded ? panel : false);
   };
 
-  const {layoutStyle} = LayoutStyles();
+  const { layoutStyle } = LayoutStyles();
   return (
-    <Box component={'main'} sx={{...layoutStyle}}>
+    <Box component={'main'} sx={{ ...layoutStyle }}>
       <Container maxWidth={'xl'}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 7 }}>
-            <Middle />
+            <Outlet />
           </Grid>
           <Grid size={{ xs: 12, md: 5 }}>
             <RightPanel />
@@ -36,4 +37,4 @@ function Main() {
   );
 }
 
-export default Main;
+export default Home;

@@ -1,11 +1,21 @@
-import { Box, Container, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import Middle from "./middle/middle";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { LayoutStyles } from "./layoutStyle";
+import Sidebar from "./sidebar/sidebar";
+import Navbar from "./navbar/navbar";
+import { useEffect } from "react";
+import { getStartUp } from "../../utils/tokenStorage";
+import { setUser } from "../../services/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 function Main() {
+
+  const { mainStyle } = LayoutStyles();
   return (
-    <Outlet />
+    <main >
+      <Navbar />
+      <Sidebar />
+      <Outlet />
+    </main>
   );
 }
 

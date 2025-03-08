@@ -14,7 +14,7 @@ function PeopleCard({
   interests,
   distance,
   action,
-  tags,
+  tags
 }: {
   picture: string;
   name: string;

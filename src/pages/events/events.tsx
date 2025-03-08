@@ -1,46 +1,231 @@
-import { Avatar, AvatarGroup, Button, Chip, Stack, Typography } from "@mui/material";
+import { Box, FormControl, InputAdornment, OutlinedInput, Select, MenuItem, Typography, Stack, Switch, useTheme, Avatar, AvatarGroup } from "@mui/material";
 import EventCard from "../../ui/components/eventCard/eventCard";
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
+import useNearbyData from "../../hooks/useNearByData";
+import { useAppSelector } from "../../redux/store";
+import { useGetNearbyUsersOrBusinessesMutation } from "../../services/nearby/nearbyApi";
+import { format, parseISO } from 'date-fns';
+import { debounce } from "lodash";
+import { EventInterestedUser, EventsNearByResponse } from "../../models/responseModels/events";
+import { eventTypesSelector } from "../../services/appconfiguration/configSelectors";
 
-const events = [
-  {
-    id: 0,
-    picture: "https://picsum.photos/120/120",
-    name: "Juneteenth Atlanta Parade and Music Festival",
-    type: "Festival",
-    date: "Jun. 16 - Jun. 18",
-    time: "12:00 PM to 09:00 PM",
-    distance: 3,
-    group: (
-      <AvatarGroup max={3}>
-        <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-        <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-        <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-        <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
-      </AvatarGroup>
-    ),
-  },
-];
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+const formatEventDateTime = (startDate: string, startTime: string, endDate: string, endTime: string) => {
+  const start = parseISO(`${startDate}T${startTime}`);
+  const end = parseISO(`${endDate}T${endTime}`);
+
+  const formattedDate = `${format(start, 'MMM. d')} - ${format(end, 'MMM. d')}`;
+  const formattedTime = `${format(start, 'hh:mm a')} to ${format(end, 'hh:mm a')}`;
+
+  return { date: formattedDate, time: formattedTime };
+};
 
 function Events() {
+  const theme = useTheme();
+  const [selectedEventType, setSelectedEventType] = useState<number>(0);
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const [isFree, setIsFree] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const user = useAppSelector((state) => state.auth.user);
+  const eventTypes = useAppSelector(eventTypesSelector);
+
+  const params = useMemo(() => ({
+    people_order_by: 0,
+    user_id: user?.id,
+    nearby_type: 3,
+    event_type_id: selectedEventType,
+    ...(selectedMonth !== "All" && { month: months.indexOf(selectedMonth) + 1 }),
+    ...(isFree && { is_paid_event: 0 }),
+    ...(searchText !== "" && { event_name: searchText }),
+  }), [user?.id, selectedEventType, selectedMonth, isFree, searchText]);
+
+  const { dataList: eventlist, isLoading, lastElementRef, setDataList, setPageNo } = useNearbyData<EventsNearByResponse>(
+    params,
+    useGetNearbyUsersOrBusinessesMutation,
+    'nearby_events_total_pages',
+    "EventsNearBy",
+  );
+
+  const handleEventTypeChange = (event: any) => {
+    setDataList([]);
+    setPageNo(1);
+    setSelectedEventType(event.target.value as number);
+  };
+
+  const handleMonthChange = (event: any) => {
+    setDataList([]);
+    setPageNo(1);
+    setSelectedMonth(event.target.value as string);
+  };
+
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDataList([]);
+    setPageNo(1);
+    setIsFree(event.target.checked);
+  };
+
+  const handleSearchChange = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+    setDataList([]);
+    setPageNo(1);
+    setSearchText(event.target.value);
+  }, 500);
+
+
+  const handleEventDetails = () => {
+
+  }
+
+  const handleEventDirections = () => {
+
+  }
+
+  const buildEventsCardData = (events: any[]) => {
+    return events.map((event) => {
+      const { date, time } = formatEventDateTime(event.start_date, event.start_time, event.end_date, event.end_time);
+      return {
+        id: event.id,
+        picture: event.image,
+        name: event.name,
+        type: event.event_type,
+        date: date,
+        time: time,
+        distance: Math.ceil(event.distance * 20),
+        isPaid: event.is_paid_event,
+        isAlreadySaved: event.is_already_saved,
+        group: (
+          <AvatarGroup max={3}>
+            {event.event_interested_users.map((user: EventInterestedUser) => {
+              return <Avatar key={user.id} alt="Remy Sharp" src={user.user_image} />
+            })}
+
+          </AvatarGroup>
+        ),
+      };
+    });
+  };
+
+  const eventsCardData = buildEventsCardData(eventlist);
   return (
     <React.Fragment>
+      <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
+        <OutlinedInput
+          sx={{
+            mx: 3,
+            my: 1,
+            borderRadius: 4,
+            bgcolor: theme.palette.background.neutral,
+            paddingRight: 0.5,
+          }}
+          onChange={handleSearchChange}
+          placeholder="Search People"
+          startAdornment={
+            <InputAdornment position="start">
+              <Icon icon="tabler:search" fontSize={24} />
+            </InputAdornment>
+          }
+        />
+      </FormControl>
+      <Box display="flex" alignItems="center" justifyContent="space-between" px={3} py={1} gap={3}>
+        <Box display="flex" alignItems="center" justifyContent="space-between" py={1} gap={3} sx={{ width: "60%" }}  >
+          <FormControl variant="outlined" size="medium" sx={{ width: "100%" }}>
+            <Select
+              value={selectedEventType}
+              onChange={handleEventTypeChange}
+              sx={{
+                bgcolor: theme.palette.background.neutral,
+                borderRadius: 4,
+                borderColor: theme.palette.grey[500],
+                '& .MuiSelect-select': {
+                  fontWeight: 'bold',
+                },
+              }}
+            >
+              {eventTypes && [{ id: 0, type: 'Event Type', is_show: 1 }, ...eventTypes].map((type) => (
+                <MenuItem key={type.id} value={type.id}>
+                  {type.type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" size="medium" sx={{ width: "100%" }}>
+            <Select
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              sx={{
+                bgcolor: theme.palette.background.neutral,
+                borderRadius: 4,
+                borderColor: theme.palette.grey[500],
+                '& .MuiSelect-select': {
+                  fontWeight: 'bold',
+                },
+              }}
+            >
+              <MenuItem value="All">
+                MONTH
+              </MenuItem>
+              {months.map((month) => (
+                <MenuItem key={month} value={month}>
+                  {month}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <FormControl variant="outlined" size="medium"  >
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 2, py: 0.5 }} >
+            <Typography fontWeight={"bold"}>Free Events</Typography>
+            <Switch checked={isFree} onChange={handleSwitchChange}
+              sx={{
+                width: 68,
+                height: 38,
+                padding: 0,
+                "& .MuiSwitch-switchBase": {
+                  padding: 0.2,
+                  "&.Mui-checked": {
+                    transform: "translateX(25px)",
+                    "& + .MuiSwitch-track": {
+                      backgroundColor: theme.palette.primary.main,
+                    },
+                  },
+                },
+                "& .MuiSwitch-thumb": {
+                  width: 35,
+                  height: 35,
+                },
+                "& .MuiSwitch-track": {
+                  borderRadius: 14,
+                  backgroundColor: theme.palette.grey[300],
+                },
+              }}
+              color="primary"
+            />
+          </Stack>
+        </FormControl>
+      </Box>
       <Typography variant="h5" pl={4}>
-        34 Events
+        {eventsCardData.length} Events
       </Typography>
       <Stack width={"100%"} direction={"column"} gap={{ xs: 1, lg: 2.5 }}>
-        {events.map((event) => (
-          <EventCard
-            key={event.id}
-            picture={event.picture}
-            type={event.type}
-            name={event.name}
-            date={event.date}
-            time={event.time}
-            distance={event.distance}
-            group={event.group}
-          />
+        {eventsCardData?.map((event, index) => (
+          <Box ref={index === Math.floor(eventsCardData.length / 2) ? lastElementRef : null} >
+            <EventCard
+              key={event.id}
+              id={event.id}
+              picture={event.picture}
+              type={event.type}
+              name={event.name}
+              date={event.date}
+              time={event.time}
+              distance={event.distance}
+              group={event.group}
+              isPaid={event.isPaid}
+              isAlreadySaved={event.isAlreadySaved}
+            />
+          </Box>
         ))}
+        {isLoading && <p>Loading...</p>}
       </Stack>
     </React.Fragment>
   );

@@ -7,6 +7,8 @@ import { Typography, useTheme } from "@mui/material";
 import { MiddleStyles } from "./style";
 import People from "../../../pages/people/people";
 import Events from "../../../pages/events/events";
+import { a11yProps } from "../../components/core/allyProps";
+import Business from "../../../pages/business/business";
 
 function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -19,7 +21,7 @@ function CustomTabPanel(props: any) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ mt: 1 }}>{children}</Box>}
+      {value === index && <Box sx={{ mt: 1, overflow: "auto", height: "70vh" }} >{children}</Box>}
     </div>
   );
 }
@@ -30,12 +32,6 @@ CustomTabPanel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-function a11yProps(index: any) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
 
 export default function Middle() {
   const [value, setValue] = React.useState(0);
@@ -73,10 +69,11 @@ export default function Middle() {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          <People />
+          <People nearbyType={1} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <People />
+          {/* <People nearbyType={2} /> */}
+          <Business />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           <Events />

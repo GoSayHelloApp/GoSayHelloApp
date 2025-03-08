@@ -9,26 +9,34 @@ import {
 import { EventCardStyles } from "./style";
 import { ReactElement } from "react";
 import { Icon } from "@iconify/react";
+import { Link, useNavigate } from "react-router-dom";
 
 function EventCard({
   picture,
   type,
+  id,
   name,
   date,
   time,
   distance,
   group,
+  isPaid,
+  isAlreadySaved,
 }: {
   picture: string;
   type: string;
+  id: string,
   name: string;
   date: string;
   time: string;
   distance: number;
+  isPaid: any
   group: ReactElement;
+  isAlreadySaved: string;
 }) {
   const { main } = EventCardStyles();
   const theme = useTheme();
+  const navigate = useNavigate();
   return (
     <Box sx={{ ...main }}>
       <Stack direction={"row"} alignItems={"center"} gap={2}>
@@ -46,7 +54,7 @@ function EventCard({
             backgroundColor: theme.palette.background.default,
           }}
         >
-          Free
+          {isPaid ? "Paid" : "Free"}
         </Box>
         <Avatar
           variant="rounded"
@@ -114,14 +122,19 @@ function EventCard({
         </Box>
       </Stack>
       <Stack direction={"row"} gap={2} mt={{ xs: 2, lg: 4 }}>
+
         <Button
           variant="contained"
           color="primary"
           size="large"
           sx={{ flex: "1 1 auto" }}
+          onClick={() => {
+            navigate(`/home/events/${id}/details`);
+          }}
         >
           Details
         </Button>
+
         <Button
           variant="contained"
           color="success"
@@ -136,10 +149,10 @@ function EventCard({
           size="large"
           sx={{ flex: "1 1 auto" }}
         >
-          Cancel
+          {isAlreadySaved != "0" ? "RSVP" : "Cancel"}
         </Button>
       </Stack>
-    </Box>
+    </Box >
   );
 }
 
