@@ -272,18 +272,24 @@ const EventPage = () => {
           </Button>
         </Box>
         <Modal open={openGuestModal} onClose={() => setOpenGuestModal(false)}>
-          <Box sx={{ p: 4, bgcolor: "white", borderRadius: 2, width: 300, margin: "20% auto", textAlign: "center" }}>
-            {selectedGuest && (
-              <>
-                <Avatar src={selectedGuest.user_image} sx={{ width: 80, height: 80, margin: "0 auto 10px" }} />
-                <Typography variant="body1" gutterBottom>
-                  Download the App to contact with this guest
-                </Typography>
-                <Button variant="contained" color="secondary" href="https://app-download-link.com" target="_blank">
-                  Download App
-                </Button>
-              </>
-            )}
+          <Box
+            sx={{
+              p: 4,
+              bgcolor: "white",
+              borderRadius: 2,
+              width: 300,
+              textAlign: "center",
+              margin: "15% auto",
+              border: "1px solid #e1e1e1",
+            }}
+          >
+            <Avatar src={selectedGuest?.user_image} sx={{ width: 80, height: 80, margin: "0 auto 10px" }} />
+            <Typography variant="body1" gutterBottom>
+              Download the App to contact with this guest
+            </Typography>
+            <Button variant="contained" color="secondary" href="https://app-download-link.com" target="_blank">
+              Download App
+            </Button>
           </Box>
         </Modal>
 
