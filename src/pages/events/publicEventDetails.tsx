@@ -99,7 +99,7 @@ const EventPage = () => {
               backgroundPosition: "center center",
               backgroundRepeat: "no-repeat",
               filter: "blur(2px)",
-              opacity: 0.6,
+              opacity: 0.2,
             },
             "&::after": {
               content: '""',
@@ -108,7 +108,7 @@ const EventPage = () => {
               left: 0,
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(55, 40, 21, 0.5)", // Adjust the alpha for more/less darkness
+              backgroundColor: "rgba(7, 7, 7, 0.7)", // Adjust the alpha for more/less darkness
             },
           }}
         ></Box>
@@ -138,16 +138,16 @@ const EventPage = () => {
             flex={1}
             textAlign={{ xs: "center", md: "left" }}
           >
-            <Typography variant="subtitle1" color="black">
+            <Typography variant="subtitle1" color="white">
               {eventDetails.venue_name}
             </Typography>
-            <Typography variant="h1" fontWeight="bold">
+            <Typography variant="h1" fontWeight="bold" color="white">
               {eventDetails.event_type_name}
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" mt={1} color="white">
               {eventDetails.start_date}
             </Typography>
-            <Typography variant="body2" color="grey.900">
+            <Typography variant="body2" color="white">
               📍 {eventDetails.address_1}
             </Typography>
 
@@ -271,32 +271,57 @@ const EventPage = () => {
             RSVP Now
           </Button>
         </Box>
-        <Modal open={openGuestModal} onClose={() => setOpenGuestModal(false)}>
+        <Modal
+          open={openGuestModal}
+          onClose={() => setOpenGuestModal(false)}
+          sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
           <Box
             sx={{
               p: 4,
-              bgcolor: "white",
+              bgcolor: "black",
               borderRadius: 2,
-              width: 300,
+              width: 400,
               textAlign: "center",
-              margin: "15% auto",
-              border: "1px solid #e1e1e1",
             }}
           >
             <Avatar src={selectedGuest?.user_image} sx={{ width: 80, height: 80, margin: "0 auto 10px" }} />
-            <Typography variant="body1" gutterBottom>
+            <Typography variant="body1" gutterBottom color="white">
               Download the App to contact with this guest
             </Typography>
-            <Button variant="contained" color="secondary" href="https://app-download-link.com" target="_blank">
+            <Button variant="contained" color="primary" href="https://app-download-link.com" target="_blank">
               Download App
             </Button>
           </Box>
         </Modal>
 
         {/* RSVP Modal */}
-        <Modal open={openRSVPModal} onClose={() => setOpenRSVPModal(false)}>
-          <Box sx={{ p: 4, bgcolor: "white", borderRadius: 2, width: 300, margin: "20% auto", textAlign: "center" }}>
-            <Typography variant="body1">Download the App to contact with this RSVP</Typography>
+        <Modal
+          open={openRSVPModal}
+          onClose={() => setOpenRSVPModal(false)}
+          sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <Box
+            sx={{
+              p: 4,
+              bgcolor: "black",
+              borderRadius: 2,
+              width: 400,
+              height: 200,
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center ",
+              gap: 2,
+            }}
+          >
+            <Typography variant="body1" color="white">
+              Download the App to contact with this RSVP
+            </Typography>
+            <Button variant="contained" color="primary" href="https://app-download-link.com" target="_blank">
+              Download App
+            </Button>
           </Box>
         </Modal>
       </Box>
