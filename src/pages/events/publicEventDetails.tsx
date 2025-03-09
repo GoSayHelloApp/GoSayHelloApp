@@ -192,9 +192,23 @@ const EventPage = () => {
                 }}
             >
                 {/* Event Description */}
-                <Typography variant="body2" color="grey.300" mb={3} sx={{ whiteSpace: 'pre-line' }}>
-                    {eventDetails?.description}
-                </Typography>
+                <Box
+                    sx={{
+                        "@media (max-width: 430px)": {
+                            marginX: "0%",
+                        },
+                        display: "flex",
+                        justifyContent: "left",
+                        alignItems: "start",
+                        marginX: "20%",
+
+                    }}
+                >
+                    <Typography variant="body2" color="grey.300" mb={3} sx={{ whiteSpace: 'pre-line', }}>
+                        {eventDetails?.description}
+                    </Typography>
+                </Box>
+
                 <Box
                     sx={{
                         justifyContent: "space-between",
