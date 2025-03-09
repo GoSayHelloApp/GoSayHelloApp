@@ -50,13 +50,10 @@ const EventPage = () => {
     }
 
     return (
-        <Box
-            sx={{
-                height: "",
-            }}>
+        <Box sx={{ height: "100vh", overflow: "auto" }}>
             <Box
                 sx={{
-                    minHeight: "40vh",
+                    minHeight: "60%",
                     color: "black",
                     padding: { xs: 0, md: 3 },
                     position: "relative",
@@ -187,7 +184,7 @@ const EventPage = () => {
                     color: "white",
                     textAlign: "center",
                     padding: 4,
-                    height: "100%",
+                    minHeight: "40%",
                 }}
             >
                 {/* Event Description */}
@@ -286,7 +283,7 @@ const EventPage = () => {
                         <Typography variant="body1" gutterBottom color="white">
                             Download the App to contact with this guest
                         </Typography>
-                        <Button variant="contained" color="primary" href="https://app-download-link.com" target="_blank">
+                        <Button variant="contained" color="primary" href="https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link/eventdata?event_id=2932&efr=1" target="_blank">
                             Download App
                         </Button>
                     </Box>
@@ -316,7 +313,7 @@ const EventPage = () => {
                         <Typography variant="body1" color="white">
                             Download the App to RSVP
                         </Typography>
-                        <Button variant="contained" color="primary" href="https://app-download-link.com" target="_blank">
+                        <Button variant="contained" color="primary" href="https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link/eventdata?event_id=2932&efr=1" target="_blank">
                             Download App
                         </Button>
                     </Box>
