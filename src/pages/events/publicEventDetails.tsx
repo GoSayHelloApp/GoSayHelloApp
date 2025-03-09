@@ -4,6 +4,8 @@ import Grid from "@mui/material/Grid";
 import { useParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import customMapStyle from "../../configs/mapStylesConfig.json";
 
 const EventPage = () => {
     const { eventId } = useParams<{ eventId: string }>();
@@ -37,9 +39,6 @@ const EventPage = () => {
 
         return `${startDateString} at ${startTimeString} - ${endTimeString}`;
     };
-    useEffect(() => {
-        refetch();
-    }, [eventId])
 
     if (isLoading) {
         return <Loader />;
@@ -258,10 +257,29 @@ const EventPage = () => {
                         </Box>
                     </Box>
                 </Box>
+                <Box>
+                    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API ?? ""}>
+                        <Map
+                            style={{
+                                height: '200px',
+                                width: '100%',
+                                borderRadius: '24px',
+                                marginTop: '10px',
+                            }}
+                            defaultCenter={{ lat: Number(eventDetails?.d_lat), lng: Number(eventDetails?.d_long) }}
+                            defaultZoom={15}
+                            gestureHandling={'greedy'}
+                            disableDefaultUI={true}
+                            styles={customMapStyle}
+                        />
+                        <Marker position={{ lat: Number(eventDetails?.d_lat), lng: Number(eventDetails?.d_long) }} />
+                    </APIProvider>
+                </Box>
+
 
                 {/* RSVP Button */}
                 <Box>
-                    <Button variant="contained" color="primary" size="large" onClick={() => setOpenRSVPModal(true)}>
+                    <Button sx={{ marginY: 2 }} variant="contained" color="primary" size="large" onClick={() => setOpenRSVPModal(true)}>
                         RSVP Now
                     </Button>
                 </Box>
