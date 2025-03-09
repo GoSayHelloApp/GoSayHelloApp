@@ -87,3 +87,48 @@ export interface EventInterestedUsersResponse {
     event_id: string;
     UsersList: EventUser[];
 }
+
+export interface InterestedUser {
+    user_id: number;
+    user_name: string;
+    is_business_profile: number;
+    user_image: string;
+}
+
+export interface PublicEventDetailsResponse {
+    success: boolean;
+    event_id: number;
+    user_id: number;
+    venue_name: string;
+    user_name: string;
+    user_profile_image: string;
+    no_of_connection: number;
+    address_1: string;
+    address_2: string;
+    city: string;
+    state: string;
+    zipcode: string;
+    d_lat: number;
+    d_long: number;
+    distance: number;
+    start_date: string;
+    end_date: string;
+    start_time: string;
+    end_time: string;
+    country_id: number;
+    country_name: string;
+    event_type_id: number;
+    event_type_name: string;
+    description: string;
+    event_image: string;
+    event_url: string;
+    is_public: boolean;
+    is_event_reported: number;
+    is_paid_event: number;
+    no_of_users_saved_event: number;
+    interestedUsersList: InterestedUser[];
+}
+
+export interface PublicEventDetailsRequest {
+    event_id: number;
+}

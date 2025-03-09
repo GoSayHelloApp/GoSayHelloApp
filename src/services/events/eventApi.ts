@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '../../utils/baseQuery';
 import { EventDetailsResponse, EventInterestedUsersResponse } from '../../models/responseModels/events';
+import { PublicEventDetailsResponse, PublicEventDetailsRequest } from '../../models/responseModels/events';
 
 export const eventApi = createApi({
     reducerPath: 'eventApi',
@@ -34,6 +35,15 @@ export const eventApi = createApi({
                 data: payload,
             }),
         }),
+        getPublicEventDetails: builder.query<PublicEventDetailsResponse, PublicEventDetailsRequest>({
+            query: (payload) => ({
+                url: '/event/details',
+                method: 'GET',
+                params: {
+                    event_id: payload.event_id
+                },
+            }),
+        }),
     }),
 });
 
@@ -41,5 +51,6 @@ export const {
     useGetEventDetailsMutation,
     useGetEventInterestedUserMutation,
     useSaveInterestedEventMutation,
-    useUnsaveInterestedEventMutation
+    useUnsaveInterestedEventMutation,
+    useGetPublicEventDetailsQuery
 } = eventApi;

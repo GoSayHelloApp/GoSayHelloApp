@@ -15,7 +15,7 @@ const routes: RouteObject[] = [
     element: <Auth />,
   },
   {
-    path: "/event-details/:id",
+    path: "/event-details/:eventId",
     element: <PublicEventDetails />,
   },
   {
