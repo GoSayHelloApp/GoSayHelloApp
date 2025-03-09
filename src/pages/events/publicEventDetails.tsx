@@ -20,6 +20,11 @@ const EventPage = () => {
         setOpenGuestModal(true);
     };
 
+    const handleDirectionsClick = () => {
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
+        window.open(googleMapsUrl, '_blank');
+    };
+
     const formatDateTime = (startDate: string, endDate: string, startTime: string, endTime: string) => {
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
@@ -139,7 +144,7 @@ const EventPage = () => {
                         <Typography variant="body1" mt={1} color="white">
                             {formatDateTime(eventDetails?.start_date ?? "", eventDetails?.end_date ?? "", eventDetails?.start_time ?? "", eventDetails?.end_time ?? "")}
                         </Typography>
-                        <Typography variant="body2" color="white">
+                        <Typography variant="body2" color="white" sx={{ cursor: "pointer" }} onClick={handleDirectionsClick}>
                             📍 {eventDetails?.address_1}
                         </Typography>
 
