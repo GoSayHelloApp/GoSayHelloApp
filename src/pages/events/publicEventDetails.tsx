@@ -63,10 +63,10 @@ const EventPage = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ height: "100vh", overflow: "auto" }}>
       <Box
         sx={{
-          minHeight: "40vh",
+          minHeight: "60%",
           color: "black",
           padding: { xs: 0, md: 3 },
           position: "relative",
@@ -191,6 +191,7 @@ const EventPage = () => {
           color: "white",
           textAlign: "center",
           padding: 4,
+          minHeight: "40%",
         }}
       >
         {/* Event Description */}
