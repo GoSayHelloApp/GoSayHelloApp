@@ -4,6 +4,8 @@ import Grid from "@mui/material/Grid";
 import { useParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import customMapStyle from "../../configs/mapStylesConfig.json";
 import Img from "../../assets/img.jpg";
 
 const EventPage = () => {
@@ -23,6 +25,12 @@ const EventPage = () => {
     setSelectedGuest(guest);
     setOpenGuestModal(true);
   };
+
+  const handleDirectionsClick = () => {
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
+    window.open(googleMapsUrl, "_blank");
+  };
+
   const formatDateTime = (startDate: string, endDate: string, startTime: string, endTime: string) => {
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(`${endDate}T${endTime}`);
@@ -54,7 +62,6 @@ const EventPage = () => {
   useEffect(() => {
     refetch();
   }, [eventId]);
-
   if (isLoading) {
     return <Loader />;
   }
@@ -312,6 +319,24 @@ const EventPage = () => {
               ></Box>
             </Box>
           </Box>
+        </Box>
+        <Box>
+          <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API ?? ""}>
+            <Map
+              style={{
+                height: "200px",
+                width: "100%",
+                borderRadius: "24px",
+                marginTop: "10px",
+              }}
+              defaultCenter={{ lat: Number(eventDetails?.d_lat), lng: Number(eventDetails?.d_long) }}
+              defaultZoom={15}
+              gestureHandling={"greedy"}
+              disableDefaultUI={true}
+              styles={customMapStyle}
+            />
+            <Marker position={{ lat: Number(eventDetails?.d_lat), lng: Number(eventDetails?.d_long) }} />
+          </APIProvider>
         </Box>
 
         {/* RSVP Button */}
