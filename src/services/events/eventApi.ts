@@ -21,14 +21,14 @@ export const eventApi = createApi({
                 data: payload,
             }),
         }),
-        saveInterestedEvent: builder.mutation<{ success: boolean }, { event_id: number, user_id: number }>({
+        saveInterestedEvent: builder.mutation<{ success: boolean, error: string, }, { event_id: number, user_id: number }>({
             query: (payload) => ({
                 url: '/saveinterestedevent',
                 method: 'POST',
                 data: payload,
             }),
         }),
-        unsaveInterestedEvent: builder.mutation<{ success: boolean }, { event_id: number, user_id: number }>({
+        unsaveInterestedEvent: builder.mutation<{ success: boolean, error: string, }, { event_id: number, user_id: number }>({
             query: (payload) => ({
                 url: '/unsaveinterestedevent',
                 method: 'POST',

@@ -1,4 +1,4 @@
-import { Box, FormControl, InputAdornment, OutlinedInput, Select, MenuItem, Typography, Stack, Switch, useTheme, Avatar, AvatarGroup } from "@mui/material";
+import { Box, FormControl, InputAdornment, OutlinedInput, Select, MenuItem, Typography, Stack, Switch, useTheme, Avatar, AvatarGroup, useMediaQuery } from "@mui/material";
 import EventCard from "../../ui/components/eventCard/eventCard";
 import React, { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
@@ -9,6 +9,8 @@ import { format, parseISO } from 'date-fns';
 import { debounce } from "lodash";
 import { EventInterestedUser, EventsNearByResponse } from "../../models/responseModels/events";
 import { eventTypesSelector } from "../../services/appconfiguration/configSelectors";
+import Loader from "../../ui/components/core/screenLoader";
+import NoDataCard from "../../components/NoDataCard";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -24,6 +26,7 @@ const formatEventDateTime = (startDate: string, startTime: string, endDate: stri
 
 function Events() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedEventType, setSelectedEventType] = useState<number>(0);
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [isFree, setIsFree] = useState(false);
@@ -95,13 +98,27 @@ function Events() {
         isPaid: event.is_paid_event,
         isAlreadySaved: event.is_already_saved,
         group: (
-          <AvatarGroup max={3}>
+          <AvatarGroup max={3}
+            sx={{
+              '& .MuiAvatar-root': {
+                width: { xs: 24, md: 40 },
+                height: { xs: 24, md: 40 }, fontSize: 15
+              },
+            }}
+          >
             {event.event_interested_users.map((user: EventInterestedUser) => {
-              return <Avatar key={user.id} alt="Remy Sharp" src={user.user_image} />
+              return <Avatar
+                sx={{
+                  width: { xs: 24, md: 40 },
+                  height: { xs: 24, md: 40 },
+                }}
+                key={user.id} alt="Remy Sharp" src={user.user_image} />
             })}
 
           </AvatarGroup>
         ),
+        latitude: event.latitude,
+        longitude: event.longitude,
       };
     });
   };
@@ -112,14 +129,14 @@ function Events() {
       <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
         <OutlinedInput
           sx={{
-            mx: 3,
+            mx: { xs: 1, sm: 2, md: 3, lg: 3 },
             my: 1,
             borderRadius: 4,
             bgcolor: theme.palette.background.neutral,
             paddingRight: 0.5,
           }}
           onChange={handleSearchChange}
-          placeholder="Search People"
+          placeholder="Search Events"
           startAdornment={
             <InputAdornment position="start">
               <Icon icon="tabler:search" fontSize={24} />
@@ -127,9 +144,16 @@ function Events() {
           }
         />
       </FormControl>
-      <Box display="flex" alignItems="center" justifyContent="space-between" px={3} py={1} gap={3}>
+      <Box display="flex" alignItems="center" justifyContent="space-between"
+        sx={{
+          px: { xs: 1, sm: 2, md: 3, lg: 3 },
+          gap: {
+            xs: 1, sm: 1, md: 3, lg: 3
+          }
+        }} py={1} >
         <Box display="flex" alignItems="center" justifyContent="space-between" py={1} gap={3} sx={{ width: "60%" }}  >
-          <FormControl variant="outlined" size="medium" sx={{ width: "100%" }}>
+          <FormControl variant="outlined"
+            size={isMobile ? "small" : "medium"} sx={{ width: "100%" }}>
             <Select
               value={selectedEventType}
               onChange={handleEventTypeChange}
@@ -139,6 +163,7 @@ function Events() {
                 borderColor: theme.palette.grey[500],
                 '& .MuiSelect-select': {
                   fontWeight: 'bold',
+                  fontSize: { xs: 10, lg: 16 }
                 },
               }}
             >
@@ -149,7 +174,9 @@ function Events() {
               ))}
             </Select>
           </FormControl>
-          <FormControl variant="outlined" size="medium" sx={{ width: "100%" }}>
+          <FormControl variant="outlined"
+            size={isMobile ? "small" : "medium"}
+            sx={{ width: "100%" }}>
             <Select
               value={selectedMonth}
               onChange={handleMonthChange}
@@ -159,6 +186,7 @@ function Events() {
                 borderColor: theme.palette.grey[500],
                 '& .MuiSelect-select': {
                   fontWeight: 'bold',
+                  fontSize: { xs: 10, lg: 16 }
                 },
               }}
             >
@@ -175,24 +203,29 @@ function Events() {
         </Box>
         <FormControl variant="outlined" size="medium"  >
           <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 2, py: 0.5 }} >
-            <Typography fontWeight={"bold"}>Free Events</Typography>
+            <Typography fontWeight={"bold"}
+              sx={{ fontSize: { xs: 10, lg: 16 } }}>
+              Free Events
+            </Typography>
             <Switch checked={isFree} onChange={handleSwitchChange}
               sx={{
-                width: 68,
-                height: 38,
+                width: { xs: 48, md: 68 },
+                height: { xs: 28, md: 38 },
                 padding: 0,
                 "& .MuiSwitch-switchBase": {
-                  padding: 0.2,
+                  padding: {
+                    xs: 0.1, md: 0.2,
+                  },
                   "&.Mui-checked": {
-                    transform: "translateX(25px)",
+                    transform: { xs: "translateX(18px)", md: "translateX(25px)" },
                     "& + .MuiSwitch-track": {
                       backgroundColor: theme.palette.primary.main,
                     },
                   },
                 },
                 "& .MuiSwitch-thumb": {
-                  width: 35,
-                  height: 35,
+                  width: { xs: 25, md: 35 },
+                  height: { xs: 25, md: 35 },
                 },
                 "& .MuiSwitch-track": {
                   borderRadius: 14,
@@ -222,10 +255,20 @@ function Events() {
               group={event.group}
               isPaid={event.isPaid}
               isAlreadySaved={event.isAlreadySaved}
+              latitude={event.latitude}
+              longitude={event.longitude}
             />
           </Box>
         ))}
-        {isLoading && <p>Loading...</p>}
+        {eventsCardData.length === 0 && !isLoading && (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
+              <p>No results found</p>
+            </Box>
+          </Box>
+        )}
+        {isLoading && <Loader />}
       </Stack>
     </React.Fragment>
   );

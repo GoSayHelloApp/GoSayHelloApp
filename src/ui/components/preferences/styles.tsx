@@ -1,3 +1,4 @@
+import { max, over } from "lodash";
 
 export const containerStyles = {
     display: 'flex',
@@ -5,12 +6,22 @@ export const containerStyles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    padding: 2,
+    padding: {
+        xs: 0, // 16px padding on small screens
+        md: 2, // 32px padding on large screens
+    },
     backgroundColor: 'background.default',
 };
 
 export const cardStyles = {
-    width: '90%',
+    width: {
+        xs: '100%', // 100% width on small screens
+        md: '90%',  // 70% width on large screens
+    },
+    height: {
+        xs: '100%', // 100% height on small screens
+        md: 'auto',  // Auto height on large screens
+    },
     maxWidth: 500,
     bgcolor: 'background.paper',
     boxShadow: 4,
@@ -46,9 +57,6 @@ export const chipStyles = {
     margin: 0.5,
     cursor: 'pointer',
     color: 'text.primary',
-    ":hover": {
-        bgcolor: 'grey.400',
-    },
 };
 
 export const dividerStyles = {
@@ -69,6 +77,8 @@ export const preferenceTypeChipBoxStyles = {
     flexWrap: 'wrap',
     justifyItems: 'start',
     justifyContent: 'space-between',
+    maxHeight: '40vh',
+    overflowY: 'auto',
 };
 
 export const selectedTypesBoxStyles = {

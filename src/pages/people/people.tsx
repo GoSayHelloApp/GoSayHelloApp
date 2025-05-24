@@ -11,6 +11,7 @@ import PeopleCard from "../../ui/components/peopleCard/peopleCard";
 import { PreferenceType } from '../../models/responseModels/preferences';
 import { useAppSelector } from "../../redux/store";
 import PreferenceMenuItems from "../../ui/components/peopleCard/preferenceMenuItems";
+import Loader from "../../ui/components/core/screenLoader";
 
 type ChatButton = {
   text: string;
@@ -108,7 +109,11 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
         person.confirmation_status === -1 || person.confirmation_status === 2
           ? { text: "Wave", color: "primary" }
           : person.confirmation_status === 0
-            ? { text: person.is_connection_requested ? "Wave back" : "You Waved", color: "success" }
+            ? {
+              text: person.is_connection_requested ? "You Waved" : "Wave back",
+
+              color: person.is_connection_requested ? "inherit" : "success"
+            }
             : { text: "Message", color: "success" };
 
       return {
@@ -141,14 +146,18 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
           onChange={handleSearchChange}
           inputRef={searchRef}
           sx={{
-            mx: 3,
+            mx: {
+              xs: 1,
+              sm: 2,
+              md: 3,
+            },
             my: 1,
             borderRadius: 4,
             bgcolor: theme.palette.background.neutral,
             paddingRight: 0.5,
           }}
           onFocus={() => setIsSearchFocused(true)}
-          placeholder="Search People"
+          placeholder="Search"
           startAdornment={
             <InputAdornment position="start">
               <Icon icon="tabler:search" fontSize={24} />
@@ -185,7 +194,13 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
             />
           </Box>
         ))}
-        {isLoading && <p>Loading...</p>}
+        {peopleCards.length === 0 && !isLoading && (
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
+            <p>No results found</p>
+          </Box>
+        )}
+        {isLoading && <Loader />}
       </Stack>
     </Box>
   );

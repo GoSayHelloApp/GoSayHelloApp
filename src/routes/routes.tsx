@@ -7,7 +7,10 @@ import Home from "../pages/home/home";
 import EventDetails from "../pages/events/eventDetails";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
-
+import NotFound from "../pages/notfound/NotFound";
+import ChangePassword from "../pages/change-password/ChangePassword";
+import Privacy from "../pages/privacy/Privacy";
+import PremiumSubscription from "../pages/premium-subscription/premiumSubscription";
 
 const routes: RouteObject[] = [
   {
@@ -20,7 +23,6 @@ const routes: RouteObject[] = [
   },
   {
     element: <PrivateRoutes />,
-    // All Private Routes listed here
     children: [
       {
         path: "/preferences",
@@ -44,7 +46,57 @@ const routes: RouteObject[] = [
               },
             ],
           },
+          {
+            path: "search",
+            element: <NotFound />,
+            index: true,
+          },
+          {
+            path: "wallet",
+            element: <NotFound />,
+            index: true,
+          },
+          {
+            path: "messages",
+            element: <NotFound />,
+            index: true,
+          },
+          {
+            path: "waves",
+            element: <NotFound />,
+            index: true,
+          },
+          {
+            path: "profile",
+            element: <NotFound />,
+            index: true,
+          },
+          {
+            path: "change-password",
+            element: <ChangePassword />,
+            index: true,
+          },
+          {
+            path: "privacy",
+            element: <Privacy />,
+            index: true,
+          },
+          {
+            path: "premium",
+            element: <PremiumSubscription />,
+            index: true,
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+            index: true,
+          },
         ],
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+        index: true,
       },
     ],
   },

@@ -24,7 +24,10 @@ const Auth: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+
+                justifyContent: {
+                    lg: "center",
+                },
                 height: "100vh",
                 width: "100vw",
                 backgroundColor: theme.palette.grey[100],
@@ -34,20 +37,51 @@ const Auth: React.FC = () => {
                 sx={{
                     width: "100%",
                     maxWidth: "450px",
-                    padding: "2rem",
+                    padding: {
+                        xs: "0 20px 20px 20px",
+                        sm: "0 20px 20px 20px",
+                        md: "0 20px 20px 20px",
+                        lg: "20px",
+                    },
+                    height: {
+                        md: "auto",
+                        sm: "90%",
+                        xs: "90%",
+                    },
                     borderRadius: "10px",
+                    overflow: "auto",
                     bgcolor: {
                         lg: theme.palette.background.paper,
                     },
                     boxShadow: {
-                        lg: theme.shadows[4]
+                        lg: theme.shadows[4],
                     },
                     textAlign: "center",
                 }}
             >
-                <Typography sx={{ color: theme.palette.primary.main, fontWeight: "bold", paddingBottom: "20px" }}>
-                    <img src="images/gosayhello_logo.jpg" alt="" width="50%" />
-                </Typography>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        "@media (min-width: 1024px)": {
+                            "& img": {
+                                width: "80%",
+                            },
+                        },
+                        "@media (min-width: 300px)": {
+                            "& img": {
+                                width: "60%",
+                                margin: "20px 0",
+                            },
+                        },
+                    }}
+                >
+                    <img
+                        src="images/logo-transparent.png"
+                        alt=""
+                    />
+                </Box>
                 <Tabs
                     value={value}
                     onChange={handleChange}

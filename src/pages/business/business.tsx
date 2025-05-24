@@ -12,6 +12,7 @@ import { useAppSelector } from "../../redux/store";
 import useNearbyData from "../../hooks/useNearByData";
 import PreferenceMenuItems from "../../ui/components/peopleCard/preferenceMenuItems";
 import FlatPreferencesList from "../../ui/components/peopleCard/flatPreferencesList";
+import Loader from "../../ui/components/core/screenLoader";
 
 type ChatButton = {
     text: string;
@@ -52,7 +53,10 @@ const Business = () => {
                 person.confirmation_status === -1 || person.confirmation_status === 2
                     ? { text: "Wave", color: "primary" }
                     : person.confirmation_status === 0
-                        ? { text: person.is_connection_requested ? "Wave back" : "You Waved", color: "success" }
+                        ? {
+                            text: person.is_connection_requested ? "You Waved" : "Wave back",
+                            color: person.is_connection_requested ? "inherit" : "success"
+                        }
                         : { text: "Message", color: "success" };
 
             return {
@@ -119,7 +123,15 @@ const Business = () => {
                         />
                     </Box>
                 ))}
-                {isLoading && <p>Loading...</p>}
+                {peopleCards.length === 0 && !isLoading && (
+                    <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                        <Box sx={{ textAlign: "center", mt: 2 }}>
+                            <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
+                            <p>No results found</p>
+                        </Box>
+                    </Box>
+                )}
+                {isLoading && <Loader />}
             </Stack>
         </Box>
     );

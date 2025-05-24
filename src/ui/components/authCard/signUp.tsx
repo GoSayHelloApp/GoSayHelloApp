@@ -105,8 +105,17 @@ const Signup: React.FC = () => {
                     <Box
                         onClick={handleBoxClick}
                         sx={{
-                            width: "150px",
-                            height: "150px",
+                            width: {
+                                xs: "120px",
+                                sm: "120px",
+                                md: "150px",
+                            },
+                            height: {
+                                xs: "120px",
+                                sm: "120px",
+                                md: "150px",
+                            },
+
                             borderRadius: "8px",
                             border: `2px solid ${theme.palette.text.disabled}`,
                             mt: 3,
@@ -117,7 +126,8 @@ const Signup: React.FC = () => {
                             color: theme.palette.text.secondary,
                             cursor: "pointer",
                             backgroundColor: image ? "transparent" : theme.palette.text.disabled,
-
+                            margin: "0 auto", // Ensures horizontal centering
+                            position: "relative", // Allows for better alignment control
                         }}
                     >
                         {image ? (
@@ -152,6 +162,7 @@ const Signup: React.FC = () => {
                         fullWidth
                         sx={{
                             mb: 2,
+                            mt: 2,
                         }}
                         {...formik.getFieldProps("firstName")}
                         error={formik.touched.firstName && Boolean(formik.errors.firstName)}

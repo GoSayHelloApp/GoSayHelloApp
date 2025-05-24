@@ -19,10 +19,22 @@ const SearchTabs: React.FC<SearchTabsProps> = ({ onTabChange }) => {
             <Tab
                 sx={{
                     borderRadius: "48px 0 0 48px",
-                    paddingX: "10px",
+                    paddingX: {
+                        xs: "2px",
+                        sm: "2px",
+                        md: "16px",
+                    },
                     paddingY: "2px",
-                    maxHeight: 2,
-                    fontSize: 14,
+                    maxHeight: {
+                        xs: 1,
+                        sm: 1,
+                        md: 2,
+                    },
+                    fontSize: {
+                        xs: 12,
+                        sm: 12,
+                        md: 14,
+                    },
                     bgcolor: theme.palette.grey[300],
                 }}
                 label="Preferences"
@@ -30,10 +42,22 @@ const SearchTabs: React.FC<SearchTabsProps> = ({ onTabChange }) => {
             <Tab
                 sx={{
                     borderRadius: "0 48px 48px 0",
-                    paddingX: "10px",
+                    paddingX: {
+                        xs: "2px",
+                        sm: "2px",
+                        md: "16px",
+                    },
                     paddingY: "2px",
-                    maxHeight: 2,
-                    fontSize: 14,
+                    maxHeight: {
+                        xs: 1,
+                        sm: 1,
+                        md: 2,
+                    },
+                    fontSize: {
+                        xs: 12,
+                        sm: 12,
+                        md: 14,
+                    },
                     bgcolor: theme.palette.grey[300],
                 }}
                 label="Names"

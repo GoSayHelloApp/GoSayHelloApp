@@ -23,12 +23,17 @@ function Home() {
   const { layoutStyle } = LayoutStyles();
   return (
     <Box component={'main'} sx={{ ...layoutStyle }}>
-      <Container maxWidth={'xl'}>
+      <Container sx={{
+        padding: {
+          xs: 0,
+        }
+
+      }} maxWidth={'xl'}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 7 }}>
             <Outlet />
           </Grid>
-          <Grid size={{ xs: 12, md: 5 }}>
+          <Grid size={{ xs: 12, md: 5 }} sx={{ display: { xs: 'none', md: 'block' } }}>
             <RightPanel />
           </Grid>
         </Grid>

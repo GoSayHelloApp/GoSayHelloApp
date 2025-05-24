@@ -10,7 +10,12 @@ export const LayoutStyles = () => {
         },
         layoutStyle: {
             display: 'block',
-            marginLeft: '234px',
+            marginLeft: {
+                xs: 0,
+                sm: 0,
+                md: '250px',
+                lg: '250px',
+            }
         }
     }
 }

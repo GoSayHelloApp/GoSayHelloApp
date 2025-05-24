@@ -18,18 +18,18 @@ export const RightPanelStyles = () => {
           display: "none",
         },
         "&.Mui-expanded": {
-            boxShadow: "none",
-            backgroundColor: theme.palette.grey[200],
+          boxShadow: "none",
+          backgroundColor: theme.palette.grey[200],
         },
         ".MuiAccordionSummary-root": {
-            minHeight: 76
+          minHeight: 76
         },
         ".MuiAccordionSummary-content": {
-            m: 0,
+          m: 0,
         },
         ".MuiCollapse-root": {
-            maxHeight: 'calc(100svh - 76px - 76px - 48px - 150px)',
-            overflowY: 'auto'
+          maxHeight: 'calc(100svh - 76px - 76px - 48px - 220px)',
+          overflowY: 'auto'
         }
       },
     },

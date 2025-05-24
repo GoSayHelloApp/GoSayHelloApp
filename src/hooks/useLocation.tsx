@@ -13,6 +13,7 @@ export const useLocation = () => {
             },
             (error) => {
                 console.error("Error fetching location:", error);
+                alert("Unable to retrieve your location. Please check your browser settings. error.message: " + error.message);
             }
         );
     }, []);

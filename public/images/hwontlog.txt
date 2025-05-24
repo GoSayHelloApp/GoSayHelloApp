@@ -1,0 +1,255 @@
+Manufacturer:Huawei Technologies Co., Ltd;
+ProductClass:HG8546M;
+SerialNumber:48575443527EB093;
+IP:192.168.100.1;
+HWVer:767.A;
+SWVer:V3R017C10S125;
+
+2025-02-12 21:53:30 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-12 23:43:29 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-12 23:49:55 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-13 03:41:45 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-13 04:26:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-13 04:32:31 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-13 15:11:08 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-13 18:12:39 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-13 18:33:35 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-13 19:17:47 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-13 20:56:11 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-13 23:31:32 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-14 01:25:37 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-14 02:44:57 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-14 05:12:27 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-14 07:07:09 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-14 09:27:46 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-14 11:20:11 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-15 18:41:25 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-15 20:04:52 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-16 01:13:08 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-16 02:12:48 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-16 06:02:43 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-16 12:05:03 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-16 16:11:30 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-16 17:52:15 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-17 15:47:26 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-17 18:10:04 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-18 03:38:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-02-18 04:27:33 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-18 07:36:54 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-18 09:11:19 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-18 15:20:38 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-18 17:00:07 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-18 17:11:52 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-18 18:54:27 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-19 19:39:57 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-19 20:39:20 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-19 22:47:49 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-20 13:28:41 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-20 18:57:53 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-21 01:12:59 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-22 19:34:10 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-23 00:33:55 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-23 19:59:20 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-23 23:16:54 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-24 14:07:32 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-24 18:24:23 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-24 21:01:53 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-24 23:20:33 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-25 13:11:50 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-25 19:52:35 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-25 22:34:55 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-26 01:13:01 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-26 07:50:02 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-26 10:13:42 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-02-26 14:12:37 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-26 15:52:13 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-28 03:33:40 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-28 08:39:36 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-02-28 20:30:45 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-02-28 22:48:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-01 17:32:34 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-01 18:33:34 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-01 23:31:40 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-01 23:51:10 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-02 07:42:16 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-02 07:53:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-02 10:30:17 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-02 10:37:47 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-02 12:08:28 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-02 12:36:45 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-02 14:24:55 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-02 14:55:46 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-02 20:38:21 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-02 21:55:57 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-02 22:55:47 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-03 04:05:08 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-03 11:41:07 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-03 12:49:52 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-03 15:05:01 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-03 17:05:16 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-04 12:18:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-04 12:48:20 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-04 13:11:05 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-04 13:44:27 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-05 12:17:35 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-05 12:34:59 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-06 12:18:32 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-06 13:16:23 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [2], Terminal:OTHER
+2025-03-09 09:53:26 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-09 13:00:55 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-09 19:01:11 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-09 22:10:40 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-09 22:28:05 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-10 16:33:02 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-10 22:18:27 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-10 23:34:42 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-11 19:46:13 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-12 03:08:56 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-12 05:38:58 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-12 10:04:34 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-13 13:31:06 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-13 13:48:35 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-16 03:20:05 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-16 06:55:45 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-16 10:16:24 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-16 14:59:04 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-16 17:05:40 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-17 12:55:03 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-17 14:34:46 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-17 15:36:13 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-17 18:12:43 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-18 13:50:39 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-18 16:31:58 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-18 21:48:25 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-18 23:27:04 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-19 06:04:31 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-19 17:34:16 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-19 19:30:42 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-24 07:12:38 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-24 07:28:53 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-24 11:09:28 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-24 22:53:49 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-26 09:19:43 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-27 02:06:33 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-27 03:43:38 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-27 17:22:09 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-28 14:37:37 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-28 15:14:50 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-28 21:54:17 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-28 22:20:56 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-29 02:52:27 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-29 07:57:06 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-29 08:37:31 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-29 09:22:41 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-29 16:42:18 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-29 17:03:38 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-29 19:07:38 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-29 21:23:39 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-03-30 23:20:01 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-03-31 00:46:21 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-31 04:24:56 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:16 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: [5], Terminal:OTHER
+2025-03-31 20:56:46 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-03-31 22:36:41 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-04-02 00:50:59 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-04-02 00:51:37 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Fail,Type:Login,Username:-
+2025-04-02 00:51:51 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Login,Username:root
+2025-04-02 00:59:42 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Logout,Username:root
+2025-04-02 01:00:29 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Login,Username:root
+2025-04-02 01:09:22 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Logout,Username:root
+2025-04-02 01:12:17 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Login,Username:root
+2025-04-02 01:14:39 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Logout,Username:root
+2025-04-02 02:52:01 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-04-02 03:08:11 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-04-02 03:36:51 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+1981-01-01 00:00:15 [Error][Alarm-Log] AlarmID:104001,AlarmLevel:Error,Device reset. Cause: ONU reset after being powered on, Terminal:OTHER
+2025-04-02 20:51:58 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-04-02 21:14:58 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-04-03 02:08:21 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Login,Username:root
+2025-04-03 02:13:28 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start
+2025-04-03 02:13:38 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Logout,Username:root
+2025-04-03 02:21:48 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Resume
+2025-04-03 03:06:30 [Critical][Config-Log] Terminal:WEB(192.168.100.121),Result:Success,Type:Login,Username:root
+2025-04-03 03:11:43 [Critical][Alarm-Log] AlarmID:104036,AlarmLevel:Critical,The ram usage continuous 5 minutes more than 95%: Start

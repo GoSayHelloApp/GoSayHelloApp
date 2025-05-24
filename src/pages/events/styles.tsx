@@ -5,11 +5,10 @@ export const EventDetailsStyles = () => {
     const theme = useTheme();
     return {
         mainStyles: {
-            backgroundColor: theme.palette.grey[200],
-            borderRadius: '24px',
-            width: "100%",
-            height: "90vh",
-            position: "relative",
+            // backgroundColor: theme.palette.grey[200],
+            // borderRadius: '24px',
+            // width: "100%",
+            // position: "relative",
             // maxHeight: 'calc(100svh - 76px)',
             // overflow: "auto"
         },
