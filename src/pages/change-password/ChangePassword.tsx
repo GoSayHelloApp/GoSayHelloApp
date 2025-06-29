@@ -13,11 +13,15 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
+import { useUpdateUserProfileMutation } from "../../services/auth/authApi";
+import { useSelector } from "react-redux";
 
 const ChangePassword = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const [updateUserProfile] = useUpdateUserProfileMutation();
+  const user = useSelector((state: any) => state.auth.user);
 
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -38,6 +42,7 @@ const ChangePassword = () => {
   });
 
   const [success, setSuccess] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,6 +54,7 @@ const ChangePassword = () => {
       ...prev,
       [name]: "",
     }));
+    setApiError("");
   };
 
   const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
@@ -91,19 +97,67 @@ const ChangePassword = () => {
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      // Here you would typically make an API call to change the password
-      setSuccess(true);
-      setTimeout(() => {
-        navigate("/nearby");
-      }, 2000);
+      try {
+        const formDataToSend = new FormData();
+        formDataToSend.append("old_password", formData.currentPassword);
+        formDataToSend.append("user_id", user.id.toString());
+        formDataToSend.append("email", user.email);
+        formDataToSend.append("password", formData.newPassword);
+        formDataToSend.append(
+          "password_confirmation",
+          formData.confirmPassword
+        );
+
+        const response = await updateUserProfile(formDataToSend).unwrap();
+
+        if (response.success) {
+          console.log("response", response);
+          setSuccess(true);
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        } else {
+          setApiError(response.error || "Failed to change password");
+        }
+      } catch (error: any) {
+        console.log("error", error);
+        setApiError(
+          error.message || "An error occurred while changing password"
+        );
+      }
     }
   };
 
   return (
     <Container maxWidth="sm">
+      {isMobile && (
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{
+            position: "absolute",
+            top: 32,
+            left: 16,
+            backgroundColor: theme.palette.background.paper,
+            "&:hover": {
+              backgroundColor: theme.palette.background.default,
+            },
+            borderRadius: "50%",
+            zIndex: 1,
+          }}
+        >
+          <Icon
+            icon="material-symbols:arrow-back"
+            style={{
+              fontSize: "24px",
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
+            }}
+          />
+        </IconButton>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -133,6 +187,16 @@ const ChangePassword = () => {
             onClose={() => setSuccess(false)}
           >
             Password changed successfully!
+          </Alert>
+        )}
+
+        {apiError && (
+          <Alert
+            severity="error"
+            sx={{ mb: 3, width: "100%" }}
+            onClose={() => setApiError("")}
+          >
+            {apiError}
           </Alert>
         )}
 

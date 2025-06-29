@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UserLoginRequest } from '../../models/requestModels/user';
 import { UserLoginResponse, UserSignUpResponse } from '../../models/responseModels/user';
 import { UserPreference } from '../../models/responseModels/preferences';
-import { setStartUp } from '../../utils/tokenStorage';
+import { setStartUp, updateUserPushNotificationStatus, updateUserPreferences } from '../../utils/tokenStorage';
 
 interface AuthState {
     user: null | UserLoginResponse | UserSignUpResponse;
@@ -23,7 +23,13 @@ const authSlice = createSlice({
         setUserPreferences: (state, action: PayloadAction<UserPreference[]>) => {
             if (state.user) {
                 state.user.UserPreferences = action.payload;
-
+                updateUserPreferences(action.payload);
+            }
+        },
+        updateUserMuteStatus: (state, action: PayloadAction<number>) => {
+            if (state.user) {
+                state.user.is_mute = action.payload;
+                updateUserPushNotificationStatus(action.payload);
             }
         },
         logout: (state) => {
@@ -32,5 +38,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setUser, logout, setUserPreferences } = authSlice.actions;
+export const { setUser, logout, setUserPreferences, updateUserMuteStatus } = authSlice.actions;
 export default authSlice.reducer;

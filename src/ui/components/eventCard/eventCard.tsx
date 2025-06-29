@@ -12,7 +12,7 @@ import { EventCardStyles } from "./style";
 import { ReactElement, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginValidationSchema } from '../../validations/loginFormValidations';
+import RSVPButton from "../RSVP/RSVPButton";
 
 function EventCard({
   picture,
@@ -27,30 +27,36 @@ function EventCard({
   isAlreadySaved,
   latitude,
   longitude,
+  eventDetails,
+  onRSVPAction,
 }: {
   picture: string;
   type: string;
-  id: string,
+  id: string;
   name: string;
   date: string;
   time: string;
   distance: number;
-  isPaid: any
+  isPaid: any;
   group: ReactElement;
   isAlreadySaved: string;
   latitude: number;
   longitude: number;
+  eventDetails: any;
+  onRSVPAction?: () => void;
 }) {
+  console.log("EventCard", eventDetails);
   const { main } = EventCardStyles();
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isSnackbarOpen, setSnackbarOpen] = useState(false);
+  const [isEventSaved, setIsEventSaved] = useState(isAlreadySaved !== "0");
 
   const handleDirectionsClick = (e: any) => {
     e.stopPropagation(); // Prevent the click event from bubbling up to the parent Box
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-    window.open(googleMapsUrl, '_blank');
+    window.open(googleMapsUrl, "_blank");
   };
 
   const handleShareClick = (e: any) => {
@@ -64,26 +70,28 @@ function EventCard({
 
   const handleDetailsClick = () => {
     navigate(`/events/${id}/details`);
-  }
+  };
 
   return (
-    <Box sx={{ ...main }}
-      onClick={handleDetailsClick}
-    >
-      <Stack direction={"row"} alignItems={"center"} sx={{ gap: { xs: 0.5, lg: 2 } }}>
+    <Box sx={{ ...main }} onClick={handleDetailsClick}>
+      <Stack
+        direction={"row"}
+        alignItems={"center"}
+        sx={{ gap: { xs: 0.5, lg: 2 } }}
+      >
         <Box
           sx={{
             position: "absolute",
             zIndex: 1,
             px: { xs: 2, lg: 2 },
             py: 0.5,
-            top: 20,
+            top: 35,
             left: {
-              xs: 40,
+              xs: 37,
               md: 74,
             },
             fontSize: {
-              xs: 10,
+              xs: 14,
               md: 24,
             },
             fontWeight: "600",
@@ -104,8 +112,12 @@ function EventCard({
           src={picture}
         />
         <Box flex={1} sx={{ px: { xs: 1, lg: 2 }, py: { xs: 0.5, lg: 1 } }}>
-          <Stack gap={1}  >
-            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} sx={{ gap: { xs: 1, lg: 2, overflow: "hidden", } }}
+          <Stack gap={1}>
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              justifyContent={"space-between"}
+              sx={{ gap: { xs: 1, lg: 2, overflow: "hidden" } }}
             >
               <Typography
                 onClick={handleDetailsClick}
@@ -121,14 +133,23 @@ function EventCard({
                 fontWeight={"600"}
               >
                 {/* {name} */}
-                {isMobile ? name.substring(0, 30) : name.substring(0, 88)}{isMobile && name.length > 30 ? "..." : isMobile && name.length > 30 ? "" : name.length > 88 ? "..." : ""}
+                {isMobile ? name.substring(0, 25) : name.substring(0, 88)}
+                {isMobile && name.length > 30
+                  ? "..."
+                  : isMobile && name.length > 30
+                  ? ""
+                  : name.length > 88
+                  ? "..."
+                  : ""}
               </Typography>
-
-
             </Stack>
 
-
-            <Stack direction={"row"} alignItems={"center"} gap={2} justifyContent={"space-between"}>
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              gap={2}
+              justifyContent={"space-between"}
+            >
               <Typography
                 sx={{ fontSize: { xs: 12, lg: 18 } }}
                 fontWeight={"700"}
@@ -145,7 +166,11 @@ function EventCard({
                 Share
               </Button>
             </Stack>
-            <Stack direction={"row"} alignItems={"center"} sx={{ gap: { xs: 0.5, lg: 2 } }}>
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              sx={{ gap: { xs: 0.5, lg: 2 } }}
+            >
               <Box flex={"1 1 auto"}>
                 <Typography
                   sx={{ fontSize: { xs: 12, lg: 18 } }}
@@ -172,7 +197,6 @@ function EventCard({
         </Box>
       </Stack>
       <Stack direction={"row"} gap={2} mt={{ xs: 2, lg: 4 }}>
-
         <Button
           variant="contained"
           color="primary"
@@ -192,15 +216,12 @@ function EventCard({
         >
           Directions
         </Button>
-        <Button
-          onClick={handleDetailsClick}
-          variant="soft"
-          color="inherit"
-          size="large"
-          sx={{ flex: "1 1 auto" }}
-        >
-          {isAlreadySaved != "0" ? "Cancel" : "RSVP"}
-        </Button>
+        <RSVPButton
+          eventDetails={{ id: eventDetails.event_id, ...eventDetails }}
+          isEventSaved={isEventSaved}
+          onRSVPStatusChange={(isSaved) => setIsEventSaved(isSaved)}
+          onRSVPAction={onRSVPAction}
+        />
       </Stack>
       {/* Snackbar for "Link copied" message */}
       <Snackbar
@@ -208,7 +229,7 @@ function EventCard({
         message="Link copied to clipboard"
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
-    </Box >
+    </Box>
   );
 }
 

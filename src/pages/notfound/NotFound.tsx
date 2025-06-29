@@ -7,11 +7,20 @@ const NotFound = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  const handleMobileRedirection = () => {
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link`;
+    } else {
+      window.location.href =
+        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
+    }
+  };
+
   return (
     <Container maxWidth="md">
       <Box
         sx={{
-          minHeight: "",
+          minHeight: "80vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -69,12 +78,25 @@ const NotFound = () => {
           variant="body1"
           sx={{
             color: theme.palette.text.secondary,
-            mb: 4,
+            mb: 2,
             maxWidth: "500px",
           }}
         >
           The page you are looking for might have been removed, had its name
           changed, or is temporarily unavailable.
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: theme.palette.primary.main,
+            mb: 4,
+            maxWidth: "500px",
+            fontWeight: 500,
+          }}
+        >
+          For a better experience, we recommend using our mobile app which
+          provides full access to all features.
         </Typography>
 
         <Box
@@ -118,6 +140,23 @@ const NotFound = () => {
             }}
           >
             Go Home
+          </Button>
+
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleMobileRedirection}
+            startIcon={<Icon icon="mdi:cellphone-link" />}
+            sx={{
+              backgroundColor: theme.palette.success.main,
+              "&:hover": {
+                backgroundColor: theme.palette.success.dark,
+              },
+              px: 4,
+              py: 1.5,
+            }}
+          >
+            Open App
           </Button>
         </Box>
       </Box>

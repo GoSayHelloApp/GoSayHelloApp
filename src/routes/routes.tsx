@@ -11,6 +11,13 @@ import NotFound from "../pages/notfound/NotFound";
 import ChangePassword from "../pages/change-password/ChangePassword";
 import Privacy from "../pages/privacy/Privacy";
 import PremiumSubscription from "../pages/premium-subscription/premiumSubscription";
+import BlockUser from "../pages/block-user/BlockUser";
+import UserProfile from "../pages/user-profile/userProfile";
+import UserPostDetails from "../pages/user-profile/UserPostDetails";
+import OtherUserProfile from "../pages/user-profile/otherUserProfile";
+import UserListByLocation from "../pages/user-profile/UserListByLocation";
+import ReportUser from "../pages/user-profile/ReportUser";
+import CreatePost from "../pages/posts/CreatePost";
 
 const routes: RouteObject[] = [
   {
@@ -68,7 +75,19 @@ const routes: RouteObject[] = [
           },
           {
             path: "profile",
-            element: <NotFound />,
+            element: <UserProfile />,
+            // index: true,
+            children: [
+              {
+                path: "post-details",
+                element: <UserPostDetails />,
+                index: true,
+              },
+            ],
+          },
+          {
+            path: "post-details",
+            element: <UserPostDetails />,
             index: true,
           },
           {
@@ -82,9 +101,30 @@ const routes: RouteObject[] = [
             index: true,
           },
           {
+            path: "block-user",
+            element: <BlockUser />,
+            index: true,
+          },
+          {
             path: "premium",
             element: <PremiumSubscription />,
             index: true,
+          },
+          {
+            path: "user-profile/:userId",
+            element: <OtherUserProfile />,
+          },
+          {
+            path: "users-by-location",
+            element: <UserListByLocation />,
+          },
+          {
+            path: "report-user/:userId",
+            element: <ReportUser />,
+          },
+          {
+            path: "create-post",
+            element: <CreatePost />,
           },
           {
             path: "*",

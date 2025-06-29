@@ -1,21 +1,18 @@
-import {
-  Avatar,
-  Box,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Avatar, Box, Stack, Typography, useTheme } from "@mui/material";
 import { PeopleCardStyles } from "./style";
 import { ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 function PeopleCard({
+  id,
   picture,
   name,
   interests,
   distance,
   action,
-  tags
+  tags,
 }: {
+  id: number;
   picture: string;
   name: string;
   interests: number;
@@ -25,8 +22,12 @@ function PeopleCard({
 }) {
   const { main } = PeopleCardStyles();
   const theme = useTheme();
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/user-profile/${id}`);
+  };
   return (
-    <Box sx={{ ...main }}>
+    <Box sx={{ ...main }} onClick={handleClick}>
       <Stack direction={"row"} alignItems={"center"} gap={0.5}>
         <Stack
           direction={"row"}
@@ -40,6 +41,7 @@ function PeopleCard({
               width: { xs: 72, lg: 120 },
               height: { xs: 72, lg: 120 },
               borderRadius: { xs: 2.5, lg: 5 },
+              cursor: "pointer",
             }}
             src={picture}
           />
@@ -66,7 +68,10 @@ function PeopleCard({
         </Stack>
         {action}
       </Stack>
-      {tags}
+      {/* Preferences/tags row, matching People component */}
+      <Stack direction="row" gap={1.25} flexWrap="nowrap" mt={1}>
+        {tags}
+      </Stack>
     </Box>
   );
 }

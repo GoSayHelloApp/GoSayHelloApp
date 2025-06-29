@@ -1,4 +1,13 @@
-import { Box, Button, Chip, FormControl, InputAdornment, OutlinedInput, Stack, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  InputAdornment,
+  OutlinedInput,
+  Stack,
+  useTheme,
+} from "@mui/material";
 import { useState, useEffect, useRef, useCallback } from "react";
 import debounce from "lodash/debounce";
 import { Icon } from "@iconify/react";
@@ -8,14 +17,21 @@ import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import SearchTabs from "../../ui/components/peopleCard/searchTabs";
 import PreferencesList from "../../ui/components/peopleCard/preferencesList";
 import PeopleCard from "../../ui/components/peopleCard/peopleCard";
-import { PreferenceType } from '../../models/responseModels/preferences';
+import { PreferenceType } from "../../models/responseModels/preferences";
 import { useAppSelector } from "../../redux/store";
 import PreferenceMenuItems from "../../ui/components/peopleCard/preferenceMenuItems";
 import Loader from "../../ui/components/core/screenLoader";
 
 type ChatButton = {
   text: string;
-  color: "error" | "inherit" | "info" | "primary" | "secondary" | "success" | "warning";
+  color:
+    | "error"
+    | "inherit"
+    | "info"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning";
 };
 
 const People = ({ nearbyType }: { nearbyType: number }) => {
@@ -25,15 +41,19 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
   const [pageNo, setPageNo] = useState(1);
   const [peopleList, setPeopleList] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedPreferenceType, setSelectedPreferenceType] = useState<PreferenceType | null>(null);
+  const [selectedPreferenceType, setSelectedPreferenceType] =
+    useState<PreferenceType | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchText, setSearchText] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
   const preferencesRef = useRef<HTMLDivElement>(null);
   const [hasMorePages, setHasMorePages] = useState(true);
 
-  const [getNearbyUsersOrBusinesses, { isLoading, data }] = useGetNearbyUsersOrBusinessesMutation();
-  const lastElementRef = useInfiniteScroll(() => { hasMorePages && setPageNo((prev) => prev + 1) }, isLoading);
+  const [getNearbyUsersOrBusinesses, { isLoading, data }] =
+    useGetNearbyUsersOrBusinessesMutation();
+  const lastElementRef = useInfiniteScroll(() => {
+    hasMorePages && setPageNo((prev) => prev + 1);
+  }, isLoading);
 
   const fetchPeople = useCallback(async () => {
     if (!location) return;
@@ -44,9 +64,11 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
       page_no: pageNo,
       user_id: user?.id,
       nearby_type: nearbyType,
-      ...(selectedPreferenceType && selectedTab == 0 && { search_type: 1, search_tag: searchText }),
+      ...(selectedPreferenceType &&
+        selectedTab == 0 && { search_type: 1, search_tag: searchText }),
       ...(nearbyType == 2 && { preference_id: 0 }),
-      ...(selectedTab == 1 && searchText != "" && { search_type: 0, search_tag: searchText }),
+      ...(selectedTab == 1 &&
+        searchText != "" && { search_type: 0, search_tag: searchText }),
     };
 
     try {
@@ -90,31 +112,37 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
     if (searchRef.current) searchRef.current.value = preference.name;
   };
 
-  const handleSearchChange = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
-    setPeopleList([]);
-    setPageNo(1);
-    setSearchText(event.target.value);
-    setSelectedPreferenceType((prev) => {
-      if (prev) {
-        return { ...prev, name: event.target.value };
-      }
-      return { name: event.target.value, id: 0, is_show: 1 };
-    });
-    setHasMorePages(true);
-  }, 500);
+  const handleSearchChange = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPeopleList([]);
+      setPageNo(1);
+      setSearchText(event.target.value);
+      setSelectedPreferenceType((prev) => {
+        if (prev) {
+          return { ...prev, name: event.target.value };
+        }
+        return { name: event.target.value, id: 0, is_show: 1 };
+      });
+      setHasMorePages(true);
+    },
+    500
+  );
 
   const buildPeopleCardData = (people: any[]) =>
     people.map((person) => {
+      const userPreferenceIds = user?.UserPreferences.map(
+        (x) => x.preference_type_id
+      );
       const chatButton: ChatButton =
         person.confirmation_status === -1 || person.confirmation_status === 2
           ? { text: "Wave", color: "primary" }
           : person.confirmation_status === 0
-            ? {
+          ? {
               text: person.is_connection_requested ? "You Waved" : "Wave back",
 
-              color: person.is_connection_requested ? "inherit" : "success"
+              color: person.is_connection_requested ? "inherit" : "success",
             }
-            : { text: "Message", color: "success" };
+          : { text: "Message", color: "success" };
 
       return {
         id: person.id,
@@ -123,14 +151,71 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
         interests: person.matchinginterest,
         distance: Math.ceil(person.distance * 20),
         tags: (
-          <Stack direction="row" gap={1.25} flexWrap="wrap" mt={1}>
-            {person.UserPreferences.map((pref: any) => (
-              <Chip key={pref.id} color="info" label={pref.preference_type} />
-            ))}
+          <Stack
+            direction="row"
+            gap={1.25}
+            flexWrap="nowrap"
+            mt={1}
+            sx={{
+              overflow: "auto",
+              "&::-webkit-scrollbar": { display: "none" },
+              "-ms-overflow-style": "none",
+              "scrollbar-width": "none",
+            }}
+          >
+            {[...person.UserPreferences]
+              .sort((a: any, b: any) => {
+                const aMatch = userPreferenceIds?.includes(
+                  a.preference_type_id
+                );
+                const bMatch = userPreferenceIds?.includes(
+                  b.preference_type_id
+                );
+                return aMatch === bMatch ? 0 : aMatch ? -1 : 1;
+              })
+              .map((pref: any) => {
+                const isMatch = user?.UserPreferences?.map(
+                  (x) => x.preference_type_id
+                ).includes(pref.preference_type_id);
+                return (
+                  <Chip
+                    key={pref.preference_type_id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    color={isMatch ? "info" : "default"}
+                    label={pref.preference_type}
+                    icon={
+                      isMatch ? (
+                        <Icon
+                          icon="mdi:star"
+                          fontSize={16}
+                          style={{ marginLeft: 9 }}
+                        />
+                      ) : undefined
+                    }
+                    sx={
+                      !isMatch
+                        ? {
+                            color: theme.palette.text.primary,
+                            border: "1px solid #e0e0e0",
+                            bgcolor: theme.palette.grey[300],
+                          }
+                        : {}
+                    }
+                  />
+                );
+              })}
           </Stack>
         ),
         button: (
-          <Button variant="contained" color={chatButton.color} size="large" sx={{ px: 5 }} disableElevation>
+          <Button
+            variant="contained"
+            color={chatButton.color}
+            size="large"
+            sx={{ px: 5 }}
+            disableElevation
+          >
             {chatButton.text}
           </Button>
         ),
@@ -175,7 +260,10 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
               onSelect={handlePreferenceSelect}
               searchText={searchText}
               render={(preferences) => (
-                <PreferenceMenuItems preferences={preferences} onSelect={handlePreferenceSelect} />
+                <PreferenceMenuItems
+                  preferences={preferences}
+                  onSelect={handlePreferenceSelect}
+                />
               )}
             />
           </div>
@@ -183,8 +271,16 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
       </FormControl>
       <Stack direction="column" gap={{ xs: 1, lg: 2.5 }} overflow="auto">
         {peopleCards.map((person, index) => (
-          <Box ref={index === Math.floor(peopleCards.length / 2) ? lastElementRef : null} key={person.id}>
+          <Box
+            ref={
+              index === Math.floor(peopleCards.length / 2)
+                ? lastElementRef
+                : null
+            }
+            key={person.id}
+          >
             <PeopleCard
+              id={person.id}
               picture={person.picture}
               name={person.name}
               interests={person.interests}
@@ -196,7 +292,11 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
         ))}
         {peopleCards.length === 0 && !isLoading && (
           <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
+            <Icon
+              icon="tabler:search-off"
+              fontSize={48}
+              color={theme.palette.grey[500]}
+            />
             <p>No results found</p>
           </Box>
         )}

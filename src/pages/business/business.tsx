@@ -1,4 +1,17 @@
-import { Autocomplete, Box, Button, Chip, FormControl, InputAdornment, MenuItem, OutlinedInput, Select, Stack, TextField, useTheme } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  InputAdornment,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
+  TextField,
+  useTheme,
+} from "@mui/material";
 import { useState, useRef, useMemo } from "react";
 import debounce from "lodash/debounce";
 import { Icon } from "@iconify/react";
@@ -7,7 +20,7 @@ import { useLocation } from "../../hooks/useLocation";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import PreferencesList from "../../ui/components/peopleCard/preferencesList";
 import PeopleCard from "../../ui/components/peopleCard/peopleCard";
-import { PreferenceType } from '../../models/responseModels/preferences';
+import { PreferenceType } from "../../models/responseModels/preferences";
 import { useAppSelector } from "../../redux/store";
 import useNearbyData from "../../hooks/useNearByData";
 import PreferenceMenuItems from "../../ui/components/peopleCard/preferenceMenuItems";
@@ -15,126 +28,224 @@ import FlatPreferencesList from "../../ui/components/peopleCard/flatPreferencesL
 import Loader from "../../ui/components/core/screenLoader";
 
 type ChatButton = {
-    text: string;
-    color: "error" | "inherit" | "info" | "primary" | "secondary" | "success" | "warning";
+  text: string;
+  color:
+    | "error"
+    | "inherit"
+    | "info"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning";
 };
 
 const Business = () => {
-    const theme = useTheme();
-    const user = useAppSelector((state) => state.auth.user);
-    const [selectedPreferenceType, setSelectedPreferenceType] = useState<PreferenceType | null>(null);
-    const searchRef = useRef<HTMLInputElement>(null);
-    const preferences = FlatPreferencesList()?.map((preference) => { return { id: preference.id, label: preference.name } });
+  const theme = useTheme();
+  const user = useAppSelector((state) => state.auth.user);
+  const [selectedPreferenceType, setSelectedPreferenceType] =
+    useState<PreferenceType | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const preferences = FlatPreferencesList()?.map((preference) => {
+    return { id: preference.id, label: preference.name };
+  });
 
-    const params = useMemo(() => ({
-        people_order_by: 0,
-        user_id: user?.id,
-        nearby_type: 2,
-        preference_id: selectedPreferenceType?.id || 0,
-    }), [user?.id, selectedPreferenceType?.id]);
+  const params = useMemo(
+    () => ({
+      people_order_by: 0,
+      user_id: user?.id,
+      nearby_type: 2,
+      preference_id: selectedPreferenceType?.id || 0,
+    }),
+    [user?.id, selectedPreferenceType?.id]
+  );
 
-    const { dataList: peopleList, isLoading, lastElementRef, setDataList, setPageNo, setHasMorePages } = useNearbyData(
-        params,
-        useGetNearbyUsersOrBusinessesMutation,
-        'nearby_business_total_pages',
-        "BusinessesNearBy",
-    );
+  const {
+    dataList: peopleList,
+    isLoading,
+    lastElementRef,
+    setDataList,
+    setPageNo,
+    setHasMorePages,
+  } = useNearbyData(
+    params,
+    useGetNearbyUsersOrBusinessesMutation,
+    "nearby_business_total_pages",
+    "BusinessesNearBy"
+  );
 
-    const handlePreferenceSelect = (preference: PreferenceType) => {
-        setDataList([]);
-        setPageNo(1);
-        setSelectedPreferenceType(preference);
-        if (searchRef.current) searchRef.current.value = preference.name;
-    };
+  const handlePreferenceSelect = (preference: PreferenceType) => {
+    setDataList([]);
+    setPageNo(1);
+    setSelectedPreferenceType(preference);
+    if (searchRef.current) searchRef.current.value = preference.name;
+  };
 
-    const buildPeopleCardData = (people: any[]) =>
-        people.map((person) => {
-            const chatButton: ChatButton =
-                person.confirmation_status === -1 || person.confirmation_status === 2
-                    ? { text: "Wave", color: "primary" }
-                    : person.confirmation_status === 0
-                        ? {
-                            text: person.is_connection_requested ? "You Waved" : "Wave back",
-                            color: person.is_connection_requested ? "inherit" : "success"
-                        }
-                        : { text: "Message", color: "success" };
+  const buildPeopleCardData = (people: any[]) =>
+    people.map((person) => {
+      const userPreferenceIds = user?.UserPreferences.map(
+        (x) => x.preference_type_id
+      );
+      const chatButton: ChatButton =
+        person.confirmation_status === -1 || person.confirmation_status === 2
+          ? { text: "Wave", color: "primary" }
+          : person.confirmation_status === 0
+          ? {
+              text: person.is_connection_requested ? "You Waved" : "Wave back",
+              color: person.is_connection_requested ? "inherit" : "success",
+            }
+          : { text: "Message", color: "success" };
 
-            return {
-                id: person.id,
-                picture: person.image,
-                name: person.name,
-                interests: person.matchinginterest,
-                distance: Math.ceil(person.distance * 20),
-                tags: (
-                    <Stack direction="row" gap={1.25} flexWrap="wrap" mt={1}>
-                        {person.UserPreferences.map((pref: any) => (
-                            <Chip key={pref.id} color="info" label={pref.preference_type} />
-                        ))}
-                    </Stack>
-                ),
-                button: (
-                    <Button variant="contained" color={chatButton.color} size="large" sx={{ px: 5 }} disableElevation>
-                        {chatButton.text}
-                    </Button>
-                ),
-            };
-        });
-
-    const peopleCards = buildPeopleCardData(peopleList);
-
-    return (
-        <Box>
-            <Autocomplete
-                options={preferences ?? []}
-                sx={{
-                    width: '100%',
-                    mt: 2,
-                    borderRadius: 4,
-                    bgcolor: theme.palette.background.neutral,
-                    '.MuiAutocomplete-inputRoot': {
-                        borderRadius: 4,
-                        borderColor: theme.palette.grey[500],
-                    },
-                }}
-                onChange={(event, newValue) => {
-                    if (newValue) {
-                        handlePreferenceSelect({ id: newValue.id, name: newValue.label, is_show: 1 });
-                    } else {
-                        setSelectedPreferenceType(null);
-                    }
-                }}
-                renderInput={(params) =>
-                    <TextField
-                        {...params}
-                        variant="outlined"
-                        label="Select Businesses" />}
-
-            />
-            <Stack direction="column" gap={{ xs: 1, lg: 2.5 }} overflow="auto">
-                {peopleCards.map((person, index) => (
-                    <Box ref={index === Math.floor(peopleCards.length / 2) ? lastElementRef : null} key={person.id}>
-                        <PeopleCard
-                            picture={person.picture}
-                            name={person.name}
-                            interests={person.interests}
-                            distance={person.distance}
-                            action={person.button}
-                            tags={person.tags}
+      return {
+        id: person.id,
+        picture: person.image,
+        name: person.name,
+        interests: person.matchinginterest,
+        distance: Math.ceil(person.distance * 20),
+        tags: (
+          <Stack
+            direction="row"
+            gap={1.25}
+            flexWrap="nowrap"
+            mt={1}
+            sx={{
+              overflow: "auto",
+              "&::-webkit-scrollbar": { display: "none" },
+              "-ms-overflow-style": "none",
+              "scrollbar-width": "none",
+            }}
+          >
+            {[...person.UserPreferences]
+              .sort((a: any, b: any) => {
+                const aMatch = userPreferenceIds?.includes(
+                  a.preference_type_id
+                );
+                const bMatch = userPreferenceIds?.includes(
+                  b.preference_type_id
+                );
+                return aMatch === bMatch ? 0 : aMatch ? -1 : 1;
+              })
+              .map((pref: any) => {
+                const isMatch = user?.UserPreferences?.map(
+                  (x) => x.preference_type_id
+                ).includes(pref.preference_type_id);
+                return (
+                  <Chip
+                    key={pref.preference_type_id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    color={isMatch ? "info" : "default"}
+                    label={pref.preference_type}
+                    icon={
+                      isMatch ? (
+                        <Icon
+                          icon="mdi:star"
+                          fontSize={16}
+                          style={{ marginLeft: 9 }}
                         />
-                    </Box>
-                ))}
-                {peopleCards.length === 0 && !isLoading && (
-                    <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                        <Box sx={{ textAlign: "center", mt: 2 }}>
-                            <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
-                            <p>No results found</p>
-                        </Box>
-                    </Box>
-                )}
-                {isLoading && <Loader />}
-            </Stack>
-        </Box>
-    );
+                      ) : undefined
+                    }
+                    sx={
+                      !isMatch
+                        ? {
+                            color: theme.palette.text.primary,
+                            border: "1px solid #e0e0e0",
+                            bgcolor: theme.palette.grey[300],
+                          }
+                        : {}
+                    }
+                  />
+                );
+              })}
+          </Stack>
+        ),
+        button: (
+          <Button
+            variant="contained"
+            color={chatButton.color}
+            size="large"
+            sx={{ px: 5 }}
+            disableElevation
+          >
+            {chatButton.text}
+          </Button>
+        ),
+      };
+    });
+
+  const peopleCards = buildPeopleCardData(peopleList);
+
+  return (
+    <Box>
+      <Autocomplete
+        options={preferences ?? []}
+        sx={{
+          width: "100%",
+          mt: 2,
+          borderRadius: 4,
+          bgcolor: theme.palette.background.neutral,
+          ".MuiAutocomplete-inputRoot": {
+            borderRadius: 4,
+            borderColor: theme.palette.grey[500],
+          },
+        }}
+        onChange={(event, newValue) => {
+          if (newValue) {
+            handlePreferenceSelect({
+              id: newValue.id,
+              name: newValue.label,
+              is_show: 1,
+            });
+          } else {
+            setSelectedPreferenceType(null);
+          }
+        }}
+        renderInput={(params) => (
+          <TextField {...params} variant="outlined" label="Select Businesses" />
+        )}
+      />
+      <Stack direction="column" gap={{ xs: 1, lg: 2.5 }} overflow="auto">
+        {peopleCards.map((person, index) => (
+          <Box
+            ref={
+              index === Math.floor(peopleCards.length / 2)
+                ? lastElementRef
+                : null
+            }
+            key={person.id}
+          >
+            <PeopleCard
+              id={person.id}
+              picture={person.picture}
+              name={person.name}
+              interests={person.interests}
+              distance={person.distance}
+              action={person.button}
+              tags={person.tags}
+            />
+          </Box>
+        ))}
+        {peopleCards.length === 0 && !isLoading && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+          >
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Icon
+                icon="tabler:search-off"
+                fontSize={48}
+                color={theme.palette.grey[500]}
+              />
+              <p>No results found</p>
+            </Box>
+          </Box>
+        )}
+        {isLoading && <Loader />}
+      </Stack>
+    </Box>
+  );
 };
 
 export default Business;

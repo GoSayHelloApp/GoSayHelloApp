@@ -9,7 +9,7 @@ export const SidebarStyles = () => {
     mainStyle: {
       position: "fixed",
       left: 0,
-      zIndex: 1,
+      zIndex: 3,
       top: {
         xs: 'auto',
         sm: 'auto',

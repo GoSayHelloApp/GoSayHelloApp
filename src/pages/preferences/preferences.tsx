@@ -8,6 +8,7 @@ import {
   useTheme,
   Snackbar,
   Alert,
+  IconButton,
 } from "@mui/material";
 import {
   useAddPreferencesMutation,
@@ -16,6 +17,7 @@ import {
 import {
   Preference,
   PreferenceType,
+  UserPreference,
 } from "../../models/responseModels/preferences";
 import PageWrapper from "../../ui/layout/wrappers/pageWrapper";
 import {
@@ -32,7 +34,7 @@ import {
   selectedTypesBoxStyles,
   submitButtonStyles,
 } from "../../ui/components/preferences/styles";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { userSelector } from "../../services/auth/authSelectors";
 import { userPreferencesRequest } from "../../models/requestModels/preferences";
@@ -42,7 +44,10 @@ import { Icon } from "@iconify/react";
 export default function Preferences() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useAppSelector(userSelector);
+  const isEditMode =
+    new URLSearchParams(location.search).get("mode") === "edit";
   const dispatch = useAppDispatch();
   const [currentPreference, setCurrentPreference] = useState<
     Preference | undefined
@@ -89,7 +94,18 @@ export default function Preferences() {
     addPreferences(request)
       .unwrap()
       .then((response) => {
-        dispatch(setUserPreferences(response.Preferences));
+        // Create UserPreference objects from selected types
+        const preferences: UserPreference[] = selectedPreferenceTypes.map(
+          (type) => ({
+            id: type.id,
+            preference_type_id: type.id,
+            preference_name: currentPreference?.name || "",
+            preference_type: type.name,
+          })
+        );
+
+        // Update both Redux and session storage
+        dispatch(setUserPreferences(preferences));
         navigate("/nearby");
       })
       .catch((error) => {
@@ -109,13 +125,66 @@ export default function Preferences() {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (
+      isEditMode &&
+      user?.UserPreferences &&
+      data?.Preferences &&
+      selectedPreferenceTypes.length === 0 // only on first load
+    ) {
+      // Map UserPreferences to PreferenceType objects
+      const userTypeIds = user.UserPreferences.map(
+        (up) => up.preference_type_id
+      );
+      const allTypes: PreferenceType[] = [];
+      data.Preferences.forEach((pref) => {
+        pref.types.forEach((type) => {
+          if (userTypeIds.includes(type.id)) {
+            allTypes.push(type);
+          }
+        });
+      });
+      setSelectedPreferenceTypes(allTypes);
+
+      // Optionally, set the currentPreference to the first one that matches
+      if (allTypes.length > 0) {
+        const firstType = allTypes[0];
+        const parentPref = data.Preferences.find((pref) =>
+          pref.types.some((type) => type.id === firstType.id)
+        );
+        setCurrentPreference(parentPref);
+      }
+    }
+  }, [isEditMode, user, data]);
+
   return (
     <PageWrapper isLoading={isLoading}>
       <Box sx={containerStyles}>
         <Box sx={cardStyles}>
-          <Typography variant="h3" sx={headerStyles}>
-            Preferences
-          </Typography>
+          <Box sx={{ position: "relative" }}>
+            {isEditMode && (
+              <IconButton
+                onClick={() => navigate(-1)}
+                sx={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  color: theme.palette.text.primary,
+                  "&:hover": {
+                    backgroundColor: theme.palette.background.neutral,
+                  },
+                }}
+              >
+                <Icon icon="mdi:arrow-left" fontSize={24} />
+              </IconButton>
+            )}
+            <Typography
+              variant="h3"
+              sx={{ ...headerStyles, textAlign: "center" }}
+            >
+              Preferences
+            </Typography>
+          </Box>
           <Typography variant="body1" sx={descriptionStyles}>
             Choose at least 3 interests to connect with others who share the
             same.

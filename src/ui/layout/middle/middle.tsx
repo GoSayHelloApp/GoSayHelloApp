@@ -12,6 +12,7 @@ import Business from "../../../pages/business/business";
 import { useLocation, useNavigate } from "react-router-dom";
 import OpenApp from "../../../components/events/OpenApp";
 import OpenAppHome from "../../../components/events/OpenApp";
+import RSVP from "../../../pages/RSVP/rsvp";
 
 const tabNames = ["people", "business", "events", "rsvp"];
 function CustomTabPanel(props: any) {
@@ -25,7 +26,9 @@ function CustomTabPanel(props: any) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ mt: 1, overflow: "auto", height: "70vh" }} >{children}</Box>}
+      {value === index && (
+        <Box sx={{ mt: 1, overflow: "auto", height: "70vh" }}>{children}</Box>
+      )}
     </div>
   );
 }
@@ -35,7 +38,6 @@ CustomTabPanel.propTypes = {
   index: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
 };
-
 
 export default function Middle() {
   const [value, setValue] = React.useState(0);
@@ -57,16 +59,13 @@ export default function Middle() {
     const tabIndex = tabNames.indexOf(tab ?? "");
     if (tabIndex !== -1) {
       setValue(tabIndex);
-    }
-    else {
+    } else {
       navigate(`?tab=${tabNames[0]}`);
       setValue(0);
     }
   }, [location.search]);
 
-
   return (
-
     <Box>
       {/* <Typography variant="h5" sx={{ ...homeText }}>
         Home
@@ -101,7 +100,7 @@ export default function Middle() {
           <Events />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={3}>
-          <OpenAppHome openApp={value == 3} setOpenApp={(closed: boolean) => { !closed == true && setValue(0) }} text="Open the App to view RSVP events" />
+          <RSVP />
         </CustomTabPanel>
       </Box>
     </Box>

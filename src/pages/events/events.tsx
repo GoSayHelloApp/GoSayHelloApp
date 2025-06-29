@@ -1,28 +1,78 @@
-import { Box, FormControl, InputAdornment, OutlinedInput, Select, MenuItem, Typography, Stack, Switch, useTheme, Avatar, AvatarGroup, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  InputAdornment,
+  OutlinedInput,
+  Select,
+  MenuItem,
+  Typography,
+  Stack,
+  Switch,
+  useTheme,
+  Avatar,
+  AvatarGroup,
+  useMediaQuery,
+} from "@mui/material";
 import EventCard from "../../ui/components/eventCard/eventCard";
 import React, { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import useNearbyData from "../../hooks/useNearByData";
 import { useAppSelector } from "../../redux/store";
 import { useGetNearbyUsersOrBusinessesMutation } from "../../services/nearby/nearbyApi";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO } from "date-fns";
 import { debounce } from "lodash";
-import { EventInterestedUser, EventsNearByResponse } from "../../models/responseModels/events";
+import {
+  EventInterestedUser,
+  EventsNearByResponse,
+} from "../../models/responseModels/events";
 import { eventTypesSelector } from "../../services/appconfiguration/configSelectors";
 import Loader from "../../ui/components/core/screenLoader";
 import NoDataCard from "../../components/NoDataCard";
+import {
+  convertUTCDateToLocal,
+  convertUTCTimeToLocal,
+  formatDate,
+  formatEventDateTimeForEventCards,
+  formatTime,
+} from "../../utils/dateTimeFormatter";
 
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
-const formatEventDateTime = (startDate: string, startTime: string, endDate: string, endTime: string) => {
-  const start = parseISO(`${startDate}T${startTime}`);
-  const end = parseISO(`${endDate}T${endTime}`);
+// const formatEventDateTime = (
+//   dotEnabled: boolean,
+//   startDate: string,
+//   startTime: string,
+//   endDate: string,
+//   endTime: string
+// ) => {
+//   const startD = convertUTCDateToLocal(startDate, startTime);
+//   const endD = convertUTCDateToLocal(endDate, endTime);
 
-  const formattedDate = `${format(start, 'MMM. d')} - ${format(end, 'MMM. d')}`;
-  const formattedTime = `${format(start, 'hh:mm a')} to ${format(end, 'hh:mm a')}`;
+//   const startT = convertUTCTimeToLocal(startDate, startTime);
+//   const endT = convertUTCTimeToLocal(endDate, endTime);
 
-  return { date: formattedDate, time: formattedTime };
-};
+//   let formattedDate = `${format(startD, "MMM. d")} - ${format(endD, "MMM. d")}`;
+//   let formattedTime = `${startT} to ${endT}`;
+
+//   if (!dotEnabled) {
+//     formattedTime = `${formatTime(startTime)} to ${formatTime(endTime)}`;
+//   }
+
+//   return { date: formattedDate, time: formattedTime };
+// };
 
 function Events() {
   const theme = useTheme();
@@ -34,21 +84,32 @@ function Events() {
   const user = useAppSelector((state) => state.auth.user);
   const eventTypes = useAppSelector(eventTypesSelector);
 
-  const params = useMemo(() => ({
-    people_order_by: 0,
-    user_id: user?.id,
-    nearby_type: 3,
-    event_type_id: selectedEventType,
-    ...(selectedMonth !== "All" && { month: months.indexOf(selectedMonth) + 1 }),
-    ...(isFree && { is_paid_event: 0 }),
-    ...(searchText !== "" && { event_name: searchText }),
-  }), [user?.id, selectedEventType, selectedMonth, isFree, searchText]);
+  const params = useMemo(
+    () => ({
+      people_order_by: 0,
+      user_id: user?.id,
+      nearby_type: 3,
+      event_type_id: selectedEventType,
+      ...(selectedMonth !== "All" && {
+        month: months.indexOf(selectedMonth) + 1,
+      }),
+      ...(isFree && { is_paid_event: 0 }),
+      ...(searchText !== "" && { event_name: searchText }),
+    }),
+    [user?.id, selectedEventType, selectedMonth, isFree, searchText]
+  );
 
-  const { dataList: eventlist, isLoading, lastElementRef, setDataList, setPageNo } = useNearbyData<EventsNearByResponse>(
+  const {
+    dataList: eventlist,
+    isLoading,
+    lastElementRef,
+    setDataList,
+    setPageNo,
+  } = useNearbyData<EventsNearByResponse>(
     params,
     useGetNearbyUsersOrBusinessesMutation,
-    'nearby_events_total_pages',
-    "EventsNearBy",
+    "nearby_events_total_pages",
+    "EventsNearBy"
   );
 
   const handleEventTypeChange = (event: any) => {
@@ -69,24 +130,29 @@ function Events() {
     setIsFree(event.target.checked);
   };
 
-  const handleSearchChange = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
-    setDataList([]);
-    setPageNo(1);
-    setSearchText(event.target.value);
-  }, 500);
+  const handleSearchChange = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setDataList([]);
+      setPageNo(1);
+      setSearchText(event.target.value);
+    },
+    500
+  );
 
-
-  const handleEventDetails = () => {
-
-  }
-
-  const handleEventDirections = () => {
-
-  }
+  const handleRSVPAction = () => {
+    // setDataList([]);
+    // setPageNo(1);
+  };
 
   const buildEventsCardData = (events: any[]) => {
     return events.map((event) => {
-      const { date, time } = formatEventDateTime(event.start_date, event.start_time, event.end_date, event.end_time);
+      const { date, time } = formatEventDateTimeForEventCards(
+        event.address_1?.at(event.address_1.length - 1) === "." ? true : false,
+        event.start_date,
+        event.start_time,
+        event.end_date,
+        event.end_time
+      );
       return {
         id: event.id,
         picture: event.image,
@@ -97,24 +163,31 @@ function Events() {
         distance: Math.ceil(event.distance * 20),
         isPaid: event.is_paid_event,
         isAlreadySaved: event.is_already_saved,
+        eventDetails: event,
         group: (
-          <AvatarGroup max={3}
+          <AvatarGroup
+            max={3}
             sx={{
-              '& .MuiAvatar-root': {
+              "& .MuiAvatar-root": {
                 width: { xs: 24, md: 40 },
-                height: { xs: 24, md: 40 }, fontSize: 15
+                height: { xs: 24, md: 40 },
+                fontSize: 15,
               },
             }}
           >
             {event.event_interested_users.map((user: EventInterestedUser) => {
-              return <Avatar
-                sx={{
-                  width: { xs: 24, md: 40 },
-                  height: { xs: 24, md: 40 },
-                }}
-                key={user.id} alt="Remy Sharp" src={user.user_image} />
+              return (
+                <Avatar
+                  sx={{
+                    width: { xs: 24, md: 40 },
+                    height: { xs: 24, md: 40 },
+                  }}
+                  key={user.id}
+                  alt="Remy Sharp"
+                  src={user.user_image}
+                />
+              );
             })}
-
           </AvatarGroup>
         ),
         latitude: event.latitude,
@@ -144,16 +217,34 @@ function Events() {
           }
         />
       </FormControl>
-      <Box display="flex" alignItems="center" justifyContent="space-between"
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
         sx={{
           px: { xs: 1, sm: 2, md: 3, lg: 3 },
           gap: {
-            xs: 1, sm: 1, md: 3, lg: 3
-          }
-        }} py={1} >
-        <Box display="flex" alignItems="center" justifyContent="space-between" py={1} gap={3} sx={{ width: "60%" }}  >
-          <FormControl variant="outlined"
-            size={isMobile ? "small" : "medium"} sx={{ width: "100%" }}>
+            xs: 1,
+            sm: 1,
+            md: 3,
+            lg: 3,
+          },
+        }}
+        py={1}
+      >
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          py={1}
+          gap={3}
+          sx={{ width: "60%" }}
+        >
+          <FormControl
+            variant="outlined"
+            size={isMobile ? "small" : "medium"}
+            sx={{ width: "100%" }}
+          >
             <Select
               value={selectedEventType}
               onChange={handleEventTypeChange}
@@ -161,22 +252,27 @@ function Events() {
                 bgcolor: theme.palette.background.neutral,
                 borderRadius: 4,
                 borderColor: theme.palette.grey[500],
-                '& .MuiSelect-select': {
-                  fontWeight: 'bold',
-                  fontSize: { xs: 10, lg: 16 }
+                "& .MuiSelect-select": {
+                  fontWeight: "bold",
+                  fontSize: { xs: 10, lg: 16 },
                 },
               }}
             >
-              {eventTypes && [{ id: 0, type: 'Event Type', is_show: 1 }, ...eventTypes].map((type) => (
-                <MenuItem key={type.id} value={type.id}>
-                  {type.type}
-                </MenuItem>
-              ))}
+              {eventTypes &&
+                [{ id: 0, type: "Event Type", is_show: 1 }, ...eventTypes].map(
+                  (type) => (
+                    <MenuItem key={type.id} value={type.id}>
+                      {type.type}
+                    </MenuItem>
+                  )
+                )}
             </Select>
           </FormControl>
-          <FormControl variant="outlined"
+          <FormControl
+            variant="outlined"
             size={isMobile ? "small" : "medium"}
-            sx={{ width: "100%" }}>
+            sx={{ width: "100%" }}
+          >
             <Select
               value={selectedMonth}
               onChange={handleMonthChange}
@@ -184,15 +280,13 @@ function Events() {
                 bgcolor: theme.palette.background.neutral,
                 borderRadius: 4,
                 borderColor: theme.palette.grey[500],
-                '& .MuiSelect-select': {
-                  fontWeight: 'bold',
-                  fontSize: { xs: 10, lg: 16 }
+                "& .MuiSelect-select": {
+                  fontWeight: "bold",
+                  fontSize: { xs: 10, lg: 16 },
                 },
               }}
             >
-              <MenuItem value="All">
-                MONTH
-              </MenuItem>
+              <MenuItem value="All">MONTH</MenuItem>
               {months.map((month) => (
                 <MenuItem key={month} value={month}>
                   {month}
@@ -201,23 +295,36 @@ function Events() {
             </Select>
           </FormControl>
         </Box>
-        <FormControl variant="outlined" size="medium"  >
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 2, py: 0.5 }} >
-            <Typography fontWeight={"bold"}
-              sx={{ fontSize: { xs: 10, lg: 16 } }}>
+        <FormControl variant="outlined" size="medium">
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ px: 2, py: 0.5 }}
+          >
+            <Typography
+              fontWeight={"bold"}
+              sx={{ fontSize: { xs: 10, lg: 16 } }}
+            >
               Free Events
             </Typography>
-            <Switch checked={isFree} onChange={handleSwitchChange}
+            <Switch
+              checked={isFree}
+              onChange={handleSwitchChange}
               sx={{
                 width: { xs: 48, md: 68 },
                 height: { xs: 28, md: 38 },
                 padding: 0,
                 "& .MuiSwitch-switchBase": {
                   padding: {
-                    xs: 0.1, md: 0.2,
+                    xs: 0.1,
+                    md: 0.2,
                   },
                   "&.Mui-checked": {
-                    transform: { xs: "translateX(18px)", md: "translateX(25px)" },
+                    transform: {
+                      xs: "translateX(18px)",
+                      md: "translateX(25px)",
+                    },
                     "& + .MuiSwitch-track": {
                       backgroundColor: theme.palette.primary.main,
                     },
@@ -242,7 +349,13 @@ function Events() {
       </Typography>
       <Stack width={"100%"} direction={"column"} gap={{ xs: 1, lg: 2.5 }}>
         {eventsCardData?.map((event, index) => (
-          <Box ref={index === Math.floor(eventsCardData.length / 2) ? lastElementRef : null} >
+          <Box
+            ref={
+              index === Math.floor(eventsCardData.length / 2)
+                ? lastElementRef
+                : null
+            }
+          >
             <EventCard
               key={event.id}
               id={event.id}
@@ -257,13 +370,24 @@ function Events() {
               isAlreadySaved={event.isAlreadySaved}
               latitude={event.latitude}
               longitude={event.longitude}
+              eventDetails={event.eventDetails}
+              onRSVPAction={handleRSVPAction}
             />
           </Box>
         ))}
         {eventsCardData.length === 0 && !isLoading && (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+          >
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Icon icon="tabler:search-off" fontSize={48} color={theme.palette.grey[500]} />
+              <Icon
+                icon="tabler:search-off"
+                fontSize={48}
+                color={theme.palette.grey[500]}
+              />
               <p>No results found</p>
             </Box>
           </Box>
