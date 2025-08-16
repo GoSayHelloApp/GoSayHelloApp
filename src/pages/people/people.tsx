@@ -7,6 +7,8 @@ import {
   OutlinedInput,
   Stack,
   useTheme,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { useState, useEffect, useRef, useCallback } from "react";
 import debounce from "lodash/debounce";
@@ -21,6 +23,7 @@ import { PreferenceType } from "../../models/responseModels/preferences";
 import { useAppSelector } from "../../redux/store";
 import PreferenceMenuItems from "../../ui/components/peopleCard/preferenceMenuItems";
 import Loader from "../../ui/components/core/screenLoader";
+import FlatPreferencesList from "../../ui/components/peopleCard/flatPreferencesList";
 
 type ChatButton = {
   text: string;
@@ -40,14 +43,23 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
   const user = useAppSelector((state) => state.auth.user);
   const [pageNo, setPageNo] = useState(1);
   const [peopleList, setPeopleList] = useState<any[]>([]);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedPreferenceType, setSelectedPreferenceType] =
-    useState<PreferenceType | null>(null);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [searchText, setSearchText] = useState("");
+  const [searchMode, setSearchMode] = useState<"preferences" | "names">(
+    "preferences"
+  );
+  const [selectedPreferenceType, setSelectedPreferenceType] = useState<{
+    id: number;
+    label: string;
+    is_show: number;
+  } | null>(null);
+  const [nameSearch, setNameSearch] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
-  const preferencesRef = useRef<HTMLDivElement>(null);
+  const preferences = FlatPreferencesList()?.map((preference) => ({
+    id: preference.id,
+    label: preference.name,
+    is_show: 1,
+  }));
   const [hasMorePages, setHasMorePages] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [getNearbyUsersOrBusinesses, { isLoading, data }] =
     useGetNearbyUsersOrBusinessesMutation();
@@ -57,20 +69,24 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
 
   const fetchPeople = useCallback(async () => {
     if (!location) return;
-    const params: Record<string, any> = {
+    let params: Record<string, any> = {
       people_order_by: 0,
       longitude: location.longitude,
       latitude: location.latitude,
       page_no: pageNo,
       user_id: user?.id,
       nearby_type: nearbyType,
-      ...(selectedPreferenceType &&
-        selectedTab == 0 && { search_type: 1, search_tag: searchText }),
       ...(nearbyType == 2 && { preference_id: 0 }),
-      ...(selectedTab == 1 &&
-        searchText != "" && { search_type: 0, search_tag: searchText }),
     };
-
+    if (searchMode === "preferences" && selectedPreferenceType) {
+      params = {
+        ...params,
+        search_type: 1,
+        search_tag: selectedPreferenceType.label,
+      };
+    } else if (searchMode === "names" && nameSearch) {
+      params = { ...params, search_type: 0, search_tag: nameSearch };
+    }
     try {
       const response = await getNearbyUsersOrBusinesses(params).unwrap();
       let body = response.PeoplesNearBy || response.BusinessesNearBy;
@@ -81,52 +97,67 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
     } catch (error) {
       console.error("Error fetching people:", error);
     }
-  }, [location, pageNo, searchText, getNearbyUsersOrBusinesses]);
+  }, [
+    location,
+    pageNo,
+    selectedPreferenceType,
+    nameSearch,
+    searchMode,
+    nearbyType,
+    user?.id,
+    getNearbyUsersOrBusinesses,
+  ]);
+
+  useEffect(() => {
+    setPeopleList([]);
+    setPageNo(1);
+    setHasMorePages(true);
+  }, [selectedPreferenceType, nameSearch, searchMode]);
 
   useEffect(() => {
     fetchPeople();
   }, [fetchPeople]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current?.contains(event.target as Node) ||
-        preferencesRef.current?.contains(event.target as Node)
-      ) {
-        return;
-      }
-      setIsSearchFocused(false);
-    };
+    if (selectedPreferenceType === null && inputRef.current) {
+      inputRef.current.blur();
+    }
+  }, [selectedPreferenceType]);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleTabChange = (index: number) => setSelectedTab(index);
-
-  const handlePreferenceSelect = (preference: PreferenceType) => {
+  const handleTabChange = (mode: "preferences" | "names") => {
+    setSearchMode(mode);
+    setSelectedPreferenceType(null);
+    setNameSearch("");
     setPeopleList([]);
     setPageNo(1);
-    setSelectedPreferenceType(preference);
-    setSearchText(preference.name);
-    if (searchRef.current) searchRef.current.value = preference.name;
+    setHasMorePages(true);
   };
 
-  const handleSearchChange = debounce(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePreferenceSelect = (event: any, newValue: any) => {
+    setSelectedPreferenceType(newValue);
+    setPeopleList([]);
+    setPageNo(1);
+    setHasMorePages(true);
+  };
+
+  const handleNameSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNameSearch(event.target.value);
+    setPeopleList([]);
+    setPageNo(1);
+    setHasMorePages(true);
+  };
+
+  // Handler to select a preference from a chip
+  const handleChipPreferenceClick = (preferenceName: string) => {
+    setSearchMode("preferences");
+    const found = (preferences ?? []).find((p) => p.label === preferenceName);
+    if (found) {
+      setSelectedPreferenceType(found);
       setPeopleList([]);
       setPageNo(1);
-      setSearchText(event.target.value);
-      setSelectedPreferenceType((prev) => {
-        if (prev) {
-          return { ...prev, name: event.target.value };
-        }
-        return { name: event.target.value, id: 0, is_show: 1 };
-      });
       setHasMorePages(true);
-    },
-    500
-  );
+    }
+  };
 
   const buildPeopleCardData = (people: any[]) =>
     people.map((person) => {
@@ -182,6 +213,7 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
                     key={pref.preference_type_id}
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleChipPreferenceClick(pref.preference_type);
                     }}
                     color={isMatch ? "info" : "default"}
                     label={pref.preference_type}
@@ -225,83 +257,174 @@ const People = ({ nearbyType }: { nearbyType: number }) => {
   const peopleCards = buildPeopleCardData(peopleList);
 
   return (
-    <Box>
-      <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
-        <OutlinedInput
-          onChange={handleSearchChange}
-          inputRef={searchRef}
+    <Box sx={{ overflow: "hidden" }}>
+      {/* Tabs and Input always visible at the top */}
+      <Box sx={{ overflow: "hidden" }}>
+        <Box
           sx={{
-            mx: {
-              xs: 1,
-              sm: 2,
-              md: 3,
+            display: "flex",
+            mb: 1,
+            borderRadius: {
+              xs: "24px 24px 24px 24px",
+              md: "24px 24px 24px 24px",
             },
-            my: 1,
-            borderRadius: 4,
-            bgcolor: theme.palette.background.neutral,
-            paddingRight: 0.5,
+            overflow: "hidden",
+            bgcolor: theme.palette.grey[200],
           }}
-          onFocus={() => setIsSearchFocused(true)}
-          placeholder="Search"
-          startAdornment={
-            <InputAdornment position="start">
-              <Icon icon="tabler:search" fontSize={24} />
-            </InputAdornment>
-          }
-          endAdornment={
-            <InputAdornment position="end">
-              <SearchTabs onTabChange={handleTabChange} />
-            </InputAdornment>
-          }
-        />
-        {isSearchFocused && selectedTab === 0 && !selectedPreferenceType && (
-          <div ref={preferencesRef}>
-            <PreferencesList
-              onSelect={handlePreferenceSelect}
-              searchText={searchText}
-              render={(preferences) => (
-                <PreferenceMenuItems
-                  preferences={preferences}
-                  onSelect={handlePreferenceSelect}
+        >
+          <Button
+            onClick={() => handleTabChange("preferences")}
+            sx={{
+              flex: 1,
+              borderRadius: { xs: "24px 0 0 24px", md: "24px 0 0 24px" },
+              bgcolor:
+                searchMode === "preferences"
+                  ? theme.palette.primary.main
+                  : theme.palette.grey[200],
+              color: searchMode === "preferences" ? "black" : "black",
+              fontWeight: "normal",
+              fontSize: { xs: 15, md: 18 },
+              py: { xs: 1.5, md: 2 },
+              minHeight: { xs: 28, md: 48 },
+              boxShadow: "none",
+              "&:hover": {
+                bgcolor:
+                  searchMode === "preferences"
+                    ? theme.palette.primary.main
+                    : theme.palette.grey[300],
+              },
+            }}
+          >
+            Search Preferences
+          </Button>
+          <Button
+            onClick={() => handleTabChange("names")}
+            sx={{
+              flex: 1,
+              borderRadius: { xs: "0 24px 24px 0", md: "0 24px 24px 0" },
+              bgcolor:
+                searchMode === "names"
+                  ? theme.palette.primary.main
+                  : theme.palette.grey[200],
+              color: searchMode === "names" ? "black" : "black",
+              fontWeight: "normal",
+              fontSize: { xs: 15, md: 18 },
+              py: { xs: 1.5, md: 2 },
+              minHeight: { xs: 28, md: 48 },
+              boxShadow: "none",
+              "&:hover": {
+                bgcolor:
+                  searchMode === "names"
+                    ? theme.palette.primary.main
+                    : theme.palette.grey[300],
+              },
+            }}
+          >
+            Search Names
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            borderRadius: 4,
+            overflow: "hidden",
+            border: "0.5px solid #222A35",
+            mb: 1,
+            bgcolor: theme.palette.background.neutral,
+          }}
+        >
+          {searchMode === "preferences" ? (
+            <Autocomplete
+              options={preferences ?? []}
+              value={selectedPreferenceType}
+              onChange={(_event, newValue) => {
+                setSelectedPreferenceType(newValue);
+                setPeopleList([]);
+                setPageNo(1);
+                setHasMorePages(true);
+              }}
+              getOptionLabel={(option) => option.label || ""}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              clearIcon={<Icon icon="mdi:close-circle" fontSize={20} />}
+              slotProps={{
+                paper: {
+                  sx: {
+                    borderRadius: 4,
+                    mt: 0.5,
+                  },
+                },
+              }}
+              sx={{
+                width: "100%",
+                "& .MuiAutocomplete-clearIndicator": {
+                  visibility: "visible",
+                  opacity: 1,
+                  pointerEvents: "auto",
+                },
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  inputRef={inputRef}
+                  variant="outlined"
+                  placeholder="Search Preferences"
+                  InputProps={{
+                    ...params.InputProps,
+                    sx: { borderRadius: 4, bgcolor: "transparent" },
+                  }}
                 />
               )}
             />
-          </div>
-        )}
-      </FormControl>
-      <Stack direction="column" gap={{ xs: 1, lg: 2.5 }} overflow="auto">
-        {peopleCards.map((person, index) => (
-          <Box
-            ref={
-              index === Math.floor(peopleCards.length / 2)
-                ? lastElementRef
-                : null
-            }
-            key={person.id}
-          >
-            <PeopleCard
-              id={person.id}
-              picture={person.picture}
-              name={person.name}
-              interests={person.interests}
-              distance={person.distance}
-              action={person.button}
-              tags={person.tags}
+          ) : (
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search Names"
+              value={nameSearch}
+              onChange={handleNameSearch}
+              InputProps={{
+                sx: { borderRadius: 4, bgcolor: "transparent" },
+              }}
             />
-          </Box>
-        ))}
-        {peopleCards.length === 0 && !isLoading && (
-          <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Icon
-              icon="tabler:search-off"
-              fontSize={48}
-              color={theme.palette.grey[500]}
-            />
-            <p>No results found</p>
-          </Box>
-        )}
-        {isLoading && <Loader />}
-      </Stack>
+          )}
+        </Box>
+      </Box>
+
+      {/* Scrollable results only */}
+      <Box sx={{ maxHeight: { xs: "60vh", md: "66vh" }, overflow: "auto" }}>
+        <Stack direction="column" gap={{ xs: 1, lg: 2.5 }}>
+          {peopleCards.map((person, index) => (
+            <Box
+              ref={
+                index === Math.floor(peopleCards.length / 2)
+                  ? lastElementRef
+                  : null
+              }
+              key={person.id}
+            >
+              <PeopleCard
+                id={person.id}
+                picture={person.picture}
+                name={person.name}
+                interests={person.interests}
+                distance={person.distance}
+                action={person.button}
+                tags={person.tags}
+              />
+            </Box>
+          ))}
+          {peopleCards.length === 0 && !isLoading && (
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Icon
+                icon="tabler:search-off"
+                fontSize={48}
+                color={theme.palette.grey[500]}
+              />
+              <p>No results found</p>
+            </Box>
+          )}
+          {isLoading && <Loader />}
+        </Stack>
+      </Box>
     </Box>
   );
 };

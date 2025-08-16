@@ -368,7 +368,7 @@ const CreatePost: React.FC = () => {
             </Box>
 
             {/* Caption Section */}
-            <Box sx={{ mb: 4 }}>
+            {/* <Box sx={{ mb: 4 }}>
               <Typography
                 variant="h6"
                 sx={{
@@ -394,7 +394,7 @@ const CreatePost: React.FC = () => {
                   },
                 }}
               />
-            </Box>
+            </Box> */}
 
             {/* Action Buttons */}
             <Stack direction="row" spacing={2} justifyContent="center">

@@ -12,7 +12,7 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import debounce from "lodash/debounce";
 import { Icon } from "@iconify/react";
 import { useGetNearbyUsersOrBusinessesMutation } from "../../services/nearby/nearbyApi";
@@ -42,12 +42,15 @@ type ChatButton = {
 const Business = () => {
   const theme = useTheme();
   const user = useAppSelector((state) => state.auth.user);
-  const [selectedPreferenceType, setSelectedPreferenceType] =
-    useState<PreferenceType | null>(null);
+  const [selectedPreferenceType, setSelectedPreferenceType] = useState<{
+    id: number;
+    label: string;
+  } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const preferences = FlatPreferencesList()?.map((preference) => {
-    return { id: preference.id, label: preference.name };
-  });
+  const preferences = FlatPreferencesList()?.map((preference) => ({
+    id: preference.id,
+    label: preference.name,
+  }));
 
   const params = useMemo(
     () => ({
@@ -73,11 +76,22 @@ const Business = () => {
     "BusinessesNearBy"
   );
 
-  const handlePreferenceSelect = (preference: PreferenceType) => {
-    setDataList([]);
-    setPageNo(1);
-    setSelectedPreferenceType(preference);
-    if (searchRef.current) searchRef.current.value = preference.name;
+  // const handlePreferenceSelect = (preference: PreferenceType) => {
+  //   setDataList([]);
+  //   setPageNo(1);
+  //   setSelectedPreferenceType(preference);
+  //   if (searchRef.current) searchRef.current.value = preference.name;
+  // };
+
+  // Handler to select a preference from a chip
+  const handleChipPreferenceClick = (preferenceName: string) => {
+    const found = (preferences ?? []).find((p) => p.label === preferenceName);
+    if (found) {
+      setSelectedPreferenceType(found);
+      setDataList([]);
+      setPageNo(1);
+      setHasMorePages(true);
+    }
   };
 
   const buildPeopleCardData = (people: any[]) =>
@@ -133,6 +147,7 @@ const Business = () => {
                     key={pref.preference_type_id}
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleChipPreferenceClick(pref.preference_type);
                     }}
                     color={isMatch ? "info" : "default"}
                     label={pref.preference_type}
@@ -175,10 +190,29 @@ const Business = () => {
 
   const peopleCards = buildPeopleCardData(peopleList);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selectedPreferenceType === null && inputRef.current) {
+      inputRef.current.blur();
+    }
+  }, [selectedPreferenceType]);
+
   return (
     <Box>
+      {/* Autocomplete always visible at the top */}
       <Autocomplete
         options={preferences ?? []}
+        value={selectedPreferenceType}
+        onChange={(_event, newValue) => {
+          setSelectedPreferenceType(newValue);
+          setDataList([]);
+          setPageNo(1);
+          setHasMorePages(true);
+        }}
+        getOptionLabel={(option) => option.label || ""}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        clearIcon={<Icon icon="mdi:close-circle" fontSize={20} />}
         sx={{
           width: "100%",
           mt: 2,
@@ -188,62 +222,64 @@ const Business = () => {
             borderRadius: 4,
             borderColor: theme.palette.grey[500],
           },
-        }}
-        onChange={(event, newValue) => {
-          if (newValue) {
-            handlePreferenceSelect({
-              id: newValue.id,
-              name: newValue.label,
-              is_show: 1,
-            });
-          } else {
-            setSelectedPreferenceType(null);
-          }
+          "& .MuiAutocomplete-clearIndicator": {
+            visibility: "visible",
+            opacity: 1,
+            pointerEvents: "auto",
+          },
         }}
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label="Select Businesses" />
+          <TextField
+            {...params}
+            inputRef={inputRef}
+            variant="outlined"
+            label="Select Businesses"
+          />
         )}
       />
-      <Stack direction="column" gap={{ xs: 1, lg: 2.5 }} overflow="auto">
-        {peopleCards.map((person, index) => (
-          <Box
-            ref={
-              index === Math.floor(peopleCards.length / 2)
-                ? lastElementRef
-                : null
-            }
-            key={person.id}
-          >
-            <PeopleCard
-              id={person.id}
-              picture={person.picture}
-              name={person.name}
-              interests={person.interests}
-              distance={person.distance}
-              action={person.button}
-              tags={person.tags}
-            />
-          </Box>
-        ))}
-        {peopleCards.length === 0 && !isLoading && (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100%"
-          >
-            <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Icon
-                icon="tabler:search-off"
-                fontSize={48}
-                color={theme.palette.grey[500]}
+      {/* Scrollable results only */}
+      <Box sx={{ maxHeight: { xs: "60vh", md: "66vh" }, overflow: "auto" }}>
+        <Stack direction="column" gap={{ xs: 1, lg: 2.5 }}>
+          {peopleCards.map((person, index) => (
+            <Box
+              ref={
+                index === Math.floor(peopleCards.length / 2)
+                  ? lastElementRef
+                  : null
+              }
+              key={person.id}
+            >
+              <PeopleCard
+                id={person.id}
+                picture={person.picture}
+                name={person.name}
+                interests={person.interests}
+                distance={person.distance}
+                action={person.button}
+                tags={person.tags}
               />
-              <p>No results found</p>
             </Box>
-          </Box>
-        )}
-        {isLoading && <Loader />}
-      </Stack>
+          ))}
+          {peopleCards.length === 0 && !isLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100%"
+            >
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <Icon
+                  icon="tabler:search-off"
+                  fontSize={48}
+                  color={theme.palette.grey[500]}
+                />
+                <p>No results found</p>
+              </Box>
+            </Box>
+          )}
+          {isLoading && <Loader />}
+        </Stack>
+      </Box>
     </Box>
   );
 };

@@ -27,7 +27,9 @@ function CustomTabPanel(props: any) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ mt: 1, overflow: "auto", height: "70vh" }}>{children}</Box>
+        <Box sx={{ mt: 1, overflow: "auto", maxHeight: "80vh" }}>
+          {children}
+        </Box>
       )}
     </div>
   );
