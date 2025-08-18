@@ -26,10 +26,7 @@ import { useState, useEffect } from "react";
 import OpenApp from "../../../components/events/OpenApp";
 import OpenAppHome from "../../../components/events/OpenApp";
 import { useAppSelector, useAppDispatch } from "../../../redux/store";
-import {
-  useUpdateUserProfileMutation,
-  useLogoutMutation,
-} from "../../../services/auth/authApi";
+import { useUpdateUserProfileMutation, useLogoutMutation } from "../../../services/auth/authApi";
 import { updateUserMuteStatus, logout } from "../../../services/auth/authSlice";
 
 export default function Sidebar() {
@@ -37,14 +34,12 @@ export default function Sidebar() {
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [manageAccountOpen, setManageAccountOpen] = useState(false);
-  const [pushNotificationsEnabled, setPushNotificationsEnabled] =
-    useState(true);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [pushNotificationsEnabled, setPushNotificationsEnabled] = useState(true);
   const [statusEnabled, setStatusEnabled] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
-    "success"
-  );
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
   const { mainStyle } = NavbarStyles();
   const location = useLocation();
   const navigate = useNavigate();
@@ -75,10 +70,15 @@ export default function Sidebar() {
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
     setManageAccountOpen(false);
+    setEditProfileOpen(false);
   };
 
   const handleManageAccountClick = () => {
     setManageAccountOpen(!manageAccountOpen);
+  };
+
+  const handleEditProfileClick = () => {
+    setEditProfileOpen(!editProfileOpen);
   };
 
   const handleMenuItemClick = async (path: string) => {
@@ -106,43 +106,35 @@ export default function Sidebar() {
     }
   };
 
-  const handleSwitchChange =
-    (type: "push" | "status") =>
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (type === "push") {
-        try {
-          const formData = new FormData();
-          formData.append("user_id", user?.id?.toString() || "");
-          formData.append("is_mute", event.target.checked ? "0" : "1");
+  const handleSwitchChange = (type: "push" | "status") => async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === "push") {
+      try {
+        const formData = new FormData();
+        formData.append("user_id", user?.id?.toString() || "");
+        formData.append("is_mute", event.target.checked ? "0" : "1");
 
-          const response = await updateUserProfile(formData).unwrap();
+        const response = await updateUserProfile(formData).unwrap();
 
-          if (response.success) {
-            dispatch(updateUserMuteStatus(response.is_mute));
-            setPushNotificationsEnabled(response.is_mute === 0);
-            setAlertMessage(
-              response.message || "Notification settings updated successfully"
-            );
-            setAlertSeverity("success");
-            setShowAlert(true);
-          } else {
-            setAlertMessage(
-              response.error || "Failed to update notification settings"
-            );
-            setAlertSeverity("error");
-            setShowAlert(true);
-          }
-        } catch (error) {
-          setAlertMessage(
-            "An error occurred while updating notification settings"
-          );
+        if (response.success) {
+          dispatch(updateUserMuteStatus(response.is_mute));
+          setPushNotificationsEnabled(response.is_mute === 0);
+          setAlertMessage(response.message || "Notification settings updated successfully");
+          setAlertSeverity("success");
+          setShowAlert(true);
+        } else {
+          setAlertMessage(response.error || "Failed to update notification settings");
           setAlertSeverity("error");
           setShowAlert(true);
         }
-      } else {
-        setStatusEnabled(event.target.checked);
+      } catch (error) {
+        setAlertMessage("An error occurred while updating notification settings");
+        setAlertSeverity("error");
+        setShowAlert(true);
       }
-    };
+    } else {
+      setStatusEnabled(event.target.checked);
+    }
+  };
 
   const manageAccountItems = [
     { text: "Change Password", icon: "mdi:lock", path: "/change-password" },
@@ -164,6 +156,15 @@ export default function Sidebar() {
       onSwitchChange: handleSwitchChange("status"),
     },
   ];
+
+  const onboardingItems = user?.is_business_profile
+    ? [{ text: "Business Info", icon: "mdi:briefcase-outline", path: "/business-info?mode=edit" }]
+    : [
+        { text: "Home Town", icon: "mdi:home-city", path: "/home-town?mode=edit" },
+        { text: "Schools", icon: "mdi:school", path: "/school?mode=edit" },
+        { text: "Education Level", icon: "mdi:graduation-cap", path: "/education-level?mode=edit" },
+        { text: "Work", icon: "mdi:briefcase", path: "/work?mode=edit" },
+      ];
 
   const mainMenuItems = [
     { text: "Preferences", icon: "mdi:cog", path: "/preferences?mode=edit" },
@@ -225,11 +226,7 @@ export default function Sidebar() {
               "&:hover": { bgcolor: theme.palette.grey[200] },
             }}
           >
-            <Icon
-              icon="mdi:settings"
-              fontSize={18}
-              color={theme.palette.grey[800]}
-            />
+            <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
           </IconButton>
         </Box>
         <Menu
@@ -258,11 +255,7 @@ export default function Sidebar() {
             onClick={handleManageAccountClick}
           >
             <ListItemIcon>
-              <Icon
-                icon="mdi:account-cog"
-                fontSize={24}
-                color={theme.palette.primary.main}
-              />
+              <Icon icon="mdi:account-cog" fontSize={24} color={theme.palette.primary.main} />
             </ListItemIcon>
             <ListItemText
               primary="Manage Account"
@@ -288,9 +281,7 @@ export default function Sidebar() {
               {manageAccountItems.map((item) => (
                 <MenuItem
                   key={item.text}
-                  onClick={() =>
-                    !item.hasSwitch && handleMenuItemClick(item.path)
-                  }
+                  onClick={() => !item.hasSwitch && handleMenuItemClick(item.path)}
                   sx={{
                     py: 1.5,
                     px: 2,
@@ -305,11 +296,7 @@ export default function Sidebar() {
                 >
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <ListItemIcon>
-                      <Icon
-                        icon={item.icon}
-                        fontSize={22}
-                        color={theme.palette.primary.main}
-                      />
+                      <Icon icon={item.icon} fontSize={22} color={theme.palette.primary.main} />
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
@@ -339,6 +326,72 @@ export default function Sidebar() {
               ))}
             </Box>
           </Collapse>
+
+          {/* Onboarding Steps Section */}
+          <MenuItem
+            sx={{
+              backgroundColor: theme.palette.primary.lighter,
+              py: 1.5,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.light,
+              },
+            }}
+            onClick={handleEditProfileClick}
+          >
+            <ListItemIcon>
+              <Icon icon="mdi:account-edit" fontSize={24} color={theme.palette.primary.main} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Edit Profile Information"
+              primaryTypographyProps={{
+                fontWeight: 600,
+                color: theme.palette.primary.main,
+              }}
+            />
+            <Icon
+              icon={editProfileOpen ? "mdi:chevron-up" : "mdi:chevron-down"}
+              fontSize={24}
+              color={theme.palette.primary.main}
+            />
+          </MenuItem>
+
+          <Collapse in={editProfileOpen}>
+            <Box
+              sx={{
+                pl: 2,
+                bgcolor: theme.palette.background.paper,
+                borderBottom: `1px solid ${theme.palette.primary.lighter}`,
+              }}
+            >
+              {onboardingItems.map((item) => (
+                <MenuItem
+                  key={item.text}
+                  onClick={() => handleMenuItemClick(item.path)}
+                  sx={{
+                    py: 1.5,
+                    px: 2,
+                    pl: 4,
+                    mb: 0.5,
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.lighter,
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <Icon icon={item.icon} fontSize={22} color={theme.palette.primary.main} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      color: theme.palette.text.primary,
+                      fontSize: "0.9rem",
+                    }}
+                  />
+                </MenuItem>
+              ))}
+            </Box>
+          </Collapse>
+
           <Divider sx={{ borderColor: theme.palette.primary.lighter }} />
           {mainMenuItems.map((item, index) => (
             <MenuItem
@@ -357,11 +410,7 @@ export default function Sidebar() {
               }}
             >
               <ListItemIcon>
-                <Icon
-                  icon={item.icon}
-                  fontSize={22}
-                  color={theme.palette.primary.main}
-                />
+                <Icon icon={item.icon} fontSize={22} color={theme.palette.primary.main} />
               </ListItemIcon>
               <ListItemText
                 primary={item.text}
@@ -384,9 +433,7 @@ export default function Sidebar() {
           <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
             <OutlinedInput
               id="input-with-icon-adornment"
-              placeholder={
-                isMobile ? "Search Anything" : "Search Name of Events"
-              }
+              placeholder={isMobile ? "Search Anything" : "Search Name of Events"}
               startAdornment={
                 <InputAdornment position="start">
                   <Icon icon="tabler:search" fontSize={24} />
@@ -420,12 +467,7 @@ export default function Sidebar() {
               textTransform: "none",
               "&:hover": { bgcolor: theme.palette.primary.dark },
             }}
-            endIcon={
-              <Icon
-                icon={addMenuOpen ? "mdi:chevron-up" : "mdi:chevron-down"}
-                fontSize={24}
-              />
-            }
+            endIcon={<Icon icon={addMenuOpen ? "mdi:chevron-up" : "mdi:chevron-down"} fontSize={24} />}
             startIcon={<Icon icon="mdi:plus-circle-outline" fontSize={24} />}
           >
             Add
@@ -468,9 +510,7 @@ export default function Sidebar() {
                 boxShadow: 1,
                 gap: 2,
               }}
-              startIcon={
-                <Icon icon="mdi:image-multiple-outline" fontSize={20} />
-              }
+              startIcon={<Icon icon="mdi:image-multiple-outline" fontSize={20} />}
               onClick={() => {
                 handleAddMenuClose();
                 navigate("/create-post");
@@ -495,9 +535,7 @@ export default function Sidebar() {
                 boxShadow: 1,
                 gap: 2,
               }}
-              startIcon={
-                <Icon icon="mdi:calendar-month-outline" fontSize={20} />
-              }
+              startIcon={<Icon icon="mdi:calendar-month-outline" fontSize={20} />}
               onClick={() => {
                 handleAddMenuClose();
                 setOpenApp(true);
@@ -521,9 +559,7 @@ export default function Sidebar() {
                 boxShadow: 1,
                 gap: 2,
               }}
-              startIcon={
-                <Icon icon="mdi:account-group-outline" fontSize={20} />
-              }
+              startIcon={<Icon icon="mdi:account-group-outline" fontSize={20} />}
               onClick={() => {
                 handleAddMenuClose();
                 setOpenApp(true);
@@ -540,19 +576,11 @@ export default function Sidebar() {
         onClose={() => setShowAlert(false)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert
-          onClose={() => setShowAlert(false)}
-          severity={alertSeverity}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={() => setShowAlert(false)} severity={alertSeverity} sx={{ width: "100%" }}>
           {alertMessage}
         </Alert>
       </Snackbar>
-      <OpenApp
-        openApp={openApp}
-        setOpenApp={setOpenApp}
-        text="Please open the app to add content."
-      />
+      <OpenApp openApp={openApp} setOpenApp={setOpenApp} text="Please open the app to add content." />
     </>
   );
 }

@@ -1,5 +1,10 @@
 import { RouteObject } from "react-router-dom";
 import Auth from "../pages/auth/auth";
+import HomeTown from "../pages/home-town";
+import School from "../pages/school";
+import EducationLevel from "../pages/education-level";
+import Work from "../pages/work";
+import BusinessInfo from "../pages/business-info/businessInfo";
 import PrivateRoutes from "./privateRoutes";
 import Preferences from "../pages/preferences/preferences";
 import Main from "../ui/layout/main";
@@ -31,6 +36,26 @@ const routes: RouteObject[] = [
   {
     element: <PrivateRoutes />,
     children: [
+      {
+        path: "/home-town",
+        element: <HomeTown />,
+      },
+      {
+        path: "/school",
+        element: <School />,
+      },
+      {
+        path: "/education-level",
+        element: <EducationLevel />,
+      },
+      {
+        path: "/work",
+        element: <Work />,
+      },
+      {
+        path: "/business-info",
+        element: <BusinessInfo />,
+      },
       {
         path: "/preferences",
         element: <Preferences />,
