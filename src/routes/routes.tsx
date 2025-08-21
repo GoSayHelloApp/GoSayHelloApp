@@ -23,6 +23,7 @@ import OtherUserProfile from "../pages/user-profile/otherUserProfile";
 import UserListByLocation from "../pages/user-profile/UserListByLocation";
 import ReportUser from "../pages/user-profile/ReportUser";
 import CreatePost from "../pages/posts/CreatePost";
+import DeleteAccount from "../pages/delete-account";
 
 const routes: RouteObject[] = [
   {
@@ -150,6 +151,11 @@ const routes: RouteObject[] = [
           {
             path: "create-post",
             element: <CreatePost />,
+          },
+          {
+            path: "delete-account",
+            element: <DeleteAccount />,
+            index: true,
           },
           {
             path: "*",

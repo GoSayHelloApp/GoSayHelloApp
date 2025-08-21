@@ -29,6 +29,16 @@ import { useAppSelector, useAppDispatch } from "../../../redux/store";
 import { useUpdateUserProfileMutation, useLogoutMutation } from "../../../services/auth/authApi";
 import { updateUserMuteStatus, logout } from "../../../services/auth/authSlice";
 
+interface ManageAccountItem {
+  text: string;
+  icon: string;
+  path: string;
+  hasSwitch?: boolean;
+  switchState?: boolean;
+  onSwitchChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isDestructive?: boolean;
+}
+
 export default function Sidebar() {
   const [add, setAdd] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
@@ -136,7 +146,7 @@ export default function Sidebar() {
     }
   };
 
-  const manageAccountItems = [
+  const manageAccountItems: ManageAccountItem[] = [
     { text: "Change Password", icon: "mdi:lock", path: "/change-password" },
     { text: "Privacy", icon: "mdi:shield-lock", path: "/privacy" },
     {
@@ -155,6 +165,7 @@ export default function Sidebar() {
       switchState: statusEnabled,
       onSwitchChange: handleSwitchChange("status"),
     },
+    { text: "Delete Account", icon: "mdi:delete", path: "/delete-account", isDestructive: true },
   ];
 
   const onboardingItems = user?.is_business_profile
@@ -246,10 +257,10 @@ export default function Sidebar() {
         >
           <MenuItem
             sx={{
-              backgroundColor: theme.palette.primary.lighter,
+              // backgroundColor: theme.palette.primary.lighter,
               py: 1.5,
               "&:hover": {
-                backgroundColor: theme.palette.primary.light,
+                // backgroundColor: theme.palette.primary.light,
               },
             }}
             onClick={handleManageAccountClick}
@@ -260,8 +271,9 @@ export default function Sidebar() {
             <ListItemText
               primary="Manage Account"
               primaryTypographyProps={{
-                fontWeight: 600,
-                color: theme.palette.primary.main,
+                // fontWeight: 600,
+                color: theme.palette.text.primary,
+                fontSize: "0.9rem",
               }}
             />
             <Icon
@@ -290,18 +302,22 @@ export default function Sidebar() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     "&:hover": {
-                      backgroundColor: theme.palette.primary.lighter,
+                      backgroundColor: item.isDestructive ? theme.palette.error.lighter : theme.palette.primary.lighter,
                     },
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <ListItemIcon>
-                      <Icon icon={item.icon} fontSize={22} color={theme.palette.primary.main} />
+                      <Icon 
+                        icon={item.icon} 
+                        fontSize={22} 
+                        color={item.isDestructive ? theme.palette.error.main : theme.palette.primary.main} 
+                      />
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
-                        color: theme.palette.text.primary,
+                        color: item.isDestructive ? theme.palette.error.main : theme.palette.text.primary,
                         fontSize: "0.9rem",
                       }}
                     />
@@ -330,10 +346,10 @@ export default function Sidebar() {
           {/* Onboarding Steps Section */}
           <MenuItem
             sx={{
-              backgroundColor: theme.palette.primary.lighter,
+              // backgroundColor: theme.palette.primary.lighter,
               py: 1.5,
               "&:hover": {
-                backgroundColor: theme.palette.primary.light,
+                // backgroundColor: theme.palette.primary.light,
               },
             }}
             onClick={handleEditProfileClick}
@@ -344,8 +360,9 @@ export default function Sidebar() {
             <ListItemText
               primary="Edit Profile Information"
               primaryTypographyProps={{
-                fontWeight: 600,
-                color: theme.palette.primary.main,
+                // fontWeight: 600,
+                color: theme.palette.text.primary,
+                fontSize: "0.9rem",
               }}
             />
             <Icon

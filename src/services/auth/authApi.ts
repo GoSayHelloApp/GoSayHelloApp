@@ -55,6 +55,13 @@ export const authApi = createApi({
                 data: params,
             }),
         }),
+        deleteUserAccount: builder.mutation<any, { user_id: number }>({
+            query: (params) => ({
+                url: '/deleteuseraccount',
+                method: 'POST',
+                params: { user_id: params.user_id },
+            }),
+        }),
     }),
 });
 
@@ -64,5 +71,6 @@ export const {
     useForgotPasswordMutation,
     useUpdateUserProfileMutation,
     useLogoutMutation,
-    useGetUserProfileMutation
+    useGetUserProfileMutation,
+    useDeleteUserAccountMutation
 } = authApi;

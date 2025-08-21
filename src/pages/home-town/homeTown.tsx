@@ -29,6 +29,7 @@ const HomeTown: React.FC = () => {
   const [saveUserPersonalInformation] = useSaveUserPersonalInformationMutation();
   const [getAccountSettingInformation] = useGetAccountSettingInformationMutation();
 
+  console.log("statesData", statesData); 
   // Local state
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [selectedState, setSelectedState] = useState<State | null>(null);
@@ -127,7 +128,7 @@ const HomeTown: React.FC = () => {
 
   // Handle states data update (only for non-edit mode)
   useEffect(() => {
-    if (statesData?.success && statesData.stateNames && !isEditMode) {
+    if (statesData?.success && statesData.stateNames) {
       setStates(statesData.stateNames);
       setIsLoadingStates(false);
     }
@@ -135,7 +136,7 @@ const HomeTown: React.FC = () => {
 
   // Handle cities data update (only for non-edit mode)
   useEffect(() => {
-    if (citiesData?.success && citiesData.cities && !isEditMode) {
+    if (citiesData?.success && citiesData.cities) {
       setCities(citiesData.cities);
       setIsLoadingCities(false);
     }
