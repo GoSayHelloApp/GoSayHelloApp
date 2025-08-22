@@ -58,12 +58,17 @@ export default function Sidebar() {
       icon: "ant-design:wallet",
       label: "Wallet",
     },
-    {
-      id: 4,
-      path: "/waves",
-      icon: "mdi:heart",
-      label: "Recent",
-    },
+    // Conditionally render Recent item based on screen size
+    ...(isMobile
+      ? [
+          {
+            id: 4,
+            path: "/waves",
+            icon: "mdi:heart",
+            label: "Recent",
+          },
+        ]
+      : []), // Hide Recent item on desktop
     {
       id: 5,
       path: "/profile",
@@ -177,10 +182,7 @@ export default function Sidebar() {
               boxShadow: theme.shadows[3],
             }}
           >
-            <Icon
-              icon={isCollapsed ? "mdi:chevron-up" : "mdi:chevron-down"}
-              fontSize={24}
-            />
+            <Icon icon={isCollapsed ? "mdi:chevron-up" : "mdi:chevron-down"} fontSize={24} />
           </IconButton>
         </Box>
       )}
@@ -203,9 +205,7 @@ export default function Sidebar() {
                 component={Link}
                 to={index.path}
                 sx={{
-                  ...(location.pathname.split("?").at(0) === index.path
-                    ? activeStyle
-                    : {}),
+                  ...(location.pathname.split("?").at(0) === index.path ? activeStyle : {}),
                   flexDirection: {
                     xs: "column",
                     sm: "column",
@@ -242,10 +242,7 @@ export default function Sidebar() {
                   />
                 </ListItemIcon>
                 {!isMobile && (
-                  <ListItemText
-                    primaryTypographyProps={{ fontSize: 15, fontWeight: 700 }}
-                    primary={index.label}
-                  />
+                  <ListItemText primaryTypographyProps={{ fontSize: 15, fontWeight: 700 }} primary={index.label} />
                 )}
               </ListItemButton>
             </ListItem>

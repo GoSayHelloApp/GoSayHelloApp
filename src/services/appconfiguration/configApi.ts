@@ -150,6 +150,37 @@ export const appConfigApi = createApi({
         };
       },
     }),
+    fetchHomeScreenData: builder.mutation<
+      any,
+      {
+        user_id: number;
+        page_no: number;
+        is_nearby?: number;
+        latitude?: number;
+        longitude?: number;
+      }
+    >({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        queryParams.append("user_id", params.user_id.toString());
+        queryParams.append("page_no", params.page_no.toString());
+
+        if (params.is_nearby !== undefined) {
+          queryParams.append("is_nearby", params.is_nearby.toString());
+        }
+        if (params.latitude !== undefined) {
+          queryParams.append("latitude", params.latitude.toString());
+        }
+        if (params.longitude !== undefined) {
+          queryParams.append("longitude", params.longitude.toString());
+        }
+
+        return {
+          url: `/fetchhomescreendata?${queryParams.toString()}`,
+          method: "POST",
+        };
+      },
+    }),
   }),
 });
 
@@ -161,4 +192,5 @@ export const {
   useGetEducationalInstitutesMutation,
   useGetAccountSettingInformationMutation,
   useDeleteUserPersonalInformationMutation,
+  useFetchHomeScreenDataMutation,
 } = appConfigApi;

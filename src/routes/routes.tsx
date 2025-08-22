@@ -24,6 +24,7 @@ import UserListByLocation from "../pages/user-profile/UserListByLocation";
 import ReportUser from "../pages/user-profile/ReportUser";
 import CreatePost from "../pages/posts/CreatePost";
 import DeleteAccount from "../pages/delete-account";
+import Waves from "../pages/waves/waves";
 
 const routes: RouteObject[] = [
   {
@@ -96,7 +97,7 @@ const routes: RouteObject[] = [
           },
           {
             path: "waves",
-            element: <NotFound />,
+            element: <Waves />,
             index: true,
           },
           {

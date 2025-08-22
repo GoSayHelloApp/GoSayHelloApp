@@ -1,33 +1,24 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography, useTheme } from "@mui/material";
+import { Icon } from "@iconify/react";
+import { RightPanelStyles, mainStackStyle } from "./style";
 import RecentPosts from "./recentPosts/recentPosts";
 import Notifications from "./notifications/notifications";
 import Messages from "./messages/messages";
-import { Icon } from "@iconify/react";
-import { RightPanelStyles } from "./style";
 
 export default function RightPanel() {
-  const [expanded, setExpanded] = React.useState("panel1");
-
-  const handleChange = (panel: any) => (event: any, newExpanded: any) => {
-    setExpanded(newExpanded ? panel : false);
-  };
-
   const theme = useTheme();
+  const [expanded, setExpanded] = useState<string | false>("panel1");
+  const [postCount, setPostCount] = useState(0);
   const { main } = RightPanelStyles();
 
-  const mainStackStyle = {
-    gap: 1,
-    alignItems: "center",
-    width: "100%",
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  // Callback function to receive post count from child component
+  const handlePostCountChange = (count: number) => {
+    setPostCount(count);
   };
 
   const BadgeStyle = {
@@ -39,55 +30,30 @@ export default function RightPanel() {
   };
   return (
     <Box sx={{ ...main }}>
-      <Accordion
-        expanded={expanded === "panel1"}
-        onChange={handleChange("panel1")}
-      >
+      <Accordion expanded={expanded === "panel1"} onChange={handleChange("panel1")}>
         <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
           <Box sx={{ display: "block", width: "100%" }}>
-            <Stack
-              direction={"row"}
-              sx={{ ...mainStackStyle, justifyContent: "space-between" }}
-            >
-              <Stack
-                direction={"row"}
-                sx={{ ...mainStackStyle }}
-                flex={"1"}
-              >
+            <Stack direction={"row"} sx={{ ...mainStackStyle, justifyContent: "space-between" }}>
+              <Stack direction={"row"} sx={{ ...mainStackStyle }} flex={"1"}>
                 <Typography variant="h5">Recent Posts</Typography>
-                <Icon
-                  icon="mdi:heart"
-                  fontSize={24}
-                  color={theme.palette.primary.main}
-                />
+                <Icon icon="mdi:heart" fontSize={24} color={theme.palette.primary.main} />
               </Stack>
               <Box sx={{ ...BadgeStyle }}>
-                <Typography variant="subtitle2">18</Typography>
+                <Typography variant="subtitle2">{postCount}</Typography>
               </Box>
             </Stack>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <RecentPosts />
+          <RecentPosts onPostCountChange={handlePostCountChange} />
         </AccordionDetails>
       </Accordion>
-      <Accordion
-        expanded={expanded === "panel2"}
-        onChange={handleChange("panel2")}
-      >
+      <Accordion expanded={expanded === "panel2"} onChange={handleChange("panel2")}>
         <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
           <Stack direction={"row"} sx={{ ...mainStackStyle }}>
-            <Stack
-              direction={"row"}
-              sx={{ ...mainStackStyle }}
-              flex={"1 1 auto"}
-            >
+            <Stack direction={"row"} sx={{ ...mainStackStyle }} flex={"1 1 auto"}>
               <Typography variant="h5">Notifications</Typography>
-              <Icon
-                icon="fa-solid:bell"
-                fontSize={24}
-                color={theme.palette.primary.main}
-              />
+              <Icon icon="fa-solid:bell" fontSize={24} color={theme.palette.primary.main} />
             </Stack>
             <Box sx={{ ...BadgeStyle }}>
               <Typography variant="subtitle2">6</Typography>
@@ -98,23 +64,12 @@ export default function RightPanel() {
           <Notifications />
         </AccordionDetails>
       </Accordion>
-      <Accordion
-        expanded={expanded === "panel3"}
-        onChange={handleChange("panel3")}
-      >
+      <Accordion expanded={expanded === "panel3"} onChange={handleChange("panel3")}>
         <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
           <Stack direction={"row"} sx={{ ...mainStackStyle }}>
-            <Stack
-              direction={"row"}
-              sx={{ ...mainStackStyle }}
-              flex={"1 1 auto"}
-            >
+            <Stack direction={"row"} sx={{ ...mainStackStyle }} flex={"1 1 auto"}>
               <Typography variant="h5">Messages</Typography>
-              <Icon
-                icon="ant-design:message-filled"
-                fontSize={24}
-                color={theme.palette.primary.main}
-              />
+              <Icon icon="ant-design:message-filled" fontSize={24} color={theme.palette.primary.main} />
             </Stack>
             <Box sx={{ ...BadgeStyle }}>
               <Typography variant="subtitle2">12</Typography>

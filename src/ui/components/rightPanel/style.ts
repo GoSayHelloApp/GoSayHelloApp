@@ -7,7 +7,7 @@ export const RightPanelStyles = () => {
       ".MuiAccordion-heading": {
         px: 3,
         py: 0,
-        display: 'block'
+        display: "block",
       },
       "[class*=MuiAccordion-root]": {
         backgroundColor: theme.palette.grey[200],
@@ -22,16 +22,22 @@ export const RightPanelStyles = () => {
           backgroundColor: theme.palette.grey[200],
         },
         ".MuiAccordionSummary-root": {
-          minHeight: 76
+          minHeight: 76,
         },
         ".MuiAccordionSummary-content": {
           m: 0,
         },
         ".MuiCollapse-root": {
-          maxHeight: 'calc(100svh - 76px - 76px - 48px - 220px)',
-          overflowY: 'auto'
-        }
+          maxHeight: "calc(100svh - 76px - 76px - 48px - 220px)",
+          overflowY: "auto",
+        },
       },
     },
   };
+};
+
+export const mainStackStyle = {
+  gap: 1,
+  alignItems: "center",
+  width: "100%",
 };
