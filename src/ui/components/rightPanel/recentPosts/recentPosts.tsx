@@ -213,7 +213,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
     };
 
     fetchPosts();
-  }, [currentPage, user?.id, location, fetchHomeScreenData]); // Removed 'value' from dependencies
+  }, [currentPage, user?.id, location, fetchHomeScreenData, value]); // Removed 'value' from dependencies
 
   // Reset pagination when tab changes (separate effect)
   React.useEffect(() => {
