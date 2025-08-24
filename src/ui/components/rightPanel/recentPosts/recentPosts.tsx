@@ -380,7 +380,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                         {post.posted_time ? formatTimeAgo(post.posted_time) : "Recently"}
                       </Typography>
                       <Typography fontSize={15} fontWeight={600} color={theme.palette.grey[400]}>
-                        {post.distance ? `${post.distance} minute walk` : "0 minute walk"}
+                        {post.distance ? `${post.distance * 20} minute walk` : "0 minute walk"}
                       </Typography>
                     </Box>
                     <IconButton

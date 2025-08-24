@@ -12,6 +12,7 @@ import Home from "../pages/home/home";
 import EventDetails from "../pages/events/eventDetails";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
+import EventScheduler from "../pages/events/EventScheduler";
 import NotFound from "../pages/notfound/NotFound";
 import ChangePassword from "../pages/change-password/ChangePassword";
 import Privacy from "../pages/privacy/Privacy";
@@ -76,6 +77,11 @@ const routes: RouteObject[] = [
               {
                 path: "nearby",
                 element: <Middle />,
+                index: true,
+              },
+              {
+                path: "event-scheduler",
+                element: <EventScheduler />,
                 index: true,
               },
             ],

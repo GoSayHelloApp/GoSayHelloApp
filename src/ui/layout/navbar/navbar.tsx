@@ -308,10 +308,10 @@ export default function Sidebar() {
                 >
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <ListItemIcon>
-                      <Icon 
-                        icon={item.icon} 
-                        fontSize={22} 
-                        color={item.isDestructive ? theme.palette.error.main : theme.palette.primary.main} 
+                      <Icon
+                        icon={item.icon}
+                        fontSize={22}
+                        color={item.isDestructive ? theme.palette.error.main : theme.palette.primary.main}
                       />
                     </ListItemIcon>
                     <ListItemText
@@ -555,7 +555,7 @@ export default function Sidebar() {
               startIcon={<Icon icon="mdi:calendar-month-outline" fontSize={20} />}
               onClick={() => {
                 handleAddMenuClose();
-                setOpenApp(true);
+                navigate("/event-scheduler");
               }}
             >
               Add Event
