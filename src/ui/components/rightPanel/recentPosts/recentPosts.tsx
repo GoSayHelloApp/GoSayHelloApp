@@ -140,6 +140,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
 
   // Format timestamp to relative time (e.g., "7 hrs ago", "2 days ago")
   const formatTimeAgo = (timestamp: string) => {
+    timestamp = new Date(timestamp).toUTCString();
     const now = new Date();
     const postTime = new Date(timestamp);
     const diffInMs = now.getTime() - postTime.getTime();
@@ -380,7 +381,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                         {post.posted_time ? formatTimeAgo(post.posted_time) : "Recently"}
                       </Typography>
                       <Typography fontSize={15} fontWeight={600} color={theme.palette.grey[400]}>
-                        {post.distance ? `${post.distance * 20} minute walk` : "0 minute walk"}
+                        {post.distance ? `${ Math.ceil(post.distance * 20)} minute walk` : "0 minute walk"}
                       </Typography>
                     </Box>
                     <IconButton

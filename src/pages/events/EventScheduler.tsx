@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -19,6 +19,10 @@ import { Icon } from "@iconify/react";
 import { useTheme } from "@mui/material/styles";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { useLocation } from "../../hooks/useLocation";
+import GoogleMap from "../../components/GoogleMap";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
+import { APIProvider } from "@vis.gl/react-google-maps";
 
 interface EventSchedulerForm {
   eventName: string;
@@ -33,10 +37,15 @@ interface EventSchedulerForm {
   isPublic: boolean;
   isFree: boolean;
   description: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 const EventScheduler: React.FC = () => {
   const theme = useTheme();
+  const userLocation = useLocation();
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  
   const initialFormData: EventSchedulerForm = {
     eventName: "",
     address1: "",
@@ -50,6 +59,8 @@ const EventScheduler: React.FC = () => {
     isPublic: true,
     isFree: true,
     description: "",
+    latitude: undefined,
+    longitude: undefined,
   };
 
   const eventTypes = ["Conference", "Workshop", "Meetup", "Party", "Seminar", "Concert", "Sports", "Other"];
@@ -71,6 +82,21 @@ const EventScheduler: React.FC = () => {
     message: string;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Set map center when user location is available
+  useEffect(() => {
+    if (userLocation) {
+      setMapCenter({ lat: userLocation.latitude, lng: userLocation.longitude });
+    }
+  }, [userLocation]);
+
+  // Handle location selection from map or address autocomplete
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    formik.setFieldValue("latitude", location.lat);
+    formik.setFieldValue("longitude", location.lng);
+    formik.setFieldValue("address1", location.address);
+    setMapCenter({ lat: location.lat, lng: location.lng });
+  };
 
   const formik = useFormik({
     initialValues: initialFormData,
@@ -104,30 +130,31 @@ const EventScheduler: React.FC = () => {
   });
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: "auto" }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            color: "text.primary",
-            position: "relative",
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              bottom: -8,
-              left: 0,
-              width: 60,
+    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}>
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: "auto" }}>
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: "text.primary",
+              position: "relative",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                bottom: -8,
+                left: 0,
+                width: 60,
               height: 3,
-              backgroundColor: theme.palette.primary.main,
-              borderRadius: 1.5,
-            },
-          }}
-        >
-          Event Scheduler
-        </Typography>
-      </Box>
+                backgroundColor: theme.palette.primary.main,
+                borderRadius: 1.5,
+              },
+            }}
+          >
+            Event Scheduler
+          </Typography>
+        </Box>
 
       <Paper
         component="form"
@@ -179,101 +206,50 @@ const EventScheduler: React.FC = () => {
 
         {/* Venue Location Section */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="body1" sx={{ mb: 2, fontWeight: 600 }}>
-            Venue Location
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              Venue Location
+            </Typography>
+            {userLocation ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Icon icon="mdi:map-marker" fontSize={16} color={theme.palette.success.main} />
+                <Typography variant="caption" color="success.main" sx={{ fontWeight: 500 }}>
+                  Location detected
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Icon icon="mdi:map-marker-off" fontSize={16} color={theme.palette.warning.main} />
+                <Typography variant="caption" color="warning.main" sx={{ fontWeight: 500 }}>
+                  Requesting location...
+                </Typography>
+              </Box>
+            )}
+          </Box>
 
-          {/* Map Component Placeholder */}
-          <Box
-            sx={{
-              width: "100%",
-              height: 200,
-              backgroundColor: theme.palette.grey[100],
-              borderRadius: 2,
-              mb: 2,
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: `2px solid ${theme.palette.grey[300]}`,
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 2,
-              }}
-            >
-              <Icon icon="mdi:map-marker" fontSize={40} color={theme.palette.error.main} />
-            </Box>
-
-            {/* Address Popup */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: "30%",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "white",
-                padding: 1.5,
-                borderRadius: 2,
-                boxShadow: 3,
-                zIndex: 3,
-                minWidth: 250,
-                textAlign: "center",
-              }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                277 Bedford Ave, Brooklyn, NY 11211, USA
-              </Typography>
-              <Icon
-                icon="mdi:close"
-                fontSize={16}
-                style={{
-                  position: "absolute",
-                  top: 8,
-                  right: 8,
-                  cursor: "pointer",
-                  color: theme.palette.grey[500],
-                }}
-              />
-            </Box>
-
-            {/* Map Labels */}
-            <Typography
-              variant="caption"
-              sx={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                color: theme.palette.text.secondary,
-                fontSize: "0.7rem",
-              }}
-            >
-              Empire • Astoria • Bushwick • New York • Elmhurst • Forest Hills
+          {/* Google Maps Component */}
+          <Box sx={{ mb: 2 }}>
+            <GoogleMap
+              center={mapCenter}
+              onLocationSelect={handleLocationSelect}
+              height={250}
+              width="100%"
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              💡 Click on the map to select a location, or use the address autocomplete below
             </Typography>
           </Box>
 
           {/* Address Inputs */}
           <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField
-              fullWidth
-              placeholder="Address 1"
-              name="address1"
+            <AddressAutocomplete
               value={formik.values.address1}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              onChange={(value) => formik.setFieldValue("address1", value)}
+              onLocationSelect={handleLocationSelect}
+              placeholder="Address 1"
               error={formik.touched.address1 && Boolean(formik.errors.address1)}
               helperText={formik.touched.address1 && formik.errors.address1}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: theme.palette.grey[100],
-                  borderRadius: 2,
-                },
-              }}
+              onBlur={formik.handleBlur}
             />
             <TextField
               fullWidth
@@ -542,7 +518,8 @@ const EventScheduler: React.FC = () => {
           {alert?.message || ""}
         </Alert>
       </Snackbar>
-    </Box>
+      </Box>
+    </APIProvider>
   );
 };
 
