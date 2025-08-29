@@ -113,26 +113,25 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 boxShadow: 3,
               }}
             />
-            {/* <IconButton
-              sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                bgcolor: "white",
-                boxShadow: 2,
-                width: 28,
-                height: 28,
-                p: 0,
-                zIndex: 1,
-                "&:hover": { bgcolor: theme.palette.grey[200] },
-              }}
-            >
-              <Icon
-                icon="mdi:settings"
-                fontSize={18}
-                color={theme.palette.grey[800]}
-              />
-            </IconButton> */}
+            {isMobile && (
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  bgcolor: "white",
+                  boxShadow: 2,
+                  width: 28,
+                  height: 28,
+                  p: 0,
+                  zIndex: 1,
+                  "&:hover": { bgcolor: theme.palette.grey[200] },
+                }}
+                onClick={() => navigate("/settings")}
+              >
+                <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
+              </IconButton>
+            )}
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography

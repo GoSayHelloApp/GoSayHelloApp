@@ -73,10 +73,6 @@ export default function Navbar({ onSidebarToggle }: NavbarProps) {
     }
   }, [user]);
 
-  const handleAdd = () => {
-    setAdd(true);
-  };
-
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -224,40 +220,42 @@ export default function Navbar({ onSidebarToggle }: NavbarProps) {
             </IconButton>
           )}
 
-          <Box sx={{ position: "relative" }}>
-            <Avatar
-              onClick={handleProfileMenuOpen}
-              sx={{
-                width: isMobile ? 40 : 48,
-                height: isMobile ? 40 : 48,
-                cursor: "pointer",
-                border: `2px solid ${theme.palette.primary.main}`,
-                boxShadow: `0 0 0 2px ${theme.palette.primary.lighter}`,
-                transition: "all 0.2s ease-in-out",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
-                },
-              }}
-              src={user?.profile_image || "/path-to-your-profile-image.jpg"}
-            />
-            <IconButton
-              sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                bgcolor: "white",
-                boxShadow: 2,
-                width: 16,
-                height: 16,
-                p: 0,
-                zIndex: 1,
-                "&:hover": { bgcolor: theme.palette.primary.lighter },
-              }}
-            >
-              <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
-            </IconButton>
-          </Box>
+          {!isMobile && (
+            <Box sx={{ position: "relative" }}>
+              <Avatar
+                onClick={handleProfileMenuOpen}
+                sx={{
+                  width: isMobile ? 40 : 48,
+                  height: isMobile ? 40 : 48,
+                  cursor: "pointer",
+                  border: `2px solid ${theme.palette.primary.main}`,
+                  boxShadow: `0 0 0 2px ${theme.palette.primary.lighter}`,
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
+                  },
+                }}
+                src={user?.profile_image || "/path-to-your-profile-image.jpg"}
+              />
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  bgcolor: "white",
+                  boxShadow: 2,
+                  width: 16,
+                  height: 16,
+                  p: 0,
+                  zIndex: 1,
+                  "&:hover": { bgcolor: theme.palette.primary.lighter },
+                }}
+              >
+                <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
+              </IconButton>
+            </Box>
+          )}
         </Box>
         <Menu
           anchorEl={anchorEl}
@@ -459,30 +457,63 @@ export default function Navbar({ onSidebarToggle }: NavbarProps) {
           ))}
         </Menu>
 
-        <Box
-          sx={{
-            width: isMobile ? "auto" : 500,
-            marginLeft: isMobile ? "8px" : "auto",
-            marginRight: isMobile ? "8px" : "auto",
-          }}
-        >
-          <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
-            <OutlinedInput
-              id="input-with-icon-adornment"
-              placeholder={isMobile ? "Search Anything" : "Search Name of Events"}
-              startAdornment={
-                <InputAdornment position="start">
-                  <Icon icon="tabler:search" fontSize={24} />
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-        </Box>
+        {!isMobile && (
+          <Box
+            sx={{
+              width: 500,
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            <FormControl variant="outlined" hiddenLabel fullWidth size="medium">
+              <OutlinedInput
+                id="input-with-icon-adornment"
+                placeholder="Search Name of Events"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <Icon icon="tabler:search" fontSize={24} />
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </Box>
+        )}
         <Box
           sx={{
             zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
           }}
         >
+          {isMobile && (
+            <IconButton
+              onClick={() => navigate("/search")}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.common.white,
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              <Icon icon="tabler:search" fontSize={24} />
+            </IconButton>
+          )}
+          {isMobile && (
+            <IconButton
+              onClick={() => navigate("/notifications")}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.common.white,
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              <Icon icon="mdi:bell" fontSize={24} />
+            </IconButton>
+          )}
           <Button
             variant="contained"
             onClick={handleAddMenuOpen}
