@@ -39,7 +39,11 @@ interface ManageAccountItem {
   isDestructive?: boolean;
 }
 
-export default function Sidebar() {
+interface NavbarProps {
+  onSidebarToggle: () => void;
+}
+
+export default function Navbar({ onSidebarToggle }: NavbarProps) {
   const [add, setAdd] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -206,39 +210,54 @@ export default function Sidebar() {
           backgroundColor: theme.palette.background.default,
         }}
       >
-        <Box sx={{ position: "relative", display: "inline-block" }}>
-          <Avatar
-            onClick={handleProfileMenuOpen}
-            sx={{
-              width: isMobile ? 40 : 48,
-              height: isMobile ? 40 : 48,
-              cursor: "pointer",
-              border: `2px solid ${theme.palette.primary.main}`,
-              boxShadow: `0 0 0 2px ${theme.palette.primary.lighter}`,
-              transition: "all 0.2s ease-in-out",
-              "&:hover": {
-                transform: "scale(1.05)",
-                boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
-              },
-            }}
-            src={user?.profile_image || "/path-to-your-profile-image.jpg"}
-          />
-          <IconButton
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              bgcolor: "white",
-              boxShadow: 2,
-              width: 16,
-              height: 16,
-              p: 0,
-              zIndex: 1,
-              "&:hover": { bgcolor: theme.palette.grey[200] },
-            }}
-          >
-            <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
-          </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Hamburger Menu Button for Mobile */}
+          {isMobile && (
+            <IconButton
+              onClick={onSidebarToggle}
+              sx={{
+                color: theme.palette.common.white,
+                backgroundColor: theme.palette.primary.main,
+              }}
+            >
+              <Icon icon="mdi:menu" fontSize={24} />
+            </IconButton>
+          )}
+
+          <Box sx={{ position: "relative" }}>
+            <Avatar
+              onClick={handleProfileMenuOpen}
+              sx={{
+                width: isMobile ? 40 : 48,
+                height: isMobile ? 40 : 48,
+                cursor: "pointer",
+                border: `2px solid ${theme.palette.primary.main}`,
+                boxShadow: `0 0 0 2px ${theme.palette.primary.lighter}`,
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  boxShadow: `0 0 0 4px ${theme.palette.primary.lighter}`,
+                },
+              }}
+              src={user?.profile_image || "/path-to-your-profile-image.jpg"}
+            />
+            <IconButton
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                bgcolor: "white",
+                boxShadow: 2,
+                width: 16,
+                height: 16,
+                p: 0,
+                zIndex: 1,
+                "&:hover": { bgcolor: theme.palette.primary.lighter },
+              }}
+            >
+              <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
+            </IconButton>
+          </Box>
         </Box>
         <Menu
           anchorEl={anchorEl}

@@ -12,26 +12,27 @@ import {
   Avatar,
   Button,
   Typography,
+  Drawer,
 } from "@mui/material";
-import { useLocation, Link, Navigate, useNavigate } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { SidebarStyles } from "./style";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { useAppSelector } from "../../../redux/store";
 
-export default function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const { mainStyle, activeStyle } = SidebarStyles();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [isCollapsed, setIsCollapsed] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
 
   const sidebarItems = [
     {
@@ -78,20 +79,24 @@ export default function Sidebar() {
   ];
 
   const handleShareClick = () => {};
-  return (
+
+  const sidebarContent = (
     <Box
       sx={{
-        ...mainStyle,
-        padding: {
-          xs: isCollapsed ? "6px 20px 0px 20px" : "10px 20px 6px 20px",
-          sm: isCollapsed ? "16px 20px 12px 20px" : "10px 20px 12px 20px",
-          md: "20px 20px 24px 24px",
-          lg: "20px 20px 24px 24px",
-        },
+        ...(isMobile
+          ? {
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              padding: "20px",
+              backgroundColor: theme.palette.background.default,
+            }
+          : {}),
+        padding: isMobile ? "20px" : "",
       }}
     >
       {/* User Profile Section for Desktop */}
-      {isDesktop && user && (
+      {user && (
         <Box sx={{ display: "flex", alignItems: "center", mb: 4, mt: 2 }}>
           <Box
             sx={{ position: "relative", mr: 2, cursor: "pointer" }}
@@ -159,34 +164,6 @@ export default function Sidebar() {
         </Box>
       )}
 
-      {isMobile && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: -18,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 2,
-          }}
-        >
-          <IconButton
-            onClick={toggleSidebar}
-            sx={{
-              backgroundColor: theme.palette.primary.main,
-              color: theme.palette.common.white,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.dark,
-              },
-              width: 40,
-              height: 40,
-              boxShadow: theme.shadows[3],
-            }}
-          >
-            <Icon icon={isCollapsed ? "mdi:chevron-up" : "mdi:chevron-down"} fontSize={24} />
-          </IconButton>
-        </Box>
-      )}
-
       <Collapse in={!isCollapsed || !isMobile}>
         <List>
           {sidebarItems.map((index) => (
@@ -204,20 +181,12 @@ export default function Sidebar() {
               <ListItemButton
                 component={Link}
                 to={index.path}
+                onClick={isMobile ? onClose : undefined}
                 sx={{
                   ...(location.pathname.split("?").at(0) === index.path ? activeStyle : {}),
-                  flexDirection: {
-                    xs: "column",
-                    sm: "column",
-                    md: "row",
-                    lg: "row",
-                  },
-                  padding: {
-                    xs: "4px 8px",
-                    sm: "4px 8px",
-                    md: "8px 16px",
-                    lg: "8px 16px",
-                  },
+                  flexDirection: "row",
+                  padding: "12px 16px",
+                  ...(isMobile && { gap: 2, borderRadius: "24px" }),
                 }}
               >
                 <ListItemIcon
@@ -241,14 +210,60 @@ export default function Sidebar() {
                     }
                   />
                 </ListItemIcon>
-                {!isMobile && (
-                  <ListItemText primaryTypographyProps={{ fontSize: 15, fontWeight: 700 }} primary={index.label} />
-                )}
+                <ListItemText
+                  primaryTypographyProps={{
+                    fontSize: isMobile ? 14 : 15,
+                    fontWeight: 700,
+                  }}
+                  primary={index.label}
+                />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Collapse>
+    </Box>
+  );
+
+  // Mobile: Render as Drawer
+  if (isMobile) {
+    return (
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={onClose}
+        variant="temporary"
+        ModalProps={{
+          keepMounted: true, // Better mobile performance
+        }}
+        PaperProps={{
+          sx: {
+            width: 280,
+            maxWidth: "80vw",
+            backgroundColor: theme.palette.background.default,
+            borderRight: `1px solid ${theme.palette.divider}`,
+          },
+        }}
+      >
+        {sidebarContent}
+      </Drawer>
+    );
+  }
+
+  // Desktop: Render as fixed sidebar
+  return (
+    <Box
+      sx={{
+        ...mainStyle,
+        padding: {
+          xs: isCollapsed ? "6px 20px 0px 20px" : "10px 20px 6px 20px",
+          sm: isCollapsed ? "16px 20px 12px 20px" : "10px 20px 6px 20px",
+          md: "20px 20px 24px 24px",
+          lg: "20px 20px 24px 24px",
+        },
+      }}
+    >
+      {sidebarContent}
     </Box>
   );
 }

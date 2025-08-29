@@ -1,25 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { TextField, Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useRef } from "react";
+import { Box, List, ListItem, ListItemText, Paper, TextField, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { Loader } from "@googlemaps/js-api-loader";
 
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
-  onLocationSelect?: (location: { lat: number; lng: number; address: string }) => void;
+  onLocationSelect?: (location: { lat: number; lng: number; address: string; nearby?: any[] }) => void;
   placeholder?: string;
   fullWidth?: boolean;
   error?: boolean;
   helperText?: string | false | undefined;
   onBlur?: (e?: any) => void;
-}
-
-interface PlacePrediction {
-  place_id: string;
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-  };
 }
 
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
@@ -33,105 +25,149 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   onBlur,
 }) => {
   const theme = useTheme();
-  const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
-  const placesService = useRef<google.maps.places.PlacesService | null>(null);
-  const mapDivRef = useRef<HTMLDivElement>(null);
+  const [service, setService] = useState<google.maps.places.AutocompleteService | null>(null);
+  const [placesService, setPlacesService] = useState<google.maps.places.PlacesService | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
-  // Load Google Maps script
+  const dummyMap = useRef<HTMLDivElement>(null);
+
+  // Get user location
   useEffect(() => {
-    // Set loaded to true since APIProvider will handle script loading
-    setIsLoaded(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        () => setUserLocation(null)
+      );
+    }
   }, []);
 
+  // Load Google Maps API + Places
   useEffect(() => {
-    if (isLoaded) {
-      autocompleteService.current = new google.maps.places.AutocompleteService();
-      if (mapDivRef.current) {
-        placesService.current = new google.maps.places.PlacesService(mapDivRef.current);
-      }
-    }
-  }, [isLoaded]);
+    const init = async () => {
+      const loader = new Loader({
+        apiKey: process.env.REACT_APP_GOOGLE_MAP_API as string,
+        version: "weekly",
+        libraries: ["places"],
+      });
 
-  const handleInputChange = async (inputValue: string) => {
+      await loader.importLibrary("places");
+      await loader.importLibrary("maps");
+
+      const autocompleteService = new google.maps.places.AutocompleteService();
+      setService(autocompleteService);
+
+      if (dummyMap.current) {
+        const map = new google.maps.Map(dummyMap.current, {
+          center: userLocation || { lat: 31.582045, lng: 74.329376 }, // fallback: Lahore
+          zoom: 13,
+        });
+        const ps = new google.maps.places.PlacesService(map);
+        setPlacesService(ps);
+      }
+    };
+
+    init();
+  }, [userLocation]);
+
+  const handleInputChange = (inputValue: string) => {
     onChange(inputValue);
-    
-    if (!inputValue.trim() || !autocompleteService.current) {
+
+    if (!inputValue.trim() || !service) {
       setPredictions([]);
       setShowPredictions(false);
       return;
     }
 
     setIsLoading(true);
-    try {
-      const response = await autocompleteService.current.getPlacePredictions({
+
+    service.getPlacePredictions(
+      {
         input: inputValue,
-        types: ['address'],
-        componentRestrictions: { country: 'us' }, // You can modify this for different countries
-      });
-      
-      setPredictions(response.predictions || []);
-      setShowPredictions(true);
-    } catch (error) {
-      console.error('Error fetching predictions:', error);
-      setPredictions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePredictionSelect = async (prediction: PlacePrediction) => {
-    onChange(prediction.description);
-    setShowPredictions(false);
-    setPredictions([]);
-
-    if (onLocationSelect && placesService.current) {
-      try {
-        const place = await new Promise<google.maps.places.PlaceResult>((resolve, reject) => {
-          placesService.current!.getDetails(
-            {
-              placeId: prediction.place_id,
-              fields: ['geometry', 'formatted_address'],
-            },
-            (result, status) => {
-              if (status === window.google.maps.places.PlacesServiceStatus.OK && result) {
-                resolve(result);
-              } else {
-                reject(new Error(`Places service error: ${status}`));
-              }
+        locationBias: userLocation
+          ? {
+              center: new google.maps.LatLng(userLocation.lat, userLocation.lng),
+              radius: 5000, // 5km bias
             }
-          );
-        });
-
-        if (place.geometry?.location) {
-          onLocationSelect({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            address: place.formatted_address || prediction.description,
-          });
+          : undefined,
+      },
+      (results) => {
+        if (results && results.length > 0) {
+          setPredictions(results);
+          setShowPredictions(true);
+        } else {
+          setPredictions([]);
+          setShowPredictions(false);
         }
-      } catch (error) {
-        console.error('Error getting place details:', error);
+        setIsLoading(false);
       }
-    }
+    );
   };
 
-  const handleInputBlur = () => {
-    // Delay hiding predictions to allow clicking on them
+  const handlePredictionSelect = (prediction: google.maps.places.AutocompletePrediction) => {
+    if (!placesService) return;
+
+    placesService.getDetails(
+      {
+        placeId: prediction.place_id,
+        fields: ["geometry", "formatted_address", "name"],
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          const address = place.formatted_address || place.name || prediction.description;
+          onChange(address);
+          setShowPredictions(false);
+          setPredictions([]);
+
+          if (onLocationSelect && place.geometry?.location) {
+            const location = {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
+              address,
+            };
+
+            // Fetch nearby places (restaurants within 1.5km as example)
+            placesService.nearbySearch(
+              {
+                location: place.geometry.location,
+                radius: 1500,
+              },
+              (nearbyResults, nearbyStatus) => {
+                if (nearbyStatus === google.maps.places.PlacesServiceStatus.OK && nearbyResults) {
+                  onLocationSelect({
+                    ...location,
+                    nearby: nearbyResults,
+                  });
+                } else {
+                  onLocationSelect(location);
+                }
+              }
+            );
+          }
+        }
+      }
+    );
+  };
+
+  const handleInputBlur = (e?: any) => {
     setTimeout(() => {
       setShowPredictions(false);
     }, 200);
-    onBlur?.();
+    onBlur?.(e);
   };
 
   return (
-    <Box sx={{ position: 'relative', width: fullWidth ? '100%' : 'auto' }}>
-      {/* Hidden div for Places service */}
-      <div ref={mapDivRef} style={{ display: 'none' }} />
-      
+    <Box sx={{ position: "relative", width: fullWidth ? "100%" : "auto" }}>
       <TextField
         fullWidth={fullWidth}
         value={value}
@@ -148,50 +184,45 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           },
         }}
       />
-      
+
       {/* Predictions dropdown */}
       {showPredictions && predictions.length > 0 && (
         <Paper
           elevation={3}
           sx={{
-            position: 'absolute',
-            top: '100%',
+            position: "absolute",
+            top: "100%",
             left: 0,
             right: 0,
             zIndex: 1000,
             maxHeight: 200,
-            overflow: 'auto',
+            overflow: "auto",
             mt: 1,
             borderRadius: 2,
           }}
         >
           <List dense>
-            {predictions.map((prediction) => (
-                             <ListItem
-                 key={prediction.place_id}
-                 component="button"
-                 onClick={() => handlePredictionSelect(prediction)}
-                 sx={{
-                   width: '100%',
-                   textAlign: 'left',
-                   border: 'none',
-                   background: 'none',
-                   cursor: 'pointer',
-                   '&:hover': {
-                     backgroundColor: theme.palette.action.hover,
-                   },
-                 }}
-               >
+            {predictions.map((p, idx) => (
+              <ListItem
+                key={idx}
+                component="button"
+                onClick={() => handlePredictionSelect(p)}
+                sx={{
+                  width: "100%",
+                  textAlign: "left",
+                  border: "none",
+                  background: "none",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+              >
                 <ListItemText
-                  primary={prediction.structured_formatting.main_text}
-                  secondary={prediction.structured_formatting.secondary_text}
+                  primary={p.description}
                   primaryTypographyProps={{
-                    variant: 'body2',
+                    variant: "body2",
                     fontWeight: 500,
-                  }}
-                  secondaryTypographyProps={{
-                    variant: 'caption',
-                    color: 'text.secondary',
                   }}
                 />
               </ListItem>
@@ -199,15 +230,14 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           </List>
         </Paper>
       )}
-      
-      {/* Loading indicator */}
+
       {isLoading && (
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
+            position: "absolute",
+            top: "50%",
             right: 16,
-            transform: 'translateY(-50%)',
+            transform: "translateY(-50%)",
             zIndex: 1,
           }}
         >
@@ -216,6 +246,9 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           </Typography>
         </Box>
       )}
+
+      {/* hidden div for PlacesService */}
+      <div ref={dummyMap} style={{ display: "none" }} />
     </Box>
   );
 };
