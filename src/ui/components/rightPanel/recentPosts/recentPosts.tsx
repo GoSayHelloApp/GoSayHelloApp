@@ -274,14 +274,14 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
       >
         Recent Posts
       </Typography>
-      <IconButton
+      {/* <IconButton
         onClick={handleRefresh}
         sx={{
           color: theme.palette.grey[800],
         }}
       >
         <Icon icon="mdi:refresh" fontSize={24} />
-      </IconButton>
+      </IconButton> */}
     </Box>
   );
 

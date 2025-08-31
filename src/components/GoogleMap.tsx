@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import { Map, Marker } from "@vis.gl/react-google-maps";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
@@ -32,15 +32,23 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ center, onLocationSelect, height 
       // Reverse geocode to get address
       if (onLocationSelect) {
         try {
-          // Use the Google Maps API from the context
-          const geocoder = new google.maps.Geocoder();
-          const response = await geocoder.geocode({ location: { lat, lng } });
-          if (response.results[0]) {
-            const address = response.results[0].formatted_address;
-            onLocationSelect({ lat, lng, address });
+          // Ensure Google Maps API is loaded before using geocoder
+          if (typeof google !== 'undefined' && google.maps && google.maps.Geocoder) {
+            const geocoder = new google.maps.Geocoder();
+            const response = await geocoder.geocode({ location: { lat, lng } });
+            if (response.results[0]) {
+              const address = response.results[0].formatted_address;
+              onLocationSelect({ lat, lng, address });
+            }
+          } else {
+            console.warn("Google Maps API not fully loaded yet");
+            // Fallback: just pass coordinates without address
+            onLocationSelect({ lat, lng, address: `${lat}, ${lng}` });
           }
         } catch (error) {
           console.error("Error reverse geocoding:", error);
+          // Fallback: just pass coordinates without address
+          onLocationSelect({ lat, lng, address: `${lat}, ${lng}` });
         }
       }
     }
@@ -69,23 +77,21 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ center, onLocationSelect, height 
 
   return (
     <Box sx={{ width, height }}>
-      <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API ?? ""}>
-        <Map
-          mapId="google-map"
-          defaultCenter={mapCenter || undefined}
-          zoom={15}
-          onClick={handleMapClick}
-          onCenterChanged={(e) => {
-            if (e.detail && e.detail.center) {
-              setMapCenter(e.detail.center);
-            }
-          }}
-          style={{ width: "100%", height: "100%", borderRadius: 8 }}
-          gestureHandling={"greedy"}
-        >
-          <Marker position={selectedLocation} />
-        </Map>
-      </APIProvider>
+      <Map
+        mapId="google-map"
+        defaultCenter={mapCenter || undefined}
+        zoom={15}
+        onClick={handleMapClick}
+        onCenterChanged={(e) => {
+          if (e.detail && e.detail.center) {
+            setMapCenter(e.detail.center);
+          }
+        }}
+        style={{ width: "100%", height: "100%", borderRadius: 8 }}
+        gestureHandling={"greedy"}
+      >
+        <Marker position={selectedLocation} />
+      </Map>
     </Box>
   );
 };

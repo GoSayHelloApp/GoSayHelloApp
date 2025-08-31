@@ -13,6 +13,7 @@ import {
   Paper,
   Alert,
   Snackbar,
+  CircularProgress,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTheme } from "@mui/material/styles";
@@ -25,6 +26,15 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { useAppSelector } from "../../redux/store";
 import { useAddNewEventMutation } from "../../services/events/eventApi";
 import { useMediaQuery } from "@mui/material";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import dayjs, { Dayjs } from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+// Extend dayjs with UTC plugin
+dayjs.extend(utc);
 
 interface EventSchedulerForm {
   venue_name: string;
@@ -32,10 +42,8 @@ interface EventSchedulerForm {
   address_1: string;
   address_2: string;
   event_url: string;
-  start_date: string;
-  start_time: string;
-  end_date: string;
-  end_time: string;
+  start_datetime: Dayjs | null;
+  end_datetime: Dayjs | null;
   event_type_id: string;
   event_type_name: string;
   is_public: boolean;
@@ -53,12 +61,12 @@ interface EventSchedulerForm {
 
 const EventScheduler: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const userLocation = useLocation();
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const eventTypes = useAppSelector((state) => state.appConfig.eventTypes) || [];
   const [addNewEvent, { isLoading: isSubmitting }] = useAddNewEventMutation();
   const user = useAppSelector((state) => state.auth.user);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   const initialFormData: EventSchedulerForm = {
     venue_name: "",
@@ -66,10 +74,8 @@ const EventScheduler: React.FC = () => {
     address_1: "",
     address_2: "",
     event_url: "",
-    start_date: "",
-    start_time: "",
-    end_date: "",
-    end_time: "",
+    start_datetime: null,
+    end_datetime: null,
     event_type_id: "",
     event_type_name: "",
     is_public: true,
@@ -89,26 +95,20 @@ const EventScheduler: React.FC = () => {
   const validationSchema = Yup.object({
     venue_name: Yup.string().required("Venue name is required").min(3, "Venue name must be at least 3 characters long"),
     address_1: Yup.string().required("Address is required"),
-    start_date: Yup.string()
-      .required("Start date is required")
-      .test("not-past-date", "Start date cannot be in the past", function (value) {
+    start_datetime: Yup.mixed()
+      .required("Start date and time is required")
+      .test("not-past-datetime", "Start date and time cannot be in the past", function (value: any) {
         if (!value) return false;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const startDate = new Date(value);
-        return startDate >= today;
+        const now = dayjs();
+        return dayjs.isDayjs(value) && value.isAfter(now);
       }),
-    start_time: Yup.string().required("Start time is required"),
-    end_date: Yup.string()
-      .required("End date is required")
-      .test("after-start-date", "End date must be after start date", function (value) {
-        const { start_date } = this.parent;
-        if (!value || !start_date) return false;
-        const startDate = new Date(start_date);
-        const endDate = new Date(value);
-        return endDate >= startDate;
+    end_datetime: Yup.mixed()
+      .required("End date and time is required")
+      .test("after-start-datetime", "End date and time must be after start date and time", function (value: any) {
+        const { start_datetime } = this.parent;
+        if (!value || !start_datetime) return false;
+        return dayjs.isDayjs(value) && dayjs.isDayjs(start_datetime) && value.isAfter(start_datetime);
       }),
-    end_time: Yup.string().required("End time is required"),
     event_type_id: Yup.string().required("Event type is required"),
     description: Yup.string().required("Description is required"),
   });
@@ -131,36 +131,34 @@ const EventScheduler: React.FC = () => {
     console.log("Event types loaded:", eventTypes);
   }, [eventTypes]);
 
-  // Helper function to get minimum date (today)
-  const getMinDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
+  // Handle Google Maps API loading
+  useEffect(() => {
+    const checkGoogleMapsLoaded = () => {
+      if (typeof google !== 'undefined' && google.maps && google.maps.Map) {
+        setIsGoogleMapsLoaded(true);
+      } else {
+        // Retry after a short delay
+        setTimeout(checkGoogleMapsLoaded, 100);
+      }
+    };
+    
+    checkGoogleMapsLoaded();
+  }, []);
 
-  // Helper function to get minimum end date based on start date
-  const getMinEndDate = () => {
-    return formik.values.start_date || getMinDate();
-  };
 
-  // Helper function to convert local time to UTC
-  const convertToUTC = (date: string, time: string, timezoneOffset?: number): string => {
-    if (!date || !time) return "";
 
-    // Create a date object with the local date and time
-    const localDateTime = new Date(`${date}T${time}`);
+  // Helper function to convert Dayjs to UTC
+  const convertToUTC = (datetime: Dayjs | null, timezoneOffset?: number): string => {
+    if (!datetime) return "";
 
     // If we have timezone offset, adjust accordingly
     if (timezoneOffset !== undefined) {
       // Convert to UTC by subtracting the timezone offset
-      const utcTime = new Date(localDateTime.getTime() - timezoneOffset * 60 * 60 * 1000);
-      return utcTime.toISOString();
+      return datetime.subtract(timezoneOffset, 'hour').utc().toISOString();
     }
 
-    // Fallback: assume local timezone and convert to UTC
-    return localDateTime.toISOString();
+    // Fallback: convert to UTC
+    return datetime.utc().toISOString();
   };
 
   // Fallback timezone detection using coordinates
@@ -270,14 +268,21 @@ const EventScheduler: React.FC = () => {
         formData.append("address_1", values.address_1);
         formData.append("address_2", values.address_2);
         formData.append("event_url", values.event_url);
-        // Convert local times to UTC
-        const startDateTimeUTC = convertToUTC(values.start_date, values.start_time, values.timezone_offset);
-        const endDateTimeUTC = convertToUTC(values.end_date, values.end_time, values.timezone_offset);
+        
+        // Convert datetime to UTC and extract date/time components
+        const startDateTimeUTC = convertToUTC(values.start_datetime, values.timezone_offset);
+        const endDateTimeUTC = convertToUTC(values.end_datetime, values.timezone_offset);
 
-        formData.append("start_date", values.start_date);
-        formData.append("start_time", values.start_time);
-        formData.append("end_date", values.end_date);
-        formData.append("end_time", values.end_time);
+        // Extract date and time components for backward compatibility
+        const startDate = values.start_datetime?.format('YYYY-MM-DD') || '';
+        const startTime = values.start_datetime?.format('HH:mm') || '';
+        const endDate = values.end_datetime?.format('YYYY-MM-DD') || '';
+        const endTime = values.end_datetime?.format('HH:mm') || '';
+
+        formData.append("start_date", startDate);
+        formData.append("start_time", startTime);
+        formData.append("end_date", endDate);
+        formData.append("end_time", endTime);
         formData.append("start_datetime_utc", startDateTimeUTC);
         formData.append("end_datetime_utc", endDateTimeUTC);
         formData.append("event_type_id", values.event_type_id);
@@ -321,9 +326,9 @@ const EventScheduler: React.FC = () => {
       }
     },
   });
+
   return (
-    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API || ""}>
-      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: "auto" }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: "auto" }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography
@@ -361,11 +366,11 @@ const EventScheduler: React.FC = () => {
           {/* Event Details Section */}
           <Box
             sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
+              // display: "flex",
+              // flexDirection: { xs: "column", md: "row" },
               gap: 3,
               mb: 4,
-              alignItems: { xs: "center", md: "flex-start" },
+              // alignItems: { xs: "center", md: "flex-start" },
             }}
           >
             {/* Event Image Input */}
@@ -374,8 +379,8 @@ const EventScheduler: React.FC = () => {
                 component="label"
                 htmlFor="event-image-input"
                 sx={{
-                  width: 80,
-                  height: 80,
+                  width: { xs: 120, md: "30%" },
+                  height: { xs: 120, md: "30%" },
                   border: `2px dashed ${theme.palette.grey[300]}`,
                   borderRadius: 2,
                   display: "flex",
@@ -398,7 +403,7 @@ const EventScheduler: React.FC = () => {
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                      borderRadius: 6,
+                      borderRadius: "inherit",
                     }}
                   />
                 ) : (
@@ -466,10 +471,34 @@ const EventScheduler: React.FC = () => {
 
             {/* Google Maps Component */}
             <Box sx={{ mb: 2 }}>
-              <GoogleMap center={mapCenter} onLocationSelect={handleLocationSelect} height={250} width="100%" />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                💡 Click on the map to select a location, or use the address autocomplete below
-              </Typography>
+              {isGoogleMapsLoaded ? (
+                <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API || ""}>
+                  <GoogleMap center={mapCenter} onLocationSelect={handleLocationSelect} height={250} width="100%" />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                    💡 Click on the map to select a location, or use the address autocomplete below
+                  </Typography>
+                </APIProvider>
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: 250,
+                    backgroundColor: theme.palette.grey[100],
+                    borderRadius: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: `2px solid ${theme.palette.grey[300]}`,
+                    gap: 2,
+                  }}
+                >
+                  <CircularProgress size={40} color="primary" />
+                  <Typography variant="body2" color="text.secondary">
+                    Loading Google Maps...
+                  </Typography>
+                </Box>
+              )}
             </Box>
 
             {/* Address Inputs */}
@@ -551,74 +580,58 @@ const EventScheduler: React.FC = () => {
             <Typography variant="body1" sx={{ mb: 2, fontWeight: 600 }}>
               Date & Time
             </Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-              <TextField
-                type="date"
-                placeholder="Start Date"
-                name="start_date"
-                value={formik.values.start_date}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                inputProps={{ min: getMinDate() }}
-                error={formik.touched.start_date && Boolean(formik.errors.start_date)}
-                helperText={formik.touched.start_date && formik.errors.start_date}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: theme.palette.grey[100],
-                    borderRadius: 2,
-                  },
-                }}
-              />
-              <TextField
-                type="time"
-                placeholder="Start Time"
-                name="start_time"
-                value={formik.values.start_time}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.start_time && Boolean(formik.errors.start_time)}
-                helperText={formik.touched.start_time && formik.errors.start_time}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: theme.palette.grey[100],
-                    borderRadius: 2,
-                  },
-                }}
-              />
-              <TextField
-                type="date"
-                placeholder="End Date"
-                name="end_date"
-                value={formik.values.end_date}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                inputProps={{ min: getMinEndDate() }}
-                error={formik.touched.end_date && Boolean(formik.errors.end_date)}
-                helperText={formik.touched.end_date && formik.errors.end_date}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: theme.palette.grey[100],
-                    borderRadius: 2,
-                  },
-                }}
-              />
-              <TextField
-                type="time"
-                placeholder="End Time"
-                name="end_time"
-                value={formik.values.end_time}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.end_time && Boolean(formik.errors.end_time)}
-                helperText={formik.touched.end_time && formik.errors.end_time}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: theme.palette.grey[100],
-                    borderRadius: 2,
-                  },
-                }}
-              />
-            </Box>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+                <DateTimePicker
+                  label="Start Date & Time"
+                  value={formik.values.start_datetime}
+                  onChange={(newValue) => {
+                    formik.setFieldValue('start_datetime', newValue);
+                  }}
+                  viewRenderers={{
+                    hours: renderTimeViewClock,
+                    minutes: renderTimeViewClock,
+                  }}
+                  minDateTime={dayjs()}
+                  slotProps={{
+                    textField: {
+                      error: formik.touched.start_datetime && Boolean(formik.errors.start_datetime),
+                      helperText: formik.touched.start_datetime && formik.errors.start_datetime,
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                        },
+                      },
+                    },
+                  }}
+                />
+                <DateTimePicker
+                  label="End Date & Time"
+                  value={formik.values.end_datetime}
+                  onChange={(newValue) => {
+                    formik.setFieldValue('end_datetime', newValue);
+                  }}
+                  viewRenderers={{
+                    hours: renderTimeViewClock,
+                    minutes: renderTimeViewClock,
+                  }}
+                  minDateTime={formik.values.start_datetime || dayjs()}
+                  slotProps={{
+                    textField: {
+                      error: formik.touched.end_datetime && Boolean(formik.errors.end_datetime),
+                      helperText: formik.touched.end_datetime && formik.errors.end_datetime,
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
           </Box>
 
           {/* Event Type Section */}
@@ -664,68 +677,74 @@ const EventScheduler: React.FC = () => {
               </Select>
             </FormControl>
 
-            <ToggleButtonGroup
-              value={formik.values.is_public}
-              exclusive
-              fullWidth
-              onChange={(e, value) => {
-                if (value !== null) {
-                  formik.setFieldValue("is_public", value);
-                }
-              }}
-              sx={{
-                "& .MuiToggleButton-root": {
-                  borderRadius: 2,
+            <Box sx={{ borderRadius: 4, overflow: "hidden", border: "none" }}>
+              <ToggleButtonGroup
+                value={formik.values.is_public}
+                exclusive
+                fullWidth
+                onChange={(e, value) => {
+                  if (value !== null) {
+                    formik.setFieldValue("is_public", value);
+                  }
+                }}
+                sx={{
                   border: "none",
-                  px: 3,
-                  py: 1,
-                  width: "100%",
-                  "&.Mui-selected": {
-                    backgroundColor: theme.palette.primary.main,
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.dark,
+                  "& .MuiToggleButton-root": {
+                    borderRadius: 0,
+                    border: "none",
+                    px: 3,
+                    py: 1,
+                    width: "100%",
+                    "&.Mui-selected": {
+                      backgroundColor: theme.palette.primary.main,
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              <ToggleButton value={true}>Public Event</ToggleButton>
-              <ToggleButton value={false}>Private Event</ToggleButton>
-            </ToggleButtonGroup>
+                }}
+              >
+                <ToggleButton value={true}>Public Event</ToggleButton>
+                <ToggleButton value={false}>Private Event</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Box>
 
           {/* Pricing Section */}
           <Box sx={{ mb: 4 }}>
-            <ToggleButtonGroup
-              value={!formik.values.is_paid_event}
-              exclusive
-              fullWidth
-              onChange={(e, value) => {
-                if (value !== null) {
-                  formik.setFieldValue("is_paid_event", !value);
-                }
-              }}
-              sx={{
-                "& .MuiToggleButton-root": {
-                  borderRadius: 2,
+            <Box sx={{ borderRadius: 4, overflow: "hidden", border: "none" }}>
+              <ToggleButtonGroup
+                value={!formik.values.is_paid_event}
+                exclusive
+                fullWidth
+                onChange={(e, value) => {
+                  if (value !== null) {
+                    formik.setFieldValue("is_paid_event", !value);
+                  }
+                }}
+                sx={{
                   border: "none",
-                  px: 3,
-                  py: 1,
-                  width: "100%",
-                  "&.Mui-selected": {
-                    backgroundColor: theme.palette.primary.main,
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.dark,
+                  "& .MuiToggleButton-root": {
+                    border: "none",
+                    borderRadius: 0,
+                    px: 3,
+                    py: 1,
+                    width: "100%",
+                    "&.Mui-selected": {
+                      backgroundColor: theme.palette.primary.main,
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              <ToggleButton value={true}>Free</ToggleButton>
-              <ToggleButton value={false}>Paid</ToggleButton>
-            </ToggleButtonGroup>
+                }}
+              >
+                <ToggleButton value={true}>Free</ToggleButton>
+                <ToggleButton value={false}>Paid</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Box>
 
           {/* Description Section */}
@@ -788,7 +807,6 @@ const EventScheduler: React.FC = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </APIProvider>
   );
 };
 
