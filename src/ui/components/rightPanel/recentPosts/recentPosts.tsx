@@ -265,8 +265,9 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 700,
+          fontWeight: 600,
           color: theme.palette.grey[800],
+          fontSize: 24,
           flex: 1,
           textAlign: "center",
           marginRight: "40px", // Compensate for back button width
@@ -285,11 +286,26 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
     </Box>
   );
 
-  // Desktop tabs (existing implementation)
   const DesktopTabs = () => (
-    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-      <Tab sx={{ flex: "1 1 auto", fontSize: 15 }} label="Nearby Users" {...a11yProps(0)} />
-      <Tab sx={{ flex: "1 1 auto", fontSize: 15 }} label="Connected Users" {...a11yProps(1)} />
+    <Tabs
+      value={value}
+      onChange={handleChange}
+      sx={{
+        backgroundColor: theme.palette.grey[400],
+        borderRadius: "33px",
+        mb: 3,
+      }}
+    >
+      <Tab
+        sx={{ flex: "1 1 auto", height: "60px", width: "150px", fontSize: 15, fontWeight: 600 }}
+        label="Nearby Users"
+        {...a11yProps(0)}
+      />
+      <Tab
+        sx={{ flex: "1 1 auto", height: "60px", width: "150px", fontSize: 15, fontWeight: 600 }}
+        label="Connected Users"
+        {...a11yProps(1)}
+      />
     </Tabs>
   );
 
@@ -297,24 +313,17 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
     <React.Fragment>
       {isMobile && <MobileHeader />}
       {isMobile ? (
-        // Mobile view with new tab styling
         <Box
           sx={{
-            maxWidth: { xs: 400, md: 600 },
+            // maxWidth: { xs: 400, md: 600 },
             mx: "auto",
             mb: 2,
             px: { xs: 2, md: 0 },
           }}
         >
-          <Paper sx={{ borderRadius: 4 }}>
-            <Tabs value={value} onChange={handleChange} variant="fullWidth">
-              <Tab label="Nearby Users" />
-              <Tab label="Connected Users" />
-            </Tabs>
-          </Paper>
+          <DesktopTabs />
         </Box>
       ) : (
-        // Desktop view with original implementation
         <DesktopTabs />
       )}
 
@@ -344,6 +353,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                 display: "flex",
                 justifyContent: "center",
                 mb: 10,
+                maxWidth: "100%",
               }}
             >
               <Box
@@ -356,6 +366,8 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                   borderRadius: isMobile ? "16px" : mainCard.borderRadius,
                   position: "relative",
                   overflow: "hidden",
+                  backgroundPosition: "top center",
+                  backgroundSize: "cover",
                 }}
               >
                 <Button sx={{ color: "white" }} className="reportButton" variant="soft" color="inherit">
@@ -381,7 +393,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                         {post.posted_time ? formatTimeAgo(post.posted_time) : "Recently"}
                       </Typography>
                       <Typography fontSize={15} fontWeight={600} color={theme.palette.grey[400]}>
-                        {post.distance ? `${ Math.ceil(post.distance * 20)} minute walk` : "0 minute walk"}
+                        {post.distance ? `${Math.ceil(post.distance * 20)} minute walk` : "0 minute walk"}
                       </Typography>
                     </Box>
                     <IconButton
