@@ -309,6 +309,10 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
     </Tabs>
   );
 
+const handleReportUser = (userId:number)=>{
+  navigate(`/report-user/${userId}`);
+}
+
   return (
     <React.Fragment>
       {isMobile && <MobileHeader />}
@@ -352,7 +356,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                mb: 10,
+                mb: 2,
                 maxWidth: "100%",
               }}
             >
@@ -370,7 +374,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                   backgroundSize: "cover",
                 }}
               >
-                <Button sx={{ color: "white" }} className="reportButton" variant="soft" color="inherit">
+                <Button sx={{ color: "white" }} className="reportButton" variant="soft" color="inherit" onClick={() => handleReportUser(post.connected_user_id)}>
                   Report
                 </Button>
                 <Box className="lowerDetails">
@@ -450,7 +454,7 @@ export default function RecentPosts({ onPostCountChange }: RecentPostsProps) {
                   overflow: "hidden",
                 }}
               >
-                <Button sx={{ color: "white" }} className="reportButton" variant="soft" color="inherit">
+                <Button sx={{ color: "white" }} className="reportButton" variant="soft" color="inherit" onClick={() => handleReportUser(post.connected_user_id)}>
                   Report
                 </Button>
                 <Box className="lowerDetails">
