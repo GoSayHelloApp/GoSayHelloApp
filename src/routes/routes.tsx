@@ -26,6 +26,9 @@ import ReportUser from "../pages/user-profile/ReportUser";
 import CreatePost from "../pages/posts/CreatePost";
 import DeleteAccount from "../pages/delete-account";
 import Waves from "../pages/waves/waves";
+import Messages from "../pages/messages";
+import MessagesLayout from "../pages/messages/MessagesLayout";
+import Wallet from "../pages/wallet";
 
 const routes: RouteObject[] = [
   {
@@ -84,6 +87,22 @@ const routes: RouteObject[] = [
                 element: <EventScheduler />,
                 index: true,
               },
+              {
+                path: "wallet",
+                element: <Wallet />,
+                index: true,
+              },
+            ],
+          },
+          {
+            path: "messages",
+            element: <MessagesLayout />,
+            children: [
+              {
+                path: "",
+                element: <Messages />,
+                index: true,
+              },
             ],
           },
           {
@@ -93,14 +112,10 @@ const routes: RouteObject[] = [
           },
           {
             path: "wallet",
-            element: <NotFound />,
+            element: <Wallet />,
             index: true,
           },
-          {
-            path: "messages",
-            element: <NotFound />,
-            index: true,
-          },
+
           {
             path: "waves",
             element: <Waves />,

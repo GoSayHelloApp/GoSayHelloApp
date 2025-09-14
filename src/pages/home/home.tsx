@@ -1,11 +1,4 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Container,
-  Typography,
-} from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Container, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Middle from "../../ui/layout/middle/middle";
 import React from "react";
@@ -22,18 +15,20 @@ function Home() {
 
   const { layoutStyle } = LayoutStyles();
   return (
-    <Box component={'main'} sx={{ ...layoutStyle }}>
-      <Container sx={{
-        padding: {
-          xs: 0,
-        }
-
-      }} maxWidth={'xl'}>
+    <Box component={"main"} sx={{ ...layoutStyle }}>
+      <Container
+        sx={{
+          padding: {
+            xs: 0,
+          },
+        }}
+        maxWidth={"xl"}
+      >
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 7 }}>
             <Outlet />
           </Grid>
-          <Grid size={{ xs: 12, md: 5 }} sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Grid size={{ xs: 12, md: 5 }} sx={{ display: { xs: "none", md: "block" } }}>
             <RightPanel />
           </Grid>
         </Grid>
