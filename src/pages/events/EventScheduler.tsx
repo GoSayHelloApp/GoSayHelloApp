@@ -28,8 +28,8 @@ import { useAddNewEventMutation } from "../../services/events/eventApi";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -42,8 +42,10 @@ interface EventSchedulerForm {
   address_1: string;
   address_2: string;
   event_url: string;
-  start_datetime: Dayjs | null;
-  end_datetime: Dayjs | null;
+  start_date: Dayjs | null;
+  start_time: Dayjs | null;
+  end_date: Dayjs | null;
+  end_time: Dayjs | null;
   event_type_id: string;
   event_type_name: string;
   is_public: boolean;
@@ -74,8 +76,10 @@ const EventScheduler: React.FC = () => {
     address_1: "",
     address_2: "",
     event_url: "",
-    start_datetime: null,
-    end_datetime: null,
+    start_date: null,
+    start_time: null,
+    end_date: null,
+    end_time: null,
     event_type_id: "",
     event_type_name: "",
     is_public: true,
@@ -95,19 +99,42 @@ const EventScheduler: React.FC = () => {
   const validationSchema = Yup.object({
     venue_name: Yup.string().required("Venue name is required").min(3, "Venue name must be at least 3 characters long"),
     address_1: Yup.string().required("Address is required"),
-    start_datetime: Yup.mixed()
-      .required("Start date and time is required")
-      .test("not-past-datetime", "Start date and time cannot be in the past", function (value: any) {
+    start_date: Yup.mixed()
+      .required("Start date is required")
+      .test("not-past-date", "Start date cannot be in the past", function (value: any) {
         if (!value) return false;
-        const now = dayjs();
-        return dayjs.isDayjs(value) && value.isAfter(now);
+        const today = dayjs().startOf('day');
+        return dayjs.isDayjs(value) && (value.isSame(today) || value.isAfter(today));
       }),
-    end_datetime: Yup.mixed()
-      .required("End date and time is required")
-      .test("after-start-datetime", "End date and time must be after start date and time", function (value: any) {
-        const { start_datetime } = this.parent;
-        if (!value || !start_datetime) return false;
-        return dayjs.isDayjs(value) && dayjs.isDayjs(start_datetime) && value.isAfter(start_datetime);
+    start_time: Yup.mixed().required("Start time is required"),
+    end_date: Yup.mixed()
+      .required("End date is required")
+      .test("after-start-date", "End date must be on or after start date", function (value: any) {
+        const { start_date } = this.parent;
+        if (!value || !start_date) return false;
+        return dayjs.isDayjs(value) && dayjs.isDayjs(start_date) && (value.isSame(start_date) || value.isAfter(start_date));
+      }),
+    end_time: Yup.mixed()
+      .required("End time is required")
+      .test("after-start-time", "End time must be after start time when dates are the same", function (value: any) {
+        const { start_date, start_time, end_date } = this.parent;
+        if (!value || !start_time || !start_date || !end_date) return false;
+        
+        // If same date, end time must be after start time
+        if (dayjs.isDayjs(start_date) && dayjs.isDayjs(end_date) && start_date.isSame(end_date, 'day')) {
+          return dayjs.isDayjs(value) && dayjs.isDayjs(start_time) && value.isAfter(start_time);
+        }
+        return true;
+      })
+      .test("end-datetime-after-start", "End date and time must be after start date and time", function (value: any) {
+        const { start_date, start_time, end_date } = this.parent;
+        if (!value || !start_time || !start_date || !end_date) return false;
+        
+        // Create combined datetime objects
+        const startDateTime = start_date.hour(start_time.hour()).minute(start_time.minute());
+        const endDateTime = end_date.hour(value.hour()).minute(value.minute());
+        
+        return endDateTime.isAfter(startDateTime);
       }),
     event_type_id: Yup.string().required("Event type is required"),
     description: Yup.string().required("Description is required"),
@@ -199,15 +226,23 @@ const EventScheduler: React.FC = () => {
         formData.append("address_2", values.address_2);
         formData.append("event_url", values.event_url);
 
+        // Combine date and time
+        const startDateTime = values.start_date && values.start_time 
+          ? values.start_date.hour(values.start_time.hour()).minute(values.start_time.minute())
+          : null;
+        const endDateTime = values.end_date && values.end_time 
+          ? values.end_date.hour(values.end_time.hour()).minute(values.end_time.minute())
+          : null;
+
         // Convert datetime to UTC and extract date/time components
-        const startDateTimeUTC = convertToUTC(values.start_datetime, values.timezone_offset);
-        const endDateTimeUTC = convertToUTC(values.end_datetime, values.timezone_offset);
+        const startDateTimeUTC = convertToUTC(startDateTime, values.timezone_offset);
+        const endDateTimeUTC = convertToUTC(endDateTime, values.timezone_offset);
 
         // Extract date and time components for backward compatibility
-        const startDate = values.start_datetime?.format("YYYY-MM-DD") || "";
-        const startTime = values.start_datetime?.format("HH:mm") || "";
-        const endDate = values.end_datetime?.format("YYYY-MM-DD") || "";
-        const endTime = values.end_datetime?.format("HH:mm") || "";
+        const startDate = values.start_date?.format("YYYY-MM-DD") || "";
+        const startTime = values.start_time?.format("HH:mm") || "";
+        const endDate = values.end_date?.format("YYYY-MM-DD") || "";
+        const endTime = values.end_time?.format("HH:mm") || "";
 
         formData.append("start_date", startDate);
         formData.append("start_time", startTime);
@@ -364,6 +399,68 @@ const EventScheduler: React.FC = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, mx: "auto" }}>
+      {/* Global styles for native date/time picker customization */}
+      <style>
+        {`
+          /* Override native date picker colors */
+          input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: ${theme.palette.primary.main} !important;
+            border-radius: 4px !important;
+            padding: 4px !important;
+            margin-right: 8px !important;
+            cursor: pointer !important;
+            filter: none !important;
+          }
+          
+          input[type="time"]::-webkit-calendar-picker-indicator {
+            background-color: ${theme.palette.primary.main} !important;
+            border-radius: 4px !important;
+            padding: 4px !important;
+            margin-right: 8px !important;
+            cursor: pointer !important;
+            filter: none !important;
+          }
+          
+          /* Override native picker popup colors */
+          input[type="date"]::-webkit-datetime-edit-text,
+          input[type="date"]::-webkit-datetime-edit-month-field,
+          input[type="date"]::-webkit-datetime-edit-day-field,
+          input[type="date"]::-webkit-datetime-edit-year-field {
+            color: ${theme.palette.text.primary} !important;
+          }
+          
+          /* Style the native picker buttons and selected elements */
+          input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background-color: ${theme.palette.primary.dark} !important;
+          }
+          
+          input[type="time"]::-webkit-calendar-picker-indicator:hover {
+            background-color: ${theme.palette.primary.dark} !important;
+          }
+          
+          /* Override focus colors */
+          input[type="date"]:focus::-webkit-calendar-picker-indicator,
+          input[type="time"]:focus::-webkit-calendar-picker-indicator {
+            background-color: ${theme.palette.primary.main} !important;
+            box-shadow: 0 0 0 2px ${theme.palette.primary.main}20 !important;
+          }
+          
+          /* Additional styling for better visual consistency */
+          input[type="date"]::-webkit-datetime-edit {
+            color: ${theme.palette.text.primary} !important;
+          }
+          
+          input[type="time"]::-webkit-datetime-edit {
+            color: ${theme.palette.text.primary} !important;
+          }
+          
+          /* Style placeholder text */
+          input[type="date"]::-webkit-datetime-edit-text:not([aria-valuenow]),
+          input[type="time"]::-webkit-datetime-edit-text:not([aria-valuenow]) {
+            color: ${theme.palette.text.secondary} !important;
+          }
+        `}
+      </style>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography
@@ -616,55 +713,310 @@ const EventScheduler: React.FC = () => {
             Date & Time
           </Typography>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-              <DateTimePicker
-                label="Start Date & Time"
-                value={formik.values.start_datetime}
-                onChange={(newValue) => {
-                  formik.setFieldValue("start_datetime", newValue);
-                }}
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                }}
-                minDateTime={dayjs()}
-                slotProps={{
-                  textField: {
-                    error: formik.touched.start_datetime && Boolean(formik.errors.start_datetime),
-                    helperText: formik.touched.start_datetime && formik.errors.start_datetime,
-                    sx: {
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: theme.palette.grey[100],
-                        borderRadius: 2,
-                      },
-                    },
-                  },
-                }}
-              />
-              <DateTimePicker
-                label="End Date & Time"
-                value={formik.values.end_datetime}
-                onChange={(newValue) => {
-                  formik.setFieldValue("end_datetime", newValue);
-                }}
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                }}
-                minDateTime={formik.values.start_datetime || dayjs()}
-                slotProps={{
-                  textField: {
-                    error: formik.touched.end_datetime && Boolean(formik.errors.end_datetime),
-                    helperText: formik.touched.end_datetime && formik.errors.end_datetime,
-                    sx: {
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: theme.palette.grey[100],
-                        borderRadius: 2,
-                      },
-                    },
-                  },
-                }}
-              />
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+              {/* Start Date & Time */}
+              <Box>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                  Start Date & Time
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1, flexDirection: { xs: "column", sm: "row" } }}>
+                  {/* Desktop Date Picker */}
+                  <Box sx={{ display: { xs: "none", sm: "block" }, flex: 1 }}>
+                    <DatePicker
+                      label="Start Date"
+                      value={formik.values.start_date}
+                      onChange={(newValue) => {
+                        formik.setFieldValue("start_date", newValue);
+                        // Trigger validation for end_date when start_date changes
+                        if (formik.values.end_date) {
+                          formik.validateField("end_date");
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      minDate={dayjs()}
+                      slotProps={{
+                        textField: {
+                          error: formik.touched.start_date && Boolean(formik.errors.start_date),
+                          helperText: formik.touched.start_date ? formik.errors.start_date : undefined,
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              backgroundColor: theme.palette.grey[100],
+                              borderRadius: 2,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Mobile Native Date Input */}
+                  <Box sx={{ display: { xs: "block", sm: "none" }, flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="Start Date"
+                      value={formik.values.start_date ? formik.values.start_date.format('YYYY-MM-DD') : ''}
+                      onChange={(e) => {
+                        const date = e.target.value ? dayjs(e.target.value) : null;
+                        formik.setFieldValue("start_date", date);
+                        // Trigger validation for end_date when start_date changes
+                        if (formik.values.end_date) {
+                          formik.validateField("end_date");
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      error={formik.touched.start_date && Boolean(formik.errors.start_date)}
+                      helperText={formik.touched.start_date ? formik.errors.start_date : undefined}
+                      inputProps={{
+                        min: dayjs().format('YYYY-MM-DD'),
+                        style: {
+                          minHeight: '30px',
+                          padding: '12px 14px',
+                          fontSize: '14px',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none',
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                          minHeight: '30px',
+                          '& input': {
+                            minHeight: '30px',
+                            padding: '12px 14px',
+                            fontSize: '14px',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Desktop Time Picker */}
+                  <Box sx={{ display: { xs: "none", sm: "block" }, flex: 1 }}>
+                    <TimePicker
+                      label="Start Time"
+                      value={formik.values.start_time}
+                      onChange={(newValue) => {
+                        formik.setFieldValue("start_time", newValue);
+                        // Trigger validation for end_time when start_time changes
+                        if (formik.values.end_time && formik.values.start_date && formik.values.end_date) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      views={['hours', 'minutes']}
+                      openTo="hours"
+                      format="HH:mm"
+                      slotProps={{
+                        textField: {
+                          error: formik.touched.start_time && Boolean(formik.errors.start_time),
+                          helperText: formik.touched.start_time ? formik.errors.start_time : undefined,
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              backgroundColor: theme.palette.grey[100],
+                              borderRadius: 2,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Mobile Native Time Input */}
+                  <Box sx={{ display: { xs: "block", sm: "none" }, flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="time"
+                      label="Start Time"
+                      value={formik.values.start_time ? formik.values.start_time.format('HH:mm') : ''}
+                      onChange={(e) => {
+                        const time = e.target.value ? dayjs(`2000-01-01T${e.target.value}`) : null;
+                        formik.setFieldValue("start_time", time);
+                        // Trigger validation for end_time when start_time changes
+                        if (formik.values.end_time && formik.values.start_date && formik.values.end_date) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      error={formik.touched.start_time && Boolean(formik.errors.start_time)}
+                      helperText={formik.touched.start_time ? formik.errors.start_time : undefined}
+                      inputProps={{
+                        style: {
+                          minHeight: '30px',
+                          padding: '12px 14px',
+                          fontSize: '14px',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none',
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                          minHeight: '30px',
+                          '& input': {
+                            minHeight: '30px',
+                            padding: '12px 14px',
+                            fontSize: '14px',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* End Date & Time */}
+              <Box>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                  End Date & Time
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1, flexDirection: { xs: "column", sm: "row" } }}>
+                  {/* Desktop Date Picker */}
+                  <Box sx={{ display: { xs: "none", sm: "block" }, flex: 1 }}>
+                    <DatePicker
+                      label="End Date"
+                      value={formik.values.end_date}
+                      onChange={(newValue) => {
+                        formik.setFieldValue("end_date", newValue);
+                        // Trigger validation for end_time when end_date changes
+                        if (formik.values.end_time && formik.values.start_date && formik.values.start_time) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      minDate={formik.values.start_date || dayjs()}
+                      slotProps={{
+                        textField: {
+                          error: formik.touched.end_date && Boolean(formik.errors.end_date),
+                          helperText: formik.touched.end_date ? formik.errors.end_date : undefined,
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              backgroundColor: theme.palette.grey[100],
+                              borderRadius: 2,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Mobile Native Date Input */}
+                  <Box sx={{ display: { xs: "block", sm: "none" }, flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="End Date"
+                      value={formik.values.end_date ? formik.values.end_date.format('YYYY-MM-DD') : ''}
+                      onChange={(e) => {
+                        const date = e.target.value ? dayjs(e.target.value) : null;
+                        formik.setFieldValue("end_date", date);
+                        // Trigger validation for end_time when end_date changes
+                        if (formik.values.end_time && formik.values.start_date && formik.values.start_time) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      error={formik.touched.end_date && Boolean(formik.errors.end_date)}
+                      helperText={formik.touched.end_date ? formik.errors.end_date : undefined}
+                      inputProps={{
+                        min: formik.values.start_date ? formik.values.start_date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
+                        style: {
+                          minHeight: '30px',
+                          padding: '12px 14px',
+                          fontSize: '14px',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none',
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                          minHeight: '30px',
+                          '& input': {
+                            minHeight: '30px',
+                            padding: '12px 14px',
+                            fontSize: '14px',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Desktop Time Picker */}
+                  <Box sx={{ display: { xs: "none", sm: "block" }, flex: 1 }}>
+                    <TimePicker
+                      label="End Time"
+                      value={formik.values.end_time}
+                      onChange={(newValue) => {
+                        formik.setFieldValue("end_time", newValue);
+                        // Trigger validation immediately when end_time changes
+                        if (formik.values.start_date && formik.values.start_time && formik.values.end_date) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      views={['hours', 'minutes']}
+                      openTo="hours"
+                      format="HH:mm"
+                      slotProps={{
+                        textField: {
+                          error: formik.touched.end_time && Boolean(formik.errors.end_time),
+                          helperText: formik.touched.end_time ? formik.errors.end_time : undefined,
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              backgroundColor: theme.palette.grey[100],
+                              borderRadius: 2,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  {/* Mobile Native Time Input */}
+                  <Box sx={{ display: { xs: "block", sm: "none" }, flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      type="time"
+                      label="End Time"
+                      value={formik.values.end_time ? formik.values.end_time.format('HH:mm') : ''}
+                      onChange={(e) => {
+                        const time = e.target.value ? dayjs(`2000-01-01T${e.target.value}`) : null;
+                        formik.setFieldValue("end_time", time);
+                        // Trigger validation immediately when end_time changes
+                        if (formik.values.start_date && formik.values.start_time && formik.values.end_date) {
+                          formik.validateField("end_time");
+                        }
+                      }}
+                      error={formik.touched.end_time && Boolean(formik.errors.end_time)}
+                      helperText={formik.touched.end_time ? formik.errors.end_time : undefined}
+                      inputProps={{
+                        style: {
+                          minHeight: '30px',
+                          padding: '12px 14px',
+                          fontSize: '14px',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          appearance: 'none',
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: theme.palette.grey[100],
+                          borderRadius: 2,
+                          minHeight: '30px',
+                          '& input': {
+                            minHeight: '30px',
+                            padding: '12px 14px',
+                            fontSize: '14px',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
             </Box>
           </LocalizationProvider>
         </Box>
