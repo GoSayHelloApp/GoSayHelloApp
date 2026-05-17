@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom";
+﻿import { RouteObject } from "react-router-dom";
 import Auth from "../pages/auth/auth";
 import HomeTown from "../pages/home-town";
 import School from "../pages/school";
@@ -10,6 +10,7 @@ import Preferences from "../pages/preferences/preferences";
 import Main from "../ui/layout/main";
 import Home from "../pages/home/home";
 import EventDetails from "../pages/events/eventDetails";
+import EventAuthorizedScanners from "../pages/events/EventAuthorizedScanners";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
 import EventScheduler from "../pages/events/EventScheduler";
@@ -29,6 +30,7 @@ import Waves from "../pages/waves/waves";
 import Messages from "../pages/messages";
 import MessagesLayout from "../pages/messages/MessagesLayout";
 import Wallet from "../pages/wallet";
+import PurchasedTicketsPage from "../pages/tickets/PurchasedTicketsPage";
 
 const routes: RouteObject[] = [
   {
@@ -78,6 +80,10 @@ const routes: RouteObject[] = [
                 element: <EventDetails />,
               },
               {
+                path: "events/:eventId/authorized-scanners",
+                element: <EventAuthorizedScanners />,
+              },
+              {
                 path: "nearby",
                 element: <Middle />,
                 index: true,
@@ -91,6 +97,10 @@ const routes: RouteObject[] = [
                 path: "wallet",
                 element: <Wallet />,
                 index: true,
+              },
+              {
+                path: "my-tickets",
+                element: <PurchasedTicketsPage />,
               },
             ],
           },

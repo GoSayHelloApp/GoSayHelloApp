@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,11 +10,12 @@ import {
   Modal,
   useTheme,
   IconButton,
+  Stack,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { alpha } from "@mui/material/styles";
 import MapStyles from "../../configs/mapStylesConfig.json";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
@@ -25,18 +26,49 @@ import {
   formatDate,
   formatTime,
 } from "../../utils/dateTimeFormatter";
+import { descriptionBodyFontSx } from "../../utils/descriptionTypography";
 import OpenApp from "../../components/events/OpenApp";
 import EventFooter from "../../components/events/eventFooter";
+import BuyTicketsModal from "../../ui/components/modals/BuyTicketsModal";
+import { useAppSelector } from "../../redux/store";
+
+/** Match signed-in event details ΓÇö compact pill */
+const publicBuyPillSx = {
+  borderRadius: "9999px",
+  textTransform: "none" as const,
+  fontWeight: 600,
+  fontSize: "0.8125rem",
+  lineHeight: 1.2,
+  px: { xs: 1.75, sm: 2 },
+  py: { xs: 0.875, sm: 1 },
+  minHeight: { xs: 40, sm: 38 },
+  bgcolor: "#111",
+  color: "#fff",
+  boxShadow: "none",
+  whiteSpace: "nowrap" as const,
+  "&:hover": { bgcolor: "#333", boxShadow: "none" },
+  "& .MuiButton-startIcon": { mr: 0.75 },
+  "& .MuiButton-startIcon svg": { fontSize: 18, width: 18, height: 18 },
+};
 
 const EventPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
+  const user = useAppSelector((state) => state.auth.user);
   const [isSticky, setIsSticky] = useState(true);
+  const [openBuyTicketsModal, setOpenBuyTicketsModal] = useState(false);
   const {
     data: eventDetails,
     error,
     isLoading,
   } = useGetPublicEventDetailsQuery({ event_id: Number(eventId) });
+
+  const isOwnEvent = Boolean(
+    eventDetails?.user_id != null &&
+      user?.id != null &&
+      Number(eventDetails.user_id) === Number(user.id)
+  );
 
   const [openGuestModal, setOpenGuestModal] = useState(false);
   const [openRSVPModal, setOpenRSVPModal] = useState(false);
@@ -69,6 +101,15 @@ const EventPage = () => {
   const handleDirectionsClick = () => {
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
     window.open(googleMapsUrl, "_blank");
+  };
+
+  const handleBuyTicketsClick = () => {
+    if (!user?.id) {
+      sessionStorage.setItem("redirectAfterLogin", `/event-details/${eventId ?? ""}`);
+      navigate("/login");
+      return;
+    }
+    setOpenBuyTicketsModal(true);
   };
 
   if (isLoading) {
@@ -113,7 +154,7 @@ const EventPage = () => {
           },
         }}
       >
-        {/* Sticky RSVP Button */}
+        {/* Sticky Buy + RSVP */}
         {isSticky && (
           <Box
             sx={{
@@ -136,77 +177,91 @@ const EventPage = () => {
               },
             }}
           >
-            <Button
-              sx={{
-                borderRadius: "20px",
-                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-                color: theme.palette.primary.contrastText,
-                boxShadow: `0 8px 32px ${alpha(
-                  theme.palette.primary.main,
-                  0.4
-                )}, 0 4px 16px rgba(0,0,0,0.2)`,
-                "&:hover": {
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                  boxShadow: `0 12px 40px ${alpha(
+            <Stack spacing={1} alignItems="flex-end">
+              {!isOwnEvent && (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  size="medium"
+                  sx={publicBuyPillSx}
+                  onClick={handleBuyTicketsClick}
+                  startIcon={<Icon icon="mdi:ticket-confirmation-outline" />}
+                >
+                  Buy Tickets
+                </Button>
+              )}
+              <Button
+                sx={{
+                  borderRadius: "20px",
+                  background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                  color: theme.palette.primary.contrastText,
+                  boxShadow: `0 8px 32px ${alpha(
                     theme.palette.primary.main,
-                    0.6
-                  )}, 0 6px 20px rgba(0,0,0,0.3)`,
-                  transform: "translateY(-2px)",
-                },
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                position: "relative",
-                overflow: "hidden",
-                padding: "8px 20px",
-                fontWeight: "600",
-                fontSize: "14px",
-                textTransform: "none",
-                letterSpacing: "0.5px",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: "-100%",
-                  width: "100%",
-                  height: "100%",
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                  animation: "shimmer 2s infinite",
-                  "@keyframes shimmer": {
-                    "0%": {
-                      left: "-100%",
-                    },
-                    "100%": {
-                      left: "100%",
+                    0.4
+                  )}, 0 4px 16px rgba(0,0,0,0.2)`,
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    boxShadow: `0 12px 40px ${alpha(
+                      theme.palette.primary.main,
+                      0.6
+                    )}, 0 6px 20px rgba(0,0,0,0.3)`,
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  position: "relative",
+                  overflow: "hidden",
+                  padding: "8px 20px",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  textTransform: "none",
+                  letterSpacing: "0.5px",
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    top: 0,
+                    left: "-100%",
+                    width: "100%",
+                    height: "100%",
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+                    animation: "shimmer 2s infinite",
+                    "@keyframes shimmer": {
+                      "0%": {
+                        left: "-100%",
+                      },
+                      "100%": {
+                        left: "100%",
+                      },
                     },
                   },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  width: "0",
-                  height: "0",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.2)",
-                  transform: "translate(-50%, -50%)",
-                  transition: "width 0.6s, height 0.6s",
-                },
-                "&:active::after": {
-                  width: "300px",
-                  height: "300px",
-                },
-              }}
-              variant="contained"
-              color="primary"
-              size="medium"
-              onClick={() => {
-                setModalText("Open the App to RSVP");
-                setOpenRSVPModal(true);
-              }}
-            >
-              🎉 RSVP Now
-            </Button>
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    width: "0",
+                    height: "0",
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.2)",
+                    transform: "translate(-50%, -50%)",
+                    transition: "width 0.6s, height 0.6s",
+                  },
+                  "&:active::after": {
+                    width: "300px",
+                    height: "300px",
+                  },
+                }}
+                variant="contained"
+                color="primary"
+                size="medium"
+                onClick={() => {
+                  setModalText("Open the App to RSVP");
+                  setOpenRSVPModal(true);
+                }}
+              >
+                ≡ƒÄë RSVP Now
+              </Button>
+            </Stack>
           </Box>
         )}
 
@@ -356,7 +411,7 @@ const EventPage = () => {
                 paddingTop: 10,
               }}
             >
-              📍 {eventDetails?.address_1}
+              ≡ƒôì {eventDetails?.address_1}
             </Typography>
 
             {/* Attendees */}
@@ -447,6 +502,7 @@ const EventPage = () => {
             color="grey.300"
             mb={3}
             sx={{
+              ...descriptionBodyFontSx,
               whiteSpace: "pre-line",
               textWrap: "wrap",
               maxWidth: "100%",
@@ -631,7 +687,7 @@ const EventPage = () => {
                   variant="body2"
                   sx={{ position: "relative", zIndex: 2 }}
                 >
-                  🔒 Restricted Access
+                  ≡ƒöÆ Restricted Access
                 </Typography>
                 <Typography
                   variant="caption"
@@ -702,7 +758,7 @@ const EventPage = () => {
           </Box>
         </Box>
 
-        {/* RSVP Button */}
+        {/* Buy + RSVP (scroll-revealed) */}
         <Box
           sx={{
             transition: "all 0.3s ease-in-out",
@@ -719,77 +775,91 @@ const EventPage = () => {
             },
           }}
         >
-          <Button
-            sx={{
-              borderRadius: "20px",
-              background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-              color: theme.palette.primary.contrastText,
-              boxShadow: `0 8px 32px ${alpha(
-                theme.palette.primary.main,
-                0.4
-              )}, 0 4px 16px rgba(0,0,0,0.2)`,
-              "&:hover": {
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                boxShadow: `0 12px 40px ${alpha(
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="center" alignItems="center">
+            {!isOwnEvent && (
+              <Button
+                variant="contained"
+                disableElevation
+                size="large"
+                sx={{ ...publicBuyPillSx, py: 1.25, px: 2.5, fontSize: "0.875rem" }}
+                onClick={handleBuyTicketsClick}
+                startIcon={<Icon icon="mdi:ticket-confirmation-outline" />}
+              >
+                Buy Tickets
+              </Button>
+            )}
+            <Button
+              sx={{
+                borderRadius: "20px",
+                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                color: theme.palette.primary.contrastText,
+                boxShadow: `0 8px 32px ${alpha(
                   theme.palette.primary.main,
-                  0.6
-                )}, 0 6px 20px rgba(0,0,0,0.3)`,
-                transform: "translateY(-2px)",
-              },
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              position: "relative",
-              overflow: "hidden",
-              padding: "12px 24px",
-              fontWeight: "600",
-              fontSize: "14px",
-              textTransform: "none",
-              letterSpacing: "0.5px",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                left: "-100%",
-                width: "100%",
-                height: "100%",
-                background:
-                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                animation: "shimmer 2s infinite",
-                "@keyframes shimmer": {
-                  "0%": {
-                    left: "-100%",
-                  },
-                  "100%": {
-                    left: "100%",
+                  0.4
+                )}, 0 4px 16px rgba(0,0,0,0.2)`,
+                "&:hover": {
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  boxShadow: `0 12px 40px ${alpha(
+                    theme.palette.primary.main,
+                    0.6
+                  )}, 0 6px 20px rgba(0,0,0,0.3)`,
+                  transform: "translateY(-2px)",
+                },
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative",
+                overflow: "hidden",
+                padding: "12px 24px",
+                fontWeight: "600",
+                fontSize: "14px",
+                textTransform: "none",
+                letterSpacing: "0.5px",
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: "-100%",
+                  width: "100%",
+                  height: "100%",
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+                  animation: "shimmer 2s infinite",
+                  "@keyframes shimmer": {
+                    "0%": {
+                      left: "-100%",
+                    },
+                    "100%": {
+                      left: "100%",
+                    },
                   },
                 },
-              },
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: "0",
-                height: "0",
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.2)",
-                transform: "translate(-50%, -50%)",
-                transition: "width 0.6s, height 0.6s",
-              },
-              "&:active::after": {
-                width: "300px",
-                height: "300px",
-              },
-            }}
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={() => {
-              setModalText("Open the App to RSVP");
-              setOpenRSVPModal(true);
-            }}
-          >
-            🎉 RSVP Now
-          </Button>
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  width: "0",
+                  height: "0",
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.2)",
+                  transform: "translate(-50%, -50%)",
+                  transition: "width 0.6s, height 0.6s",
+                },
+                "&:active::after": {
+                  width: "300px",
+                  height: "300px",
+                },
+              }}
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => {
+                setModalText("Open the App to RSVP");
+                setOpenRSVPModal(true);
+              }}
+            >
+              ≡ƒÄë RSVP Now
+            </Button>
+          </Stack>
         </Box>
 
         <Box
@@ -808,6 +878,15 @@ const EventPage = () => {
           openApp={openRSVPModal}
           setOpenApp={setOpenRSVPModal}
           text={modalText}
+        />
+
+        <BuyTicketsModal
+          open={openBuyTicketsModal}
+          onClose={() => setOpenBuyTicketsModal(false)}
+          eventId={eventDetails?.event_id ?? 0}
+          userId={user?.id ?? 0}
+          eventLat={eventDetails?.d_lat}
+          eventLong={eventDetails?.d_long}
         />
 
         <Modal
