@@ -1,37 +1,31 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardMedia,
-  Avatar,
-  Button,
-  AvatarGroup,
-  Modal,
-  useTheme,
-  IconButton,
-} from "@mui/material";
-import { Icon } from "@iconify/react";
-import { alpha } from "@mui/material/styles";
-import MapStyles from "../../configs/mapStylesConfig.json";
+import React, { useEffect, useMemo, useState } from "react";
+import { Avatar, Box, Button, Modal, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
-import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
-import Img from "../../assets/img.jpg";
-import {
-  convertUTCDateToLocal,
-  convertUTCTimeToLocal,
-  formatDate,
-  formatTime,
-} from "../../utils/dateTimeFormatter";
 import OpenApp from "../../components/events/OpenApp";
 import EventFooter from "../../components/events/eventFooter";
+import { tokens } from "./invitation/tokens";
+import { useColorExtraction, withAlpha } from "./invitation/useColorExtraction";
+import {
+  AboutSection,
+  AttendeeStrip,
+  DateStamp,
+  EventHeadline,
+  GuestGrid,
+  HostLine,
+  LocationLine,
+  Monogram,
+  PosterCard,
+  Reveal,
+  RsvpButton,
+  SectionLabel,
+  UnlockMore,
+} from "./invitation/Primitives";
+import { Wayfinding } from "./invitation/Wayfinding";
 
-const EventPage = () => {
-  const theme = useTheme();
+const PublicEventDetails = () => {
   const { eventId } = useParams<{ eventId: string }>();
-  const [isSticky, setIsSticky] = useState(true);
   const {
     data: eventDetails,
     error,
@@ -44,44 +38,45 @@ const EventPage = () => {
   const [selectedGuest, setSelectedGuest] = useState<{
     user_image: string;
   } | null>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+
+  const accent = useColorExtraction(eventDetails?.event_image);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollPercentage = (scrollTop + windowHeight) / documentHeight;
+    if (!eventDetails) return;
+    document.title = `${eventDetails.venue_name || "Event"} — invited by ${
+      eventDetails.user_name || "your host"
+    }`;
+  }, [eventDetails]);
 
-      // If user has scrolled more than 80% of the page, make button non-sticky
-      setIsSticky(scrollPercentage < 0.8);
+  useEffect(() => {
+    const onScroll = () => {
+      setShowStickyCta(window.scrollY > 480);
     };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const isPast = useMemo(() => {
+    if (!eventDetails?.end_date) return false;
+    const end = new Date(eventDetails.end_date);
+    return !isNaN(end.getTime()) && end.getTime() < Date.now();
+  }, [eventDetails?.end_date]);
+
+  const handleDirectionsClick = () => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
+    window.open(url, "_blank");
+  };
+
+  const openWithMessage = (msg: string) => {
+    setModalText(msg);
+    setOpenRSVPModal(true);
+  };
 
   const handleOpenGuestModal = (guest: { user_image: string }) => {
     setSelectedGuest(guest);
     setOpenGuestModal(true);
   };
-
-  const handleDirectionsClick = () => {
-    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
-    window.open(googleMapsUrl, "_blank");
-  };
-
-  if (isLoading) {
-    return (
-      <Box sx={{ height: "100vh", background: "#212124" }}>
-        <Loader />;
-      </Box>
-    );
-  }
-
-  if (error) {
-    return <Typography>Error loading event details</Typography>;
-  }
 
   function isMobile() {
     return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -95,758 +90,399 @@ const EventPage = () => {
     }
   };
 
-  return (
-    <Box sx={{}}>
+  if (isLoading) {
+    return (
       <Box
         sx={{
-          minHeight: "60%",
-          color: "black",
-          padding: { xs: 0, md: 3 },
-          position: "relative",
-          justifyContent: "center",
-          alignItems: "center",
+          minHeight: "100vh",
+          background: tokens.color.paper,
           display: "flex",
-          alignSelf: "center",
-
-          "@media (max-width: 450px)": {
-            // height: "100vh",
-          },
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        {/* Sticky RSVP Button */}
-        {isSticky && (
+        <Loader />
+      </Box>
+    );
+  }
+
+  if (error || !eventDetails) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: tokens.color.paper,
+          color: tokens.color.inkPrimary,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 3,
+          fontFamily: tokens.font.sans,
+          px: 3,
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          sx={{
+            fontFamily: tokens.font.serif,
+            fontSize: { xs: 32, sm: 44 },
+            fontWeight: 500,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          We couldn't find this invitation.
+        </Typography>
+        <Typography sx={{ color: tokens.color.inkSecondary, maxWidth: 360 }}>
+          The link may have expired, or the event was removed by its host.
+        </Typography>
+        <RsvpButton
+          label="Open the app"
+          accent={tokens.color.fallbackAccent}
+          onClick={handleMobileRedirection}
+        />
+      </Box>
+    );
+  }
+
+  const attendeeCount = eventDetails.no_of_users_saved_event || 0;
+  const attendees = eventDetails.interestedUsersList || [];
+  const headerCategory = eventDetails.event_type_name;
+
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+        background: tokens.color.paper,
+        color: tokens.color.inkPrimary,
+        fontFamily: tokens.font.sans,
+        filter: isPast ? "saturate(0.6)" : "none",
+        overflowX: "hidden",
+      }}
+    >
+      {/* Ambient accent wash */}
+      <Box
+        aria-hidden
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 520,
+          background: `radial-gradient(60% 80% at 70% 10%, ${withAlpha(
+            accent,
+            0.18
+          )} 0%, ${withAlpha(accent, 0)} 70%), linear-gradient(180deg, ${withAlpha(
+            accent,
+            0.06
+          )} 0%, ${tokens.color.paper} 100%)`,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Page container */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: tokens.page.maxWidth,
+          mx: "auto",
+          px: { xs: 2.5, sm: 5, md: 8 },
+          py: { xs: 4, sm: 6, md: 8 },
+        }}
+      >
+        {/* Top bar */}
+        <Reveal duration={500}>
           <Box
             sx={{
-              position: "fixed",
-              top: 16,
-              right: 16,
-              zIndex: 1000,
-              display: { xs: "block", md: "block" },
-              transition: "all 0.3s ease-in-out",
-              animation: "slideInFromTop 0.3s ease-out",
-              "@keyframes slideInFromTop": {
-                "0%": {
-                  opacity: 0,
-                  transform: "translateY(-20px)",
-                },
-                "100%": {
-                  opacity: 1,
-                  transform: "translateY(0)",
-                },
-              },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: { xs: 4, md: 6 },
             }}
           >
-            <Button
-              sx={{
-                borderRadius: "20px",
-                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-                color: theme.palette.primary.contrastText,
-                boxShadow: `0 8px 32px ${alpha(
-                  theme.palette.primary.main,
-                  0.4
-                )}, 0 4px 16px rgba(0,0,0,0.2)`,
-                "&:hover": {
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                  boxShadow: `0 12px 40px ${alpha(
-                    theme.palette.primary.main,
-                    0.6
-                  )}, 0 6px 20px rgba(0,0,0,0.3)`,
-                  transform: "translateY(-2px)",
-                },
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                position: "relative",
-                overflow: "hidden",
-                padding: "8px 20px",
-                fontWeight: "600",
-                fontSize: "14px",
-                textTransform: "none",
-                letterSpacing: "0.5px",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: "-100%",
-                  width: "100%",
-                  height: "100%",
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                  animation: "shimmer 2s infinite",
-                  "@keyframes shimmer": {
-                    "0%": {
-                      left: "-100%",
-                    },
-                    "100%": {
-                      left: "100%",
-                    },
-                  },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  width: "0",
-                  height: "0",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.2)",
-                  transform: "translate(-50%, -50%)",
-                  transition: "width 0.6s, height 0.6s",
-                },
-                "&:active::after": {
-                  width: "300px",
-                  height: "300px",
-                },
-              }}
-              variant="contained"
-              color="primary"
-              size="medium"
-              onClick={() => {
-                setModalText("Open the App to RSVP");
-                setOpenRSVPModal(true);
-              }}
-            >
-              🎉 RSVP Now
-            </Button>
+            <Monogram name={eventDetails.user_name} />
+            {isPast && (
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.5,
+                  border: `1px solid ${tokens.color.line}`,
+                  borderRadius: `${tokens.radius.sm}px`,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: tokens.color.inkSecondary,
+                }}
+              >
+                This event has ended
+              </Box>
+            )}
+          </Box>
+        </Reveal>
+
+        {/* Hero grid */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr" },
+            gap: { xs: 4, md: 8 },
+            alignItems: "center",
+            mb: { xs: 8, md: 12 },
+          }}
+        >
+          {/* Left: invitation copy */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 3, md: 4 },
+              order: { xs: 2, md: 1 },
+            }}
+          >
+            <Reveal delay={120} duration={500}>
+              <HostLine
+                name={eventDetails.user_name}
+                avatar={eventDetails.user_profile_image}
+              />
+            </Reveal>
+            <Reveal delay={200} duration={700}>
+              <EventHeadline
+                title={eventDetails.venue_name}
+                category={headerCategory}
+                accent={accent}
+              />
+            </Reveal>
+            <Reveal delay={480} duration={500}>
+              <DateStamp
+                startDate={eventDetails.start_date}
+                startTime={eventDetails.start_time}
+                endTime={eventDetails.end_time}
+                accent={accent}
+              />
+            </Reveal>
+            <Reveal delay={600} duration={500}>
+              <LocationLine
+                address={eventDetails.address_1}
+                onDirections={handleDirectionsClick}
+                accent={accent}
+              />
+            </Reveal>
+            <Reveal delay={680} duration={500}>
+              <AttendeeStrip
+                count={attendeeCount}
+                avatars={attendees}
+                accent={accent}
+              />
+            </Reveal>
+            <Reveal delay={760} duration={500}>
+              <Box sx={{ pt: 1 }}>
+                <RsvpButton
+                  label={isPast ? "Explore more events" : "RSVP"}
+                  accent={accent}
+                  onClick={() =>
+                    isPast
+                      ? handleMobileRedirection()
+                      : openWithMessage("Open the App to RSVP")
+                  }
+                />
+              </Box>
+            </Reveal>
+          </Box>
+
+          {/* Right: poster */}
+          <Reveal delay={280} y={28} duration={800}>
+            <Box sx={{ order: { xs: 1, md: 2 } }}>
+              <PosterCard
+                src={eventDetails.event_image}
+                title={eventDetails.venue_name}
+                accent={accent}
+              />
+            </Box>
+          </Reveal>
+        </Box>
+
+        {/* About */}
+        {eventDetails.description && (
+          <Box sx={{ mb: { xs: 8, md: 12 } }}>
+            <Reveal>
+              <AboutSection
+                description={eventDetails.description}
+                eventUrl={eventDetails.event_url}
+                accent={accent}
+              />
+            </Reveal>
           </Box>
         )}
 
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: -1,
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundImage: `url(${eventDetails?.event_image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center center",
-              backgroundRepeat: "no-repeat",
-              filter: "blur(2px)",
-              opacity: 0.2,
-            },
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(7, 7, 7, 0.7)", // Adjust the alpha for more/less darkness
-            },
-          }}
-        ></Box>
-        {/* Event Details Section */}
-        <Box
-          display="flex"
-          flexDirection={{ xs: "column-reverse", md: "row-reverse" }}
-          justifyContent="left"
-          alignItems="center"
-          sx={{
-            gap: 5,
-            px: 2,
-            py: 4,
-            height: "auto",
-            "@media (max-width: 450px)": {
-              gap: "10px",
-              px: 0,
-              py: 0,
-              height: "100%",
-              mx: "0",
-            },
-          }}
-        >
-          {/* Event Details */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "start",
-              flexDirection: "column",
-              textAlign: "left",
-              "@media (max-width: 450px)": {
-                px: 2,
-                pb: 2,
-              },
-            }}
-            flex={1}
-            textAlign={{ xs: "center", md: "left" }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                justifyContent: "left",
-                "@media (max-width: 450px)": {
-                  px: 0,
-                  py: 0.5,
-                },
-              }}
-            >
-              <Avatar
-                src={eventDetails?.user_profile_image}
-                sx={{ width: 40, height: 40, mx: 0 }}
+        {/* Guest list */}
+        <Box sx={{ mb: { xs: 8, md: 12 } }}>
+          <Reveal>
+            <Box sx={{ maxWidth: 880, mx: "auto" }}>
+              <SectionLabel accent={accent}>Guest list</SectionLabel>
+              <GuestGrid
+                count={attendeeCount}
+                avatars={attendees}
+                accent={accent}
+                onShowMore={() =>
+                  openWithMessage("Open the App to view complete guest list.")
+                }
               />
-              <Typography variant="subtitle2" color="white">
-                By {eventDetails?.user_name}
-              </Typography>
-            </Box>
-            <Typography variant="h2" fontWeight="bold" color="white">
-              {eventDetails?.venue_name}
-            </Typography>
-            <Typography variant="h5" color="white">
-              {eventDetails?.event_type_name}
-            </Typography>
-
-            {eventDetails?.start_date &&
-              eventDetails?.end_date &&
-              (eventDetails.address_1?.at(eventDetails.address_1.length - 1) ===
-              "." ? (
-                <Box sx={{ color: "white", paddingTop: 10 }}>
-                  <Typography variant="body1">
-                    {convertUTCDateToLocal(
-                      eventDetails.start_date,
-                      eventDetails.start_time
-                    )}{" "}
-                    -{" "}
-                    {convertUTCDateToLocal(
-                      eventDetails.end_date,
-                      eventDetails.end_time
-                    )}
-                  </Typography>
-                  <Typography variant="body2">
-                    {convertUTCTimeToLocal(
-                      eventDetails.start_date,
-                      eventDetails.start_time
-                    )}{" "}
-                    to{" "}
-                    {convertUTCTimeToLocal(
-                      eventDetails.end_date,
-                      eventDetails.end_time
-                    )}
-                  </Typography>
-                </Box>
-              ) : (
-                <Box sx={{ color: "white", paddingTop: 2 }}>
-                  <Typography variant="body1" sx={{ color: "white" }}>
-                    {formatDate(eventDetails.start_date)} -{" "}
-                    {formatDate(eventDetails.end_date)}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "white" }}>
-                    {formatTime(eventDetails.start_time ?? "")} to{" "}
-                    {formatTime(eventDetails.end_time ?? "")}
-                  </Typography>
-                </Box>
-              ))}
-
-            <Typography
-              variant="body2"
-              color="white"
-              onClick={handleDirectionsClick}
-              style={{
-                cursor: "pointer",
-                textDecoration: "underline",
-                paddingTop: 10,
-              }}
-            >
-              📍 {eventDetails?.address_1}
-            </Typography>
-
-            {/* Attendees */}
-            <Box
-              mt={2}
-              display="flex"
-              alignItems="center"
-              justifyContent={{ xs: "center", md: "flex-start" }}
-            >
-              <AvatarGroup
-                max={4}
-                total={eventDetails?.no_of_users_saved_event}
-              >
-                {eventDetails?.interestedUsersList.map((src, index) => (
-                  <Avatar
-                    key={index}
-                    src={src.user_image}
-                    sx={{ width: 40, height: 40, mx: 0.5 }}
-                  />
-                ))}
-              </AvatarGroup>
-            </Box>
-          </Box>
-
-          {/* Event Image */}
-          <Box flex={1} display="flex" justifyContent="center">
-            <Card
-              sx={{
-                maxWidth: "400px",
-                borderRadius: 3,
-                minWidth: "300px",
-                "@media (max-width: 450px)": {
-                  borderRadius: 0,
-                  my: 0,
-                  py: 0,
-                  maxWidth: "100%",
-                },
-              }}
-            >
-              <CardMedia
-                component="img"
-                sx={{
-                  "@media (max-width: 450px)": {
-                    gap: "10px",
-                    px: 0,
-                    py: 0,
-                    height: "100%",
-                    width: "100%",
-                  },
-                }}
-                image={eventDetails?.event_image}
-                alt="Event Poster"
-              />
-            </Card>
-          </Box>
-        </Box>
-      </Box>
-      {/* bottom part */}
-      <Box
-        sx={{
-          background: "#212124",
-          color: "white",
-          textAlign: "center",
-          padding: 4,
-          minHeight: "40%",
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-        }}
-      >
-        {/* Event Description */}
-
-        <Box
-          sx={{
-            "@media (max-width: 432px)": {
-              textWrap: "wrap",
-              marginX: "0",
-            },
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "start",
-            marginX: "20%",
-            textAlign: "left",
-          }}
-        >
-          <Typography
-            variant="body2"
-            color="grey.300"
-            mb={3}
-            sx={{
-              whiteSpace: "pre-line",
-              textWrap: "wrap",
-              maxWidth: "100%",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {eventDetails?.description}
-            {eventDetails?.event_url !== null &&
-              eventDetails?.event_url !== "https://" && (
-                <Typography sx={{ marginTop: "3px" }}>
-                  <a
-                    style={{ color: "white", marginTop: 1, textWrap: "wrap" }}
-                    href={eventDetails?.event_url}
-                  >
-                    {eventDetails?.event_url}
-                  </a>
-                </Typography>
-              )}
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            "@media (max-width: 450px)": {
-              marginX: "0%",
-              textWrap: "wrap",
-              flexDirection: "column",
-            },
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "start",
-            marginX: "20%",
-            textAlign: "center",
-          }}
-        >
-          {/* Guest List Section */}
-          <Box
-            sx={{
-              width: "50%",
-              minWidth: "50%",
-              "@media (max-width: 600px)": {
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                textWrap: "wrap",
-                overflow: "auto",
-              },
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              textWrap: "wrap",
-              overflow: "auto",
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" color="goldenrod">
-              GUEST LIST
-            </Typography>
-            <Box
-              sx={{
-                my: 2,
-              }}
-            >
-              {eventDetails?.no_of_users_saved_event &&
-              eventDetails?.no_of_users_saved_event > 0 ? (
+              {attendeeCount > 15 && (
                 <Box
-                  display="flex"
-                  justifyContent="left"
                   sx={{
-                    justifyContent: "center",
-                    alignItems: "start",
-                    display: "flex",
-                    flexShrink: 0,
-                    flexWrap: "wrap",
+                    mt: 3,
+                    textAlign: "center",
+                    fontFamily: tokens.font.sans,
+                    fontSize: 13,
+                    color: tokens.color.inkSecondary,
                   }}
-                  gap={1}
-                  mt={2}
-                  padding={1}
                 >
-                  {eventDetails?.interestedUsersList
-                    .slice(0, 20)
-                    .map((guest, index) => (
-                      <Avatar
-                        key={index}
-                        src={guest.user_image}
-                        sx={{ width: 60, height: 60, mr: 0.2 }}
-                        onClick={() => handleOpenGuestModal(guest)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    ))}
+                  {attendeeCount - 15} more in the app
                 </Box>
-              ) : (
-                ""
-              )}
-
-              {eventDetails?.no_of_users_saved_event &&
-              eventDetails?.no_of_users_saved_event > 20 ? (
-                <Typography
-                  variant="subtitle2"
-                  onClick={() => {
-                    setModalText("Open the App to view complete guest list.");
-                    setOpenRSVPModal(true);
-                  }}
-                  sx={{
-                    color: "white",
-                    fontWeight: "350",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  See More
-                </Typography>
-              ) : (
-                ""
-              )}
-
-              {eventDetails?.no_of_users_saved_event == 0 && (
-                <Typography
-                  variant="subtitle2"
-                  color="white"
-                  sx={{
-                    fontWeight: "350",
-                    cursor: "pointer",
-                  }}
-                >
-                  No Guests Yet
-                </Typography>
               )}
             </Box>
-          </Box>
+          </Reveal>
+        </Box>
 
-          {/* Activity Section */}
-          <Box
-            sx={{
-              width: "50%",
-              minWidth: "50%",
-              "@media (max-width: 600px)": {
-                width: "100%",
-              },
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              alignItems: "center",
-            }}
-            onClick={() => {
-              setModalText("Open the app to view event activity.");
-              setOpenRSVPModal(true);
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" color="goldenrod">
-              ACTIVITY
-            </Typography>
-            <Box
-              sx={{
-                position: "relative",
-                mt: 2,
-                borderRadius: 2,
-                display: "flex",
-                maxWidth: "300px",
-                minHeight: "200px",
-                justifyContent: "center",
-                overflow: "none",
-                padding: "1.5px",
-              }}
-            >
-              <Box
-                sx={{
-                  backgroundImage: `url(${Img})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  width: "300px",
-                  height: "200px",
-                  display: "grid",
-                  placeContent: "center",
-                  borderRadius: 2,
-                }}
-              >
-                {/* Text content inside */}
-                <Typography
-                  variant="body2"
-                  sx={{ position: "relative", zIndex: 2 }}
-                >
-                  🔒 Restricted Access
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="grey.300"
-                  sx={{ position: "relative", zIndex: 2 }}
-                >
-                  Open the app to view event activity.
-                </Typography>
+        {/* Wayfinding */}
+        {eventDetails.d_lat && eventDetails.d_long && (
+          <Box sx={{ mb: { xs: 8, md: 12 } }}>
+            <Reveal>
+              <Box sx={{ maxWidth: 880, mx: "auto" }}>
+                <SectionLabel accent={accent}>Find your way</SectionLabel>
+                <Wayfinding
+                  lat={eventDetails.d_lat}
+                  lng={eventDetails.d_long}
+                  onDirections={handleDirectionsClick}
+                  accent={accent}
+                />
               </Box>
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  backgroundColor: "rgba(42, 41, 41, 0.8)",
-                  backdropFilter: "blur(1px)",
-                  borderRadius: 2,
-                  zIndex: 1,
-                }}
-              ></Box>
+            </Reveal>
+          </Box>
+        )}
+
+        {/* Continue in app */}
+        <Box sx={{ mb: { xs: 6, md: 10 } }}>
+          <Reveal>
+            <Box sx={{ maxWidth: 880, mx: "auto" }}>
+              <SectionLabel accent={accent}>Continue in the app</SectionLabel>
+              <UnlockMore accent={accent} onOpen={openWithMessage} />
             </Box>
-          </Box>
+          </Reveal>
         </Box>
 
+        {/* Footer */}
         <Box
           sx={{
-            "@media (max-width: 450px)": {
-              marginX: "0%",
-            },
-            marginX: "20%",
-          }}
-        >
-          <Box
-            sx={{
-              borderRadius: "24px",
-              borderLeft: "50px",
-
-              overflow: "hidden",
-            }}
-          >
-            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API ?? ""}>
-              <Map
-                style={{
-                  height: "200px",
-                  width: "100%",
-                  borderRadius: "24px",
-                }}
-                defaultCenter={{
-                  lat: Number(eventDetails?.d_lat),
-                  lng: Number(eventDetails?.d_long),
-                }}
-                defaultZoom={15}
-                gestureHandling={"greedy"}
-                disableDefaultUI={true}
-                // styles={MapStyles}
-              />
-              <Marker
-                position={{
-                  lat: Number(eventDetails?.d_lat),
-                  lng: Number(eventDetails?.d_long),
-                }}
-                onClick={handleDirectionsClick}
-                opacity={1}
-              />
-            </APIProvider>
-          </Box>
-        </Box>
-
-        {/* RSVP Button */}
-        <Box
-          sx={{
-            transition: "all 0.3s ease-in-out",
-            animation: !isSticky ? "slideInFromBottom 0.3s ease-out" : "none",
-            "@keyframes slideInFromBottom": {
-              "0%": {
-                opacity: 0,
-                transform: "translateY(20px)",
-              },
-              "100%": {
-                opacity: 1,
-                transform: "translateY(0)",
-              },
-            },
-          }}
-        >
-          <Button
-            sx={{
-              borderRadius: "20px",
-              background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-              color: theme.palette.primary.contrastText,
-              boxShadow: `0 8px 32px ${alpha(
-                theme.palette.primary.main,
-                0.4
-              )}, 0 4px 16px rgba(0,0,0,0.2)`,
-              "&:hover": {
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                boxShadow: `0 12px 40px ${alpha(
-                  theme.palette.primary.main,
-                  0.6
-                )}, 0 6px 20px rgba(0,0,0,0.3)`,
-                transform: "translateY(-2px)",
-              },
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              position: "relative",
-              overflow: "hidden",
-              padding: "12px 24px",
-              fontWeight: "600",
-              fontSize: "14px",
-              textTransform: "none",
-              letterSpacing: "0.5px",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                left: "-100%",
-                width: "100%",
-                height: "100%",
-                background:
-                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                animation: "shimmer 2s infinite",
-                "@keyframes shimmer": {
-                  "0%": {
-                    left: "-100%",
-                  },
-                  "100%": {
-                    left: "100%",
-                  },
-                },
-              },
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: "0",
-                height: "0",
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.2)",
-                transform: "translate(-50%, -50%)",
-                transition: "width 0.6s, height 0.6s",
-              },
-              "&:active::after": {
-                width: "300px",
-                height: "300px",
-              },
-            }}
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={() => {
-              setModalText("Open the App to RSVP");
-              setOpenRSVPModal(true);
-            }}
-          >
-            🎉 RSVP Now
-          </Button>
-        </Box>
-
-        <Box
-          sx={{
-            "@media (max-width: 450px)": {
-              marginX: "0%",
-            },
-            marginX: "20%",
+            borderTop: `1px solid ${tokens.color.line}`,
+            pt: 4,
+            mt: 4,
+            "& > *": { background: "transparent !important" },
           }}
         >
           <EventFooter />
         </Box>
+      </Box>
 
-        <OpenApp
-          eventId={eventDetails?.event_id}
-          openApp={openRSVPModal}
-          setOpenApp={setOpenRSVPModal}
-          text={modalText}
-        />
+      {/* Sticky mobile CTA */}
+      <Box
+        sx={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: { xs: "flex", md: "none" },
+          justifyContent: "center",
+          padding: "12px 16px calc(12px + env(safe-area-inset-bottom))",
+          background: withAlpha("#F7F4ED", 0.85),
+          backdropFilter: "blur(12px)",
+          borderTop: `1px solid ${tokens.color.line}`,
+          zIndex: 10,
+          transform: showStickyCta ? "translateY(0)" : "translateY(120%)",
+          transition: `transform 300ms ${tokens.motion.swift}`,
+        }}
+      >
+        <Box sx={{ width: "100%", maxWidth: 480 }}>
+          <Box sx={{ display: "flex" }}>
+            <Box sx={{ flex: 1 }}>
+              <RsvpButton
+                label={isPast ? "Explore more events" : "RSVP"}
+                accent={accent}
+                onClick={() =>
+                  isPast
+                    ? handleMobileRedirection()
+                    : openWithMessage("Open the App to RSVP")
+                }
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Box>
 
-        <Modal
-          open={openGuestModal}
-          onClose={() => setOpenGuestModal(false)}
+      <OpenApp
+        eventId={eventDetails.event_id}
+        openApp={openRSVPModal}
+        setOpenApp={setOpenRSVPModal}
+        text={modalText}
+      />
+
+      <Modal
+        open={openGuestModal}
+        onClose={() => setOpenGuestModal(false)}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            p: 4,
+            bgcolor: tokens.color.raised,
+            borderRadius: `${tokens.radius.lg}px`,
+            width: 360,
+            textAlign: "center",
+            boxShadow: tokens.shadow.lift,
           }}
         >
-          <Box
+          <Avatar
+            src={selectedGuest?.user_image}
+            sx={{ width: 80, height: 80, margin: "0 auto 16px" }}
+          />
+          <Typography
             sx={{
-              p: 4,
-              bgcolor: "black",
-              borderRadius: 2,
-              width: 400,
-              textAlign: "center",
+              fontFamily: tokens.font.sans,
+              fontSize: 15,
+              color: tokens.color.inkPrimary,
+              mb: 3,
             }}
           >
-            <Avatar
-              src={selectedGuest?.user_image}
-              sx={{ width: 80, height: 80, margin: "0 auto 10px" }}
-            />
-            <Typography variant="body1" gutterBottom color="white">
-              Open the App to connect with this guest
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleMobileRedirection}
-            >
-              Open App
-            </Button>
-          </Box>
-        </Modal>
-      </Box>
+            Open the app to connect with this guest.
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={handleMobileRedirection}
+            sx={{
+              background: accent,
+              boxShadow: "none",
+              textTransform: "none",
+              borderRadius: `${tokens.radius.lg}px`,
+              px: 3,
+              py: 1.25,
+              fontWeight: 600,
+              "&:hover": { background: accent, filter: "brightness(1.06)" },
+            }}
+          >
+            Open the app
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   );
 };
 
-export default EventPage;
+export default PublicEventDetails;
