@@ -42,3 +42,9 @@ export function parseTicketSalesDateTime(dateTime: string): Date {
 export function isAddressUtcMode(address1: string | undefined): boolean {
   return Boolean(address1 && address1.trim().endsWith("."));
 }
+
+/** API sales window: naive local `YYYY-MM-DD HH:mm:ss` (no UTC shift). */
+export function toApiSalesDateTimeString(dateTime: string): string {
+  if (!dateTime) return "";
+  return dateTime.trim().replace("T", " ").slice(0, 19);
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,9 +10,10 @@ import {
   Modal,
   useTheme,
   IconButton,
+  Stack,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
@@ -32,6 +33,44 @@ import {
 } from "../../services/events/eventApi";
 import { useAppSelector } from "../../redux/store";
 import { alpha } from "@mui/material/styles";
+import ManageTicketsModal from "../../ui/components/modals/ManageTicketsModal";
+import BuyTicketsModal from "../../ui/components/modals/BuyTicketsModal";
+
+/** Tickets / scanner actions (match PurchasedTickets accent) */
+const EVENT_ORANGE = "#E67E22";
+
+const ticketBlackPillSx = {
+  borderRadius: "9999px",
+  textTransform: "none" as const,
+  fontWeight: 600,
+  fontSize: { xs: "0.8125rem", sm: "0.8125rem" },
+  lineHeight: 1.2,
+  px: { xs: 1.75, sm: 2 },
+  py: { xs: 0.875, sm: 1 },
+  minHeight: { xs: 40, sm: 38 },
+  minWidth: 0,
+  maxWidth: { xs: 280, sm: "none" },
+  width: { xs: "auto", sm: "auto" },
+  justifyContent: "center",
+  bgcolor: "#111",
+  color: "#fff",
+  boxShadow: "none",
+  whiteSpace: { xs: "normal", sm: "nowrap" },
+  "&:hover": { bgcolor: "#333", boxShadow: "none" },
+  "& .MuiButton-startIcon": { mr: { xs: 0.75, sm: 0.75 } },
+  "& .MuiButton-startIcon svg": {
+    fontSize: { xs: 18, sm: 18 },
+    width: { xs: 18, sm: 18 },
+    height: { xs: 18, sm: 18 },
+  },
+};
+
+const ticketOrangePillSx = {
+  ...ticketBlackPillSx,
+  bgcolor: EVENT_ORANGE,
+  color: "#fff",
+  "&:hover": { bgcolor: EVENT_ORANGE, filter: "brightness(0.95)", boxShadow: "none" },
+};
 
 const EventDetails = () => {
   const theme = useTheme();
@@ -58,6 +97,7 @@ const EventDetails = () => {
   const [isEventSaved, setIsEventSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { eventId } = useParams<{ eventId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     data: eventDetails,
     error,
@@ -66,10 +106,27 @@ const EventDetails = () => {
 
   const [openGuestModal, setOpenGuestModal] = useState(false);
   const [openRSVPModal, setOpenRSVPModal] = useState(false);
+  const [openManageTicketsModal, setOpenManageTicketsModal] = useState(false);
+  const [openBuyTicketsModal, setOpenBuyTicketsModal] = useState(false);
   const [modalText, setModalText] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<{
     user_image: string;
   } | null>(null);
+
+  const isOwnEvent = Boolean(
+    eventDetails?.user_id != null &&
+      user?.id != null &&
+      Number(eventDetails.user_id) === Number(user.id)
+  );
+
+  useEffect(() => {
+    if (searchParams.get("buyTickets") !== "1") return;
+    if (!user?.id || isOwnEvent) return;
+    setOpenBuyTicketsModal(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("buyTickets");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, user?.id, isOwnEvent]);
 
   const handleOpenGuestModal = (guest: { user_image: string }) => {
     setSelectedGuest(guest);
@@ -281,6 +338,7 @@ const EventDetails = () => {
         margin: 0,
         padding: 0,
         borderRadius: "24px 24px 0 0",
+        position: "relative",
         overflow: {
           xs: "hidden",
           md: "hidden",
@@ -318,7 +376,7 @@ const EventDetails = () => {
               backgroundColor: theme.palette.background.default,
             },
             borderRadius: "50%",
-            zIndex: 1,
+            zIndex: 2,
           }}
         >
           <Icon
@@ -327,112 +385,110 @@ const EventDetails = () => {
           />
         </IconButton>
 
-        {/* Sticky RSVP Button */}
-        {isSticky && (
-          <Box
-            sx={{
-              position: "fixed",
-              top: 86,
-              right: 16,
-              zIndex: 1000,
-              display: { xs: "block", md: "block" },
-              transition: "all 0.3s ease-in-out",
-              animation: "slideInFromTop 0.3s ease-out",
-              "@keyframes slideInFromTop": {
-                "0%": {
-                  opacity: 0,
-                  transform: "translateY(-20px)",
-                },
-                "100%": {
-                  opacity: 1,
-                  transform: "translateY(0)",
-                },
-              },
-            }}
-          >
-            <Button
+        {/* Action buttons: top-right, opposite back arrow */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: { xs: 64, sm: 72 },
+            right: 16,
+            zIndex: 2,
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+            flexWrap: "wrap",
+            gap: 1,
+            rowGap: 1,
+            pointerEvents: "none",
+            "& .MuiButton-root": { pointerEvents: "auto" },
+          }}
+        >
+          {isOwnEvent && (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
               sx={{
-                borderRadius: "20px",
-                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-                color: theme.palette.primary.contrastText,
-                boxShadow: `0 8px 32px ${alpha(
-                  theme.palette.primary.main,
-                  0.4
-                )}, 0 4px 16px rgba(0,0,0,0.2)`,
-                "&:hover": {
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                  boxShadow: `0 12px 40px ${alpha(
-                    theme.palette.primary.main,
-                    0.6
-                  )}, 0 6px 20px rgba(0,0,0,0.3)`,
-                  transform: "translateY(-2px)",
-                },
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                position: "relative",
-                overflow: "hidden",
-                padding: "12px 24px",
-                fontWeight: "600",
-                fontSize: "14px",
-                textTransform: "none",
-                letterSpacing: "0.5px",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: "-100%",
-                  width: "100%",
-                  height: "100%",
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                  animation: "shimmer 2s infinite",
-                  "@keyframes shimmer": {
-                    "0%": {
-                      left: "-100%",
-                    },
-                    "100%": {
-                      left: "100%",
-                    },
-                  },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  width: "0",
-                  height: "0",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.2)",
-                  transform: "translate(-50%, -50%)",
-                  transition: "width 0.6s, height 0.6s",
-                },
-                "&:active::after": {
-                  width: "300px",
-                  height: "300px",
-                },
+                alignItems: "flex-end",
+                pointerEvents: "auto",
               }}
-              variant="contained"
-              color="primary"
-              size="medium"
-              onClick={() => {
-                handleAddToCalendarClick();
-              }}
-              endIcon={
-                (isSaving || isUnsaving) && (
-                  <Icon
-                    icon="material-symbols:autorenew"
-                    style={{
-                      animation: "spin 1s linear infinite",
-                      fontSize: "20px",
-                    }}
-                  />
-                )
-              }
             >
-              {isEventSaved == false ? "🎉 RSVP Now" : "Cancel"}
-            </Button>
-          </Box>
-        )}
+              <Button
+                variant="contained"
+                disableElevation
+                size="medium"
+                sx={ticketBlackPillSx}
+                onClick={() => setOpenManageTicketsModal(true)}
+                startIcon={<Icon icon="mdi:ticket-outline" />}
+              >
+                Manage Tickets
+              </Button>
+              <Button
+                variant="contained"
+                disableElevation
+                size="medium"
+                sx={ticketOrangePillSx}
+                onClick={() => eventId && navigate(`/events/${eventId}/authorized-scanners`)}
+                startIcon={<Icon icon="mdi:qrcode-scan" />}
+              >
+                Manage Authorized Scanners
+              </Button>
+            </Stack>
+          )}
+          {!isOwnEvent && (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              sx={{
+                alignItems: "flex-end",
+                pointerEvents: "auto",
+              }}
+            >
+              <Button
+                variant="contained"
+                disableElevation
+                size="medium"
+                sx={ticketBlackPillSx}
+                onClick={() => setOpenBuyTicketsModal(true)}
+                startIcon={<Icon icon="mdi:ticket-confirmation-outline" />}
+              >
+                Buy Tickets
+              </Button>
+              <Button
+                sx={{
+                  borderRadius: "20px",
+                  background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                  color: theme.palette.primary.contrastText,
+                  boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.4)}, 0 4px 16px rgba(0,0,0,0.2)`,
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.6)}, 0 6px 20px rgba(0,0,0,0.3)`,
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  padding: { xs: "6px 10px", sm: "10px 18px" },
+                  fontWeight: "600",
+                  fontSize: { xs: "11px", sm: "14px" },
+                  textTransform: "none",
+                  whiteSpace: { sm: "nowrap" },
+                }}
+                variant="contained"
+                color="primary"
+                size="medium"
+                onClick={() => handleAddToCalendarClick()}
+                endIcon={
+                  (isSaving || isUnsaving) && (
+                    <Icon
+                      icon="material-symbols:autorenew"
+                      style={{ animation: "spin 1s linear infinite", fontSize: "20px" }}
+                    />
+                  )
+                }
+              >
+                {isEventSaved === false ? "RSVP Now" : "Cancel"}
+              </Button>
+            </Stack>
+          )}
+        </Box>
 
         <Box
           sx={{
@@ -494,6 +550,8 @@ const EventDetails = () => {
               alignItems: "start",
               flexDirection: "column",
               textAlign: "left",
+              // Space for absolute top bar: back (left) + actions (right)
+              pt: { xs: 7, sm: 6, md: 5 },
               "@media (max-width: 450px)": {
                 px: 2,
                 pb: 2,
@@ -502,12 +560,15 @@ const EventDetails = () => {
             flex={1}
             textAlign={{ xs: "center", md: "left" }}
           >
+            {/* Host row (Buy/RSVP/Manage sit in top bar opposite back button) */}
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-                justifyContent: "left",
+                justifyContent: { xs: "center", md: "left" },
+                width: "100%",
+                mb: { xs: 1, md: 0.5 },
                 "@media (max-width: 450px)": {
                   px: 0,
                   py: 0.5,
@@ -516,9 +577,9 @@ const EventDetails = () => {
             >
               <Avatar
                 src={eventDetails?.user_profile_image}
-                sx={{ width: 40, height: 40, mx: 0 }}
+                sx={{ width: 40, height: 40, mx: 0, flexShrink: 0 }}
               />
-              <Typography variant="subtitle2" color="white">
+              <Typography variant="subtitle2" color="white" noWrap sx={{ minWidth: 0 }}>
                 By {eventDetails?.user_name}
               </Typography>
             </Box>
@@ -580,7 +641,7 @@ const EventDetails = () => {
                 paddingTop: 10,
               }}
             >
-              📍 {eventDetails?.address_1}
+              {eventDetails?.address_1}
             </Typography>
 
             {/* Attendees */}
@@ -865,7 +926,7 @@ const EventDetails = () => {
                   variant="body2"
                   sx={{ position: "relative", zIndex: 2 }}
                 >
-                  🔒 Restricted Access
+                  Restricted Access
                 </Typography>
                 <Typography
                   variant="caption"
@@ -954,7 +1015,7 @@ const EventDetails = () => {
             },
           }}
         >
-          {!isSticky && (
+          {!isSticky && !isOwnEvent && (
             <Button
               sx={{
                 borderRadius: "20px",
@@ -1034,7 +1095,7 @@ const EventDetails = () => {
                 )
               }
             >
-              {isEventSaved == false ? "🎉 RSVP Now" : "Cancel"}
+              {isEventSaved == false ? "RSVP Now" : "Cancel"}
             </Button>
           )}
 
@@ -1086,6 +1147,23 @@ const EventDetails = () => {
             </Button>
           </Box>
         </Modal>
+
+        {/* Manage Tickets modal (owner only) */}
+        <ManageTicketsModal
+          open={openManageTicketsModal}
+          onClose={() => setOpenManageTicketsModal(false)}
+          eventId={eventDetails?.event_id ?? 0}
+          userId={user?.id ?? 0}
+        />
+
+        <BuyTicketsModal
+          open={openBuyTicketsModal}
+          onClose={() => setOpenBuyTicketsModal(false)}
+          eventId={eventDetails?.event_id ?? 0}
+          userId={user?.id ?? 0}
+          eventLat={eventDetails?.d_lat}
+          eventLong={eventDetails?.d_long}
+        />
       </Box>
     </Box>
   );

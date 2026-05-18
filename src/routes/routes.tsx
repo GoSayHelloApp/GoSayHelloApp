@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom";
+﻿import { RouteObject } from "react-router-dom";
 import Auth from "../pages/auth/auth";
 import HomeTown from "../pages/home-town";
 import School from "../pages/school";
@@ -10,6 +10,7 @@ import Preferences from "../pages/preferences/preferences";
 import Main from "../ui/layout/main";
 import Home from "../pages/home/home";
 import EventDetails from "../pages/events/eventDetails";
+import EventAuthorizedScanners from "../pages/events/EventAuthorizedScanners";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
 import EventsListPage from "../pages/events/EventsListPage";
@@ -30,11 +31,17 @@ import Waves from "../pages/waves/waves";
 import Messages from "../pages/messages";
 import MessagesLayout from "../pages/messages/MessagesLayout";
 import Wallet from "../pages/wallet";
+import PurchasedTicketsPage from "../pages/tickets/PurchasedTicketsPage";
+import SettingsPage from "../pages/settings/SettingsPage";
 
 const routes: RouteObject[] = [
   {
     path: "/login",
     element: <Auth />,
+  },
+  {
+    path: "/public/events",
+    element: <PublicEventsPage />,
   },
   {
     path: "/event-details/:eventId",
@@ -83,6 +90,10 @@ const routes: RouteObject[] = [
                 element: <EventDetails />,
               },
               {
+                path: "events/:eventId/authorized-scanners",
+                element: <EventAuthorizedScanners />,
+              },
+              {
                 path: "nearby",
                 element: <Middle />,
                 index: true,
@@ -96,6 +107,10 @@ const routes: RouteObject[] = [
                 path: "wallet",
                 element: <Wallet />,
                 index: true,
+              },
+              {
+                path: "my-tickets",
+                element: <PurchasedTicketsPage />,
               },
             ],
           },
@@ -141,6 +156,11 @@ const routes: RouteObject[] = [
           {
             path: "post-details",
             element: <UserPostDetails />,
+            index: true,
+          },
+          {
+            path: "settings",
+            element: <SettingsPage />,
             index: true,
           },
           {

@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import { ForgotPasswordRequest, UserLoginRequest } from "../../../models/requestModels/user";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../services/auth/authSlice";
+import { resolvePostAuthNavigation } from "../../../utils/ticketPurchaseReturn";
 
 interface LoginFormValues {
     email: string;
@@ -33,13 +34,7 @@ const Login: React.FC = () => {
             .then((response) => {
                 console.log("User logged in:", response);
                 dispatch(setUser(response));
-                if (response.UserPreferences.length >= 3) {
-                    navigate("/nearby");
-                }
-                else {
-                    navigate("/preferences");
-                }
-
+                navigate(resolvePostAuthNavigation(response.UserPreferences));
             })
             .catch((error) => {
                 console.error("Login failed:", error);

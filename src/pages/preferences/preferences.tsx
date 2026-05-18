@@ -40,6 +40,11 @@ import { userSelector } from "../../services/auth/authSelectors";
 import { userPreferencesRequest } from "../../models/requestModels/preferences";
 import { setUserPreferences } from "../../services/auth/authSlice";
 import { Icon } from "@iconify/react";
+import {
+  buildEventTicketsPath,
+  clearTicketPurchaseReturn,
+  getTicketPurchaseReturn,
+} from "../../utils/ticketPurchaseReturn";
 
 export default function Preferences() {
   const theme = useTheme();
@@ -106,7 +111,14 @@ export default function Preferences() {
 
         // Update both Redux and session storage
         dispatch(setUserPreferences(preferences));
-        navigate("/nearby");
+        const ticketReturn = getTicketPurchaseReturn();
+        if (ticketReturn?.eventId) {
+          const path = buildEventTicketsPath(ticketReturn.eventId);
+          clearTicketPurchaseReturn();
+          navigate(path);
+          return;
+        }
+        navigate(isEditMode ? "/nearby?tab=people" : "/nearby");
       })
       .catch((error) => {
         console.error("Request failed:", error);

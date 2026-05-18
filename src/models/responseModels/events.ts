@@ -36,6 +36,26 @@ export interface EventsNearByResponse {
     EventsNearBy: Event[];
 }
 
+/** POST getnearbyeventsv2 (Python API, multipart form) */
+export interface NearbyEventsV2Response {
+    success?: boolean;
+    current_page_no?: number;
+    nearby_events_total_pages?: number;
+    total_events?: number;
+    EventsNearBy: Event[];
+}
+
+export interface NearbyEventsV2Request {
+    latitude: number;
+    longitude: number;
+    event_type_id?: number;
+    page_no: number;
+    /** 0 = free only, 2 = all (per mobile/API convention) */
+    is_paid_event?: number;
+    month?: number;
+    event_name?: string;
+}
+
 export interface EventDetailsResponse {
     success: boolean;
     event_id: number;

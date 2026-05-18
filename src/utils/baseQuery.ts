@@ -48,3 +48,12 @@ const axiosBaseQuery =
 export const baseQuery = axiosBaseQuery({
     baseUrl: process.env.REACT_APP_BACKEND_BASE_URL!,
 });
+
+const pythonApiBase =
+    process.env.REACT_APP_PYTHON_API_BASE_URL?.replace(/\/?$/, "/") ||
+    "https://pythonapi.gosayhelloapp.com/";
+
+/** FastAPI ticket / wallet / payment endpoints */
+export const pythonBaseQuery = axiosBaseQuery({
+    baseUrl: pythonApiBase,
+});
