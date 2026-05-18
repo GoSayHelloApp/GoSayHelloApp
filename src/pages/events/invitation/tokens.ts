@@ -6,7 +6,9 @@ export const tokens = {
     inkSecondary: "#5A5763",
     inkMuted: "#9A96A3",
     line: "rgba(20, 19, 26, 0.08)",
-    fallbackAccent: "#C77D5A",
+    brandOrange: "#EB7D32",
+    brandOrangeDark: "#B84C02",
+    fallbackAccent: "#EB7D32",
   },
   font: {
     serif: '"Fraunces", "Times New Roman", Georgia, serif',

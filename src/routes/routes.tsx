@@ -12,6 +12,7 @@ import Home from "../pages/home/home";
 import EventDetails from "../pages/events/eventDetails";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
+import EventsListPage from "../pages/events/EventsListPage";
 import EventScheduler from "../pages/events/EventScheduler";
 import NotFound from "../pages/notfound/NotFound";
 import ChangePassword from "../pages/change-password/ChangePassword";
@@ -38,6 +39,10 @@ const routes: RouteObject[] = [
   {
     path: "/event-details/:eventId",
     element: <PublicEventDetails />,
+  },
+  {
+    path: "/events-list",
+    element: <EventsListPage />,
   },
   {
     element: <PrivateRoutes />,

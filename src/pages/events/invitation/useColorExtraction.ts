@@ -112,6 +112,13 @@ export function useColorExtraction(imageUrl?: string): string {
           g: g / count,
           b: b / count,
         });
+        const lum = relativeLuminance(avg);
+        const sat = saturation(avg);
+        if (lum < 0.18 || sat < 0.25) {
+          cache.set(imageUrl, tokens.color.brandOrange);
+          setAccent(tokens.color.brandOrange);
+          return;
+        }
         const hex = rgbToHex(avg);
         cache.set(imageUrl, hex);
         setAccent(hex);
