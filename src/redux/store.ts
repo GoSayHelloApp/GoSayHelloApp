@@ -15,6 +15,7 @@ import { eventApi } from '../services/events/eventApi';
 import { privacyApi } from '../services/privacy/privacyApi';
 import { postsApi } from '../services/posts/postsApi';
 import { ticketApi } from '../services/tickets/ticketApi';
+import { publicEventsApi } from '../services/events/publicEventsApi';
 
 export const store = configureStore({
     reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
         [privacyApi.reducerPath]: privacyApi.reducer,
         [postsApi.reducerPath]: postsApi.reducer,
         [ticketApi.reducerPath]: ticketApi.reducer,
+        [publicEventsApi.reducerPath]: publicEventsApi.reducer,
     },
     // middlewares
     middleware: (getDefaultMiddleware) =>
@@ -47,7 +49,8 @@ export const store = configureStore({
             eventApi.middleware,
             privacyApi.middleware,
             postsApi.middleware,
-            ticketApi.middleware
+            ticketApi.middleware,
+            publicEventsApi.middleware
         ),
 });
 

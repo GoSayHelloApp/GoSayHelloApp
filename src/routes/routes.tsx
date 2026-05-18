@@ -13,6 +13,7 @@ import EventDetails from "../pages/events/eventDetails";
 import EventAuthorizedScanners from "../pages/events/EventAuthorizedScanners";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
+import PublicEventsPage from "../pages/events/PublicEventsPage";
 import EventScheduler from "../pages/events/EventScheduler";
 import NotFound from "../pages/notfound/NotFound";
 import ChangePassword from "../pages/change-password/ChangePassword";
@@ -31,11 +32,16 @@ import Messages from "../pages/messages";
 import MessagesLayout from "../pages/messages/MessagesLayout";
 import Wallet from "../pages/wallet";
 import PurchasedTicketsPage from "../pages/tickets/PurchasedTicketsPage";
+import SettingsPage from "../pages/settings/SettingsPage";
 
 const routes: RouteObject[] = [
   {
     path: "/login",
     element: <Auth />,
+  },
+  {
+    path: "/public/events",
+    element: <PublicEventsPage />,
   },
   {
     path: "/event-details/:eventId",
@@ -146,6 +152,11 @@ const routes: RouteObject[] = [
           {
             path: "post-details",
             element: <UserPostDetails />,
+            index: true,
+          },
+          {
+            path: "settings",
+            element: <SettingsPage />,
             index: true,
           },
           {

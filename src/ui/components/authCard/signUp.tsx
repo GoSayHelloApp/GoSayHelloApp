@@ -9,6 +9,7 @@ import { useSignupMutation } from "../../../services/auth/authApi";
 import { Icon } from "@iconify/react";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../services/auth/authSlice";
+import { resolvePostAuthNavigation, shouldSkipOnboardingAfterAuth } from "../../../utils/ticketPurchaseReturn";
 
 interface SignupFormValues {
   firstName: string;
@@ -43,12 +44,13 @@ const Signup: React.FC = () => {
       .unwrap()
       .then((response) => {
         dispatch(setUser(response));
-        // Navigate based on account type
+        if (shouldSkipOnboardingAfterAuth()) {
+          navigate(resolvePostAuthNavigation(response.UserPreferences));
+          return;
+        }
         if (accountType === 1) {
-          // Business Account
           navigate("/business-info");
         } else {
-          // User Account
           navigate("/home-town");
         }
       })

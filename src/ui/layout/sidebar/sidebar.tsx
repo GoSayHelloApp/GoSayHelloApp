@@ -121,6 +121,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             />
             {isMobile && (
               <IconButton
+                aria-label="Settings"
                 sx={{
                   position: "absolute",
                   bottom: 0,
@@ -133,7 +134,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                   zIndex: 1,
                   "&:hover": { bgcolor: theme.palette.grey[200] },
                 }}
-                onClick={() => navigate("/settings")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                  navigate("/settings");
+                }}
               >
                 <Icon icon="mdi:settings" fontSize={18} color={theme.palette.grey[800]} />
               </IconButton>

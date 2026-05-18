@@ -16,6 +16,11 @@ import { Icon } from "@iconify/react";
 import { alpha } from "@mui/material/styles";
 import MapStyles from "../../configs/mapStylesConfig.json";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  buildEventTicketsPath,
+  hasMinimumPreferences,
+  setTicketPurchaseReturn,
+} from "../../utils/ticketPurchaseReturn";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
@@ -104,9 +109,22 @@ const EventPage = () => {
   };
 
   const handleBuyTicketsClick = () => {
+    const id = Number(eventId);
     if (!user?.id) {
-      sessionStorage.setItem("redirectAfterLogin", `/event-details/${eventId ?? ""}`);
-      navigate("/login");
+      if (Number.isFinite(id) && id > 0) {
+        setTicketPurchaseReturn({ eventId: id });
+        sessionStorage.setItem("redirectAfterLogin", `/event-details/${id}`);
+      }
+      navigate("/login?signup=1");
+      return;
+    }
+    if (hasMinimumPreferences(user.UserPreferences) && Number.isFinite(id) && id > 0) {
+      navigate(buildEventTicketsPath(id));
+      return;
+    }
+    if (!hasMinimumPreferences(user.UserPreferences) && Number.isFinite(id) && id > 0) {
+      setTicketPurchaseReturn({ eventId: id });
+      navigate("/preferences");
       return;
     }
     setOpenBuyTicketsModal(true);
@@ -259,7 +277,7 @@ const EventPage = () => {
                   setOpenRSVPModal(true);
                 }}
               >
-                ≡ƒÄë RSVP Now
+                RSVP Now
               </Button>
             </Stack>
           </Box>
@@ -411,7 +429,7 @@ const EventPage = () => {
                 paddingTop: 10,
               }}
             >
-              ≡ƒôì {eventDetails?.address_1}
+              {eventDetails?.address_1}
             </Typography>
 
             {/* Attendees */}
@@ -687,7 +705,7 @@ const EventPage = () => {
                   variant="body2"
                   sx={{ position: "relative", zIndex: 2 }}
                 >
-                  ≡ƒöÆ Restricted Access
+                  Restricted Access
                 </Typography>
                 <Typography
                   variant="caption"
@@ -857,7 +875,7 @@ const EventPage = () => {
                 setOpenRSVPModal(true);
               }}
             >
-              ≡ƒÄë RSVP Now
+              RSVP Now
             </Button>
           </Stack>
         </Box>

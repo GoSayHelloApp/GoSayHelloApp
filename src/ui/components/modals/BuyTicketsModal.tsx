@@ -119,7 +119,7 @@ function StripePayBlock({
     <Stack spacing={2} sx={{ width: "100%" }}>
       <PaymentElement />
       <Button variant="contained" color="primary" disabled={!stripe || busy} onClick={handle} size="large">
-        {busy ? "ProcessingΓÇª" : "Pay & confirm"}
+        {busy ? "Processing..." : "Pay & confirm"}
       </Button>
     </Stack>
   );
@@ -516,7 +516,7 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ open, onClose, eventI
                       onClick={startOrContinuePurchase}
                       startIcon={busy ? <CircularProgress size={20} color="inherit" /> : <Icon icon="mdi:cart" />}
                     >
-                      {busy ? "ProcessingΓÇª" : unitPrice <= 0 || payableC <= 0 ? "Complete purchase" : "Continue to payment"}
+                      {busy ? "Processing..." : unitPrice <= 0 || payableC <= 0 ? "Complete purchase" : "Continue to payment"}
                     </Button>
                   )}
                 </>

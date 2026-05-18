@@ -13,7 +13,7 @@ import {
   Stack,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import Loader from "../../ui/components/core/screenLoader";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
@@ -97,6 +97,7 @@ const EventDetails = () => {
   const [isEventSaved, setIsEventSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { eventId } = useParams<{ eventId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     data: eventDetails,
     error,
@@ -117,6 +118,15 @@ const EventDetails = () => {
       user?.id != null &&
       Number(eventDetails.user_id) === Number(user.id)
   );
+
+  useEffect(() => {
+    if (searchParams.get("buyTickets") !== "1") return;
+    if (!user?.id || isOwnEvent) return;
+    setOpenBuyTicketsModal(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("buyTickets");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, user?.id, isOwnEvent]);
 
   const handleOpenGuestModal = (guest: { user_image: string }) => {
     setSelectedGuest(guest);
@@ -474,7 +484,7 @@ const EventDetails = () => {
                   )
                 }
               >
-                {isEventSaved === false ? "≡RSVP Now" : "Cancel"}
+                {isEventSaved === false ? "RSVP Now" : "Cancel"}
               </Button>
             </Stack>
           )}
@@ -631,7 +641,7 @@ const EventDetails = () => {
                 paddingTop: 10,
               }}
             >
-              ≡ƒôì {eventDetails?.address_1}
+              {eventDetails?.address_1}
             </Typography>
 
             {/* Attendees */}
@@ -916,7 +926,7 @@ const EventDetails = () => {
                   variant="body2"
                   sx={{ position: "relative", zIndex: 2 }}
                 >
-                  ≡ƒöÆ Restricted Access
+                  Restricted Access
                 </Typography>
                 <Typography
                   variant="caption"
@@ -1085,7 +1095,7 @@ const EventDetails = () => {
                 )
               }
             >
-              {isEventSaved == false ? "≡ƒÄë RSVP Now" : "Cancel"}
+              {isEventSaved == false ? "RSVP Now" : "Cancel"}
             </Button>
           )}
 

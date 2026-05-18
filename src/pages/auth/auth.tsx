@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab, useTheme, Typography } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import Signup from "../../ui/components/authCard/signUp";
 import Login from "../../ui/components/authCard/login";
 
 const Auth: React.FC = () => {
   const theme = useTheme();
-  const [value, setValue] = useState(1);
+  const [searchParams] = useSearchParams();
+  const [value, setValue] = useState(searchParams.get("signup") === "1" ? 0 : 1);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
