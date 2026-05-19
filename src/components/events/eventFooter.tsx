@@ -282,11 +282,6 @@ const Footer = () => {
               icon="ph:linkedin-logo-fill"
               label="LinkedIn"
             />
-            <SocialIcon
-              href="https://t.me/gosayhelloapp"
-              icon="ph:telegram-logo-fill"
-              label="Telegram"
-            />
           </Box>
         </Box>
 

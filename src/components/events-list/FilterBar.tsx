@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Box, MenuItem, Select, Switch } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
+import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 
 const MONTHS = [
   { v: 0, l: "Any month" },
@@ -130,7 +131,10 @@ export function FilterBar({ value, onChange, resultCount, locationLabel }: Props
             sx={{
               width: "100%",
               fontFamily: tokens.font.sans,
-              fontSize: 14,
+              // iOS Safari auto-zooms inputs with font-size < 16px on focus.
+              // Use 16px on mobile to prevent the page zoom + horizontal clip,
+              // and the usual 14px from sm+ where it's not an issue.
+              fontSize: { xs: 16, sm: 14 },
               fontWeight: 500,
               color: tokens.color.inkPrimary,
               background: tokens.color.raised,
@@ -141,6 +145,7 @@ export function FilterBar({ value, onChange, resultCount, locationLabel }: Props
               pr: 2,
               outline: "none",
               transition: "border-color 200ms ease",
+              "&:focus": { outline: "none" },
               "&:focus-visible": {
                 borderColor: tokens.color.brandOrange,
                 boxShadow: `0 0 0 3px ${tokens.color.brandOrange}33`,
@@ -155,13 +160,51 @@ export function FilterBar({ value, onChange, resultCount, locationLabel }: Props
           value={value.month}
           onChange={(e) => update({ month: Number(e.target.value) })}
           size="small"
+          IconComponent={(iconProps) => (
+            <Box
+              {...iconProps}
+              sx={{
+                ...iconProps.sx,
+                color: tokens.color.inkSecondary,
+                right: 12,
+                display: "inline-flex",
+                pointerEvents: "none",
+              }}
+            >
+              <Icon icon="ph:caret-down-bold" width={14} />
+            </Box>
+          )}
+          MenuProps={{
+            anchorOrigin: { vertical: "bottom", horizontal: "left" },
+            transformOrigin: { vertical: "top", horizontal: "left" },
+            PaperProps: {
+              elevation: 0,
+              sx: {
+                mt: 1,
+                borderRadius: `${tokens.radius.lg}px`,
+                border: `1px solid ${tokens.color.line}`,
+                background: tokens.color.raised,
+                boxShadow: tokens.shadow.lift,
+                overflow: "hidden",
+                "& .MuiList-root": {
+                  py: 1,
+                },
+              },
+            },
+          }}
           sx={{
             minWidth: { xs: "100%", sm: 160 },
             fontFamily: tokens.font.sans,
-            fontSize: 14,
+            // Match search input — 16px on mobile to avoid iOS zoom-on-focus
+            fontSize: { xs: 16, sm: 14 },
             fontWeight: 600,
             background: tokens.color.raised,
             borderRadius: 999,
+            "& .MuiSelect-select": {
+              py: { xs: 1.25, sm: 1 },
+              pl: 2.25,
+              pr: 4,
+            },
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: tokens.color.line,
             },
@@ -175,7 +218,38 @@ export function FilterBar({ value, onChange, resultCount, locationLabel }: Props
           }}
         >
           {MONTHS.map((m) => (
-            <MenuItem key={m.v} value={m.v} sx={{ fontSize: 14 }}>
+            <MenuItem
+              key={m.v}
+              value={m.v}
+              sx={{
+                fontFamily: tokens.font.sans,
+                fontSize: { xs: 15, sm: 14 },
+                fontWeight: 500,
+                color: tokens.color.inkPrimary,
+                px: 2.25,
+                py: { xs: 1.25, sm: 1 },
+                position: "relative",
+                transition: "background 160ms ease, color 160ms ease",
+                "&:hover": {
+                  background: withAlpha(tokens.color.brandOrange, 0.06),
+                },
+                "&.Mui-selected, &.Mui-selected:hover": {
+                  background: withAlpha(tokens.color.brandOrange, 0.1),
+                  color: tokens.color.brandOrange,
+                  fontWeight: 700,
+                },
+                "&.Mui-selected::before": {
+                  content: '""',
+                  position: "absolute",
+                  left: 0,
+                  top: 8,
+                  bottom: 8,
+                  width: "3px",
+                  borderRadius: "0 2px 2px 0",
+                  background: tokens.color.brandOrange,
+                },
+              }}
+            >
               {m.l}
             </MenuItem>
           ))}

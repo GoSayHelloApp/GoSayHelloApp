@@ -492,9 +492,7 @@ const PublicEventDetails = () => {
                       size="md"
                       variant="dark"
                       accent={accent}
-                      onClick={() =>
-                        openWithMessage("Open the App to buy tickets.")
-                      }
+                      onClick={() => navigate("/login")}
                     />
                   )}
                   <RsvpButton
@@ -686,9 +684,7 @@ const PublicEventDetails = () => {
                 size="md"
                 variant="dark"
                 accent={accent}
-                onClick={() =>
-                  openWithMessage("Open the App to buy tickets.")
-                }
+                onClick={() => navigate("/login")}
               />
             )}
             <Box sx={{ flexShrink: 0 }}>

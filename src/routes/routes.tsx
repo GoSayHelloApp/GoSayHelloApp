@@ -33,6 +33,7 @@ import MessagesLayout from "../pages/messages/MessagesLayout";
 import Wallet from "../pages/wallet";
 import PurchasedTicketsPage from "../pages/tickets/PurchasedTicketsPage";
 import SettingsPage from "../pages/settings/SettingsPage";
+import PublicEventsPage from "../pages/events/PublicEventsPage";
 
 const routes: RouteObject[] = [
   {
