@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /Users/macbook/Downloads/customer-ios/Customers/Assets.xcassets/ 2>/dev/null | grep -iE \"lang|sa-flag|sms|dropdown|arrow|splash|logo\")",
+      "Read(//Users/macbook/Downloads/customer-ios/Customers/**)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"=== EXIT $? ===\")"
+    ]
+  }
+}

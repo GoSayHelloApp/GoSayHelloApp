@@ -59,12 +59,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       icon: "ant-design:wallet",
       label: "Wallet",
     },
-    {
-      id: 6,
-      path: "/my-tickets",
-      icon: "mdi:ticket-confirmation",
-      label: "My Tickets",
-    },
     // Conditionally render Recent item based on screen size
     ...(isMobile
       ? [

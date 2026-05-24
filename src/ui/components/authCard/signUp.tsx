@@ -1,15 +1,24 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
+import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { signupValidationSchema } from "../../validations/signUpFormValidations";
-import TermsAndConditions from "./TermsAndConditions";
-import AccountTypeTabs from "./AccountTypeTabs";
-import { useSignupMutation } from "../../../services/auth/authApi";
-import { Icon } from "@iconify/react";
 import { useDispatch } from "react-redux";
+import { signupValidationSchema } from "../../validations/signUpFormValidations";
+import { useSignupMutation } from "../../../services/auth/authApi";
 import { setUser } from "../../../services/auth/authSlice";
-import { resolvePostAuthNavigation, shouldSkipOnboardingAfterAuth } from "../../../utils/ticketPurchaseReturn";
+import {
+  resolvePostAuthNavigation,
+  shouldSkipOnboardingAfterAuth,
+} from "../../../utils/ticketPurchaseReturn";
+import { tokens } from "../../../pages/events/invitation/tokens";
+import { withAlpha } from "../../../pages/events/invitation/useColorExtraction";
+import AuthTextField from "./TextField";
+import PasswordField from "./PasswordField";
+import AvatarUploader from "./AvatarUploader";
+import AccountTypeTabs from "./AccountTypeTabs";
+import TermsAndConditions from "./TermsAndConditions";
+import AuthButton from "./AuthButton";
 
 interface SignupFormValues {
   firstName: string;
@@ -19,8 +28,9 @@ interface SignupFormValues {
   image: File | null;
 }
 
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif"];
+
 const Signup: React.FC = () => {
-  const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [accountType, setAccountType] = useState(0);
@@ -37,7 +47,6 @@ const Signup: React.FC = () => {
     if (values.image) {
       formData.append("profile_image", values.image);
     }
-    // Add business profile flag based on account type
     formData.append("is_business_profile", accountType === 1 ? "1" : "0");
 
     signup(formData)
@@ -71,192 +80,147 @@ const Signup: React.FC = () => {
     onSubmit: handleSubmit,
   });
 
-  const handleBoxClick = () => {
-    document.getElementById("image-upload-input")?.click();
-  };
-
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setAccountType(newValue);
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    formik.touched.image = true;
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!["image/jpeg", "image/png", "image/gif"].includes(file.type)) {
-        formik.setErrors({ ...formik.errors, image: "Unsupported format" });
-        console.log(formik.errors);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        formik.setFieldValue("image", file);
-      };
-      reader.readAsDataURL(file);
+  const handleFileSelected = (file: File) => {
+    formik.setFieldTouched("image", true, false);
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      formik.setErrors({ ...formik.errors, image: "Unsupported format" });
+      return;
     }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+      formik.setFieldValue("image", file);
+      formik.setFieldError("image", undefined);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const errorMessage = (err: unknown): string => {
+    if (typeof err === "string") return err;
+    return ((err as { message?: string })?.message) || "An unexpected error occurred.";
   };
 
   return (
-    <>
-      <form onSubmit={formik.handleSubmit}>
+    <Box component="form" onSubmit={formik.handleSubmit}>
+      {/* Avatar uploader inside a soft panel */}
+      <Box
+        sx={{
+          background: tokens.color.iosFieldBg,
+          borderRadius: "16px",
+          py: 2.5,
+          mb: 2.5,
+        }}
+      >
+        <AvatarUploader
+          imageUrl={image}
+          onFileSelected={handleFileSelected}
+          error={Boolean(formik.touched.image && formik.errors.image)}
+          helperText={
+            formik.touched.image && formik.errors.image
+              ? String(formik.errors.image)
+              : undefined
+          }
+        />
+      </Box>
+
+      <AccountTypeTabs
+        accountType={accountType}
+        onTabChange={handleTabChange}
+      />
+
+      <AuthTextField
+        label="First name"
+        placeholder="First name"
+        autoComplete="given-name"
+        startAdornment={<Icon icon="ph:user" width={20} />}
+        {...formik.getFieldProps("firstName")}
+        error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+        valid={
+          formik.touched.firstName &&
+          !formik.errors.firstName &&
+          formik.values.firstName.trim().length > 0
+        }
+        helperText={formik.touched.firstName && formik.errors.firstName}
+      />
+      <AuthTextField
+        label="Last name"
+        placeholder="Last name"
+        autoComplete="family-name"
+        startAdornment={<Icon icon="ph:user" width={20} />}
+        {...formik.getFieldProps("lastName")}
+        error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+        valid={
+          formik.touched.lastName &&
+          !formik.errors.lastName &&
+          formik.values.lastName.trim().length > 0
+        }
+        helperText={formik.touched.lastName && formik.errors.lastName}
+      />
+      <AuthTextField
+        label="Email address"
+        type="email"
+        placeholder="Email address"
+        autoComplete="email"
+        startAdornment={<Icon icon="ph:envelope-simple" width={20} />}
+        {...formik.getFieldProps("email")}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        valid={
+          formik.touched.email &&
+          !formik.errors.email &&
+          formik.values.email.trim().length > 0
+        }
+        helperText={formik.touched.email && formik.errors.email}
+      />
+      <PasswordField
+        label="Password"
+        placeholder="Password (8+ chars)"
+        autoComplete="new-password"
+        startAdornment={<Icon icon="ph:lock" width={20} />}
+        {...formik.getFieldProps("password")}
+        error={formik.touched.password && Boolean(formik.errors.password)}
+        valid={
+          formik.touched.password &&
+          !formik.errors.password &&
+          formik.values.password.length > 0
+        }
+        helperText={formik.touched.password && formik.errors.password}
+      />
+
+      {isError ? (
         <Box
           sx={{
-            width: "100%",
-            justifyContent: "center",
-            alignItems: "center",
-            justifyItems: "center",
+            mt: 1.5,
+            px: 1.75,
+            py: 1.25,
+            borderRadius: "12px",
+            background: withAlpha("#D14545", 0.08),
+            border: `1px solid ${withAlpha("#D14545", 0.2)}`,
+            color: "#9F2A2A",
+            fontFamily: tokens.font.poppins,
+            fontSize: 13,
+            lineHeight: 1.45,
           }}
         >
-          <Box
-            onClick={handleBoxClick}
-            sx={{
-              width: {
-                xs: "120px",
-                sm: "120px",
-                md: "150px",
-              },
-              height: {
-                xs: "120px",
-                sm: "120px",
-                md: "150px",
-              },
-
-              borderRadius: "8px",
-              border: `2px solid ${theme.palette.text.disabled}`,
-              mt: 3,
-              mb: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: theme.palette.text.secondary,
-              cursor: "pointer",
-              backgroundColor: image ? "transparent" : theme.palette.text.disabled,
-              margin: "0 auto", // Ensures horizontal centering
-              position: "relative", // Allows for better alignment control
-            }}
-          >
-            {image ? (
-              <img
-                src={image}
-                alt="Uploaded preview"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-            ) : (
-              <Typography sx={{ py: 2 }} color={theme.palette.info.contrastText}>
-                Choose photo
-              </Typography>
-            )}
-            <input
-              id="image-upload-input"
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleImageChange}
-            />
-          </Box>
-          {formik.touched.image && formik.errors.image && (
-            <Typography color="error" mb={3} variant="body2">
-              {formik.errors.image}
-            </Typography>
-          )}
-
-          <TextField
-            label="First name"
-            variant="outlined"
-            fullWidth
-            sx={{
-              mb: 2,
-              mt: 2,
-            }}
-            {...formik.getFieldProps("firstName")}
-            error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-            helperText={formik.touched.firstName && formik.errors.firstName}
-          />
-          <TextField
-            label="Last name"
-            variant="outlined"
-            fullWidth
-            sx={{
-              mb: 2,
-            }}
-            {...formik.getFieldProps("lastName")}
-            error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-            helperText={formik.touched.lastName && formik.errors.lastName}
-          />
-          <TextField
-            label="Your email"
-            type="email"
-            variant="outlined"
-            fullWidth
-            sx={{
-              mb: 2,
-            }}
-            {...formik.getFieldProps("email")}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-          />
-          <TextField
-            label="Your password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            sx={{
-              mb: 3,
-            }}
-            {...formik.getFieldProps("password")}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
-          />
-          <AccountTypeTabs accountType={accountType} onTabChange={handleTabChange} />
-          <TermsAndConditions />
+          {errorMessage(error)}
         </Box>
-        <Button
+      ) : null}
+
+      <Box sx={{ mt: 2.5 }}>
+        <AuthButton
           type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          endIcon={
-            isLoading && (
-              <Icon
-                icon="material-symbols:autorenew"
-                style={{
-                  animation: "spin 1s linear infinite",
-                  fontSize: "24px",
-                }}
-              />
-            )
-          }
-          sx={{
-            borderRadius: "40px",
-            textTransform: "capitalize",
-            borderColor: "black",
-            padding: "10px",
-            height: "60px",
-          }}
-        >
-          Sign Up
-        </Button>
-        {isError && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: theme.palette.error.main,
-              fontSize: "14px",
-              textAlign: "center",
-              mt: 1,
-            }}
-          >
-            {typeof error === "string" ? error : (error as any)?.message || "An unexpected error occurred."}
-          </Typography>
-        )}
-      </form>
-    </>
+          label={isLoading ? "Creating account…" : "Create Account"}
+          onClick={() => formik.handleSubmit()}
+        />
+      </Box>
+
+      <Box sx={{ mt: 2 }}>
+        <TermsAndConditions />
+      </Box>
+    </Box>
   );
 };
 

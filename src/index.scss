@@ -6,3 +6,11 @@
     transform: rotate(360deg);
   }
 }
+
+/* Hide ONLY Stripe.js's hidden fraud-detection iframe. Do NOT hide
+   js.stripe.com / __privateStripe iframes — the Payment Element renders its
+   card fields in those, so hiding them would hide the payment form. The
+   persistent fraud iframe is already prevented via advancedFraudSignals=false. */
+iframe[src*="m.stripe.network"] {
+  display: none !important;
+}

@@ -1006,7 +1006,13 @@ export function RsvpButton({
           transform: "translateX(4px)",
         },
         "&:active": {
-          transform: "translateY(0)",
+          transform: "translateY(1px) scale(0.985)",
+          boxShadow: isOutlined
+            ? "none"
+            : isDark
+              ? `0 1px 0 ${withAlpha("#FFFFFF", 0.08)} inset, 0 -1px 0 ${withAlpha("#000000", 0.35)} inset, 0 4px 12px rgba(20,19,26,0.3)`
+              : `0 1px 0 ${withAlpha("#FFFFFF", 0.18)} inset, 0 -1px 0 ${withAlpha("#000000", 0.16)} inset, 0 3px 10px ${withAlpha(accent, 0.32)}`,
+          transition: `transform 80ms ${tokens.motion.swift}, box-shadow 80ms ${tokens.motion.swift}`,
         },
         "&:focus-visible": {
           boxShadow: `0 0 0 3px ${withAlpha(accent, 0.4)}, ${baseShadow}`,

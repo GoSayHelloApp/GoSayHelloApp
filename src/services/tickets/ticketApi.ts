@@ -98,7 +98,7 @@ export const ticketApi = createApi({
     }),
     createPaymentIntent: builder.mutation<CreatePaymentIntentResponse, PaymentIntentRequest>({
       query: (body) => ({
-        url: "create-payment-intent1",
+        url: "create-payment-intent",
         method: "POST",
         data: {
           currency: "usd",
@@ -113,7 +113,7 @@ export const ticketApi = createApi({
     }),
     buyTicket: builder.mutation<Record<string, unknown>, TicketPurchaseRequest>({
       query: (body) => ({
-        url: "tickets/buy1",
+        url: "tickets/buy",
         method: "POST",
         data: {
           intentId: "",

@@ -50,7 +50,7 @@ export function EventCard({ event }: EventCardProps) {
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/event-details/${event.id}`;
+    const url = `https://events.gosayhello.app/events/${event.id}`;
     if (typeof navigator !== "undefined" && (navigator as any).share) {
       try {
         await (navigator as any).share({

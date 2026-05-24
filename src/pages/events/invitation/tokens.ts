@@ -9,10 +9,18 @@ export const tokens = {
     brandOrange: "#EB7D32",
     brandOrangeDark: "#B84C02",
     fallbackAccent: "#EB7D32",
+    // iOS auth card tokens
+    iosFieldBg: "#F3F3F4",
+    iosFieldIcon: "#AEAEB2",
+    iosPlaceholder: "#9A96A3",
+    iosTabInactive: "#9A96A3",
+    iosSuccess: "#1EA63D", // iOS "Delivered" green — used for valid-field tick
   },
   font: {
     serif: '"Fraunces", "Times New Roman", Georgia, serif',
     sans: '"Inter", "Montserrat", system-ui, -apple-system, sans-serif',
+    mono: '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace',
+    poppins: '"Poppins", "Inter", system-ui, -apple-system, sans-serif',
   },
   radius: {
     sm: 4,

@@ -492,7 +492,9 @@ const PublicEventDetails = () => {
                       size="md"
                       variant="dark"
                       accent={accent}
-                      onClick={() => navigate("/login")}
+                      onClick={() =>
+                        navigate(`/event-details/${eventId}/tickets`)
+                      }
                     />
                   )}
                   <RsvpButton
@@ -684,7 +686,7 @@ const PublicEventDetails = () => {
                 size="md"
                 variant="dark"
                 accent={accent}
-                onClick={() => navigate("/login")}
+                onClick={() => navigate(`/event-details/${eventId}/tickets`)}
               />
             )}
             <Box sx={{ flexShrink: 0 }}>

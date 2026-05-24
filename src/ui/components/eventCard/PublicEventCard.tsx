@@ -49,7 +49,7 @@ const PublicEventCard: React.FC<PublicEventCardProps> = ({ event, date, time, gr
 
   const handleShareClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const eventLink = `${window.location.origin}/event-details/${event.id}`;
+    const eventLink = `https://events.gosayhello.app/events/${event.id}`;
     navigator.clipboard.writeText(eventLink).then(() => {
       setSnackbarOpen(true);
       setTimeout(() => setSnackbarOpen(false), 2000);

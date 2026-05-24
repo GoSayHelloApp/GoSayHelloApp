@@ -34,6 +34,7 @@ import Wallet from "../pages/wallet";
 import PurchasedTicketsPage from "../pages/tickets/PurchasedTicketsPage";
 import SettingsPage from "../pages/settings/SettingsPage";
 import PublicEventsPage from "../pages/events/PublicEventsPage";
+import PublicEventTicketsPage from "../pages/events/PublicEventTicketsPage";
 
 const routes: RouteObject[] = [
   {
@@ -47,6 +48,10 @@ const routes: RouteObject[] = [
   {
     path: "/event-details/:eventId",
     element: <PublicEventDetails />,
+  },
+  {
+    path: "/event-details/:eventId/tickets",
+    element: <PublicEventTicketsPage />,
   },
   {
     path: "/events-list",

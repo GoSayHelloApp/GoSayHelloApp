@@ -1,108 +1,62 @@
 import React, { useState } from "react";
-import { Box, Tabs, Tab, useTheme, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import Signup from "../../ui/components/authCard/signUp";
 import Login from "../../ui/components/authCard/login";
+import AuthLayout from "../../ui/components/authCard/AuthLayout";
+import AuthTabs from "../../ui/components/authCard/AuthTabs";
+import AuthCardHeader from "../../ui/components/authCard/AuthCardHeader";
+import CyclingTagline from "../../ui/components/authCard/CyclingTagline";
+import { tokens } from "../events/invitation/tokens";
 
 const Auth: React.FC = () => {
-  const theme = useTheme();
   const [searchParams] = useSearchParams();
-  const [value, setValue] = useState(searchParams.get("signup") === "1" ? 0 : 1);
+  // 0 = Sign Up, 1 = Login — preserved from previous behavior
+  const [value, setValue] = useState(
+    searchParams.get("signup") === "1" ? 0 : 1
+  );
 
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-  function a11yProps(index: any) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
+  const isSignup = value === 0;
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-
-        justifyContent: {
-          lg: "center",
-        },
-        height: "100vh",
-        width: "100vw",
-        backgroundColor: theme.palette.grey[100],
-      }}
+    <AuthLayout
+      headline={
+        isSignup ? (
+          <>
+            Join the{" "}
+            <Box component="span" sx={{ color: tokens.color.brandOrange }}>
+              room
+            </Box>
+            .
+          </>
+        ) : (
+          <>
+            Where strangers
+            <br />
+            become{" "}
+            <Box component="span" sx={{ color: tokens.color.brandOrange }}>
+              stories
+            </Box>
+            .
+          </>
+        )
+      }
+      body={
+        <>
+          Real people, real places — within a minute's walk. Welcome to
+          GoSayHELLO.
+        </>
+      }
     >
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: "450px",
-          padding: {
-            xs: "0 20px 20px 20px",
-            sm: "0 20px 20px 20px",
-            md: "0 20px 20px 20px",
-            lg: "20px",
-          },
-          height: {
-            md: "auto",
-            sm: "90%",
-            xs: "90%",
-          },
-          borderRadius: "10px",
-          overflow: "auto",
-          bgcolor: {
-            lg: theme.palette.background.paper,
-          },
-          boxShadow: {
-            lg: theme.shadows[4],
-          },
-          textAlign: "center",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            "@media (min-width: 1024px)": {
-              "& img": {
-                width: "80%",
-              },
-            },
-            "@media (min-width: 300px)": {
-              "& img": {
-                width: "60%",
-                margin: "20px 0",
-              },
-            },
-          }}
-        >
-          <img src="images/logo-transparent.png" alt="" />
-        </Box>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          sx={{
-            backgroundColor: theme.palette.grey[400],
-            borderRadius: "33px",
-            mb: 3,
-          }}
-        >
-          <Tab
-            sx={{ flex: "1 1 auto", height: "60px", width: "150px" }}
-            label="Sign Up"
-            {...a11yProps(0)}
-          />
-          <Tab
-            sx={{ flex: "1 1 auto", height: "60px", width: "150px" }}
-            label="Login"
-            {...a11yProps(1)}
-          />
-        </Tabs>
-        {value === 0 ? <Signup /> : <Login />}
-      </Box>
-    </Box>
+      <AuthCardHeader />
+      <AuthTabs
+        value={value}
+        onChange={(v) => setValue(v)}
+        options={["Create account", "Sign in"]}
+      />
+      <CyclingTagline />
+      {isSignup ? <Signup /> : <Login />}
+    </AuthLayout>
   );
 };
 
