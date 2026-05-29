@@ -495,6 +495,16 @@ const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 function parseDate(date?: string): Date | null {
   if (!date) return null;
+  // Parse "yyyy-MM-dd" as a calendar date anchored at noon UTC, so local
+  // getDay/getDate/getMonth in DateBlock never drift by a day in negative
+  // timezones (e.g. "2026-05-21" was showing as May 20 in the Americas).
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(date);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    if (y && mo && d) return new Date(Date.UTC(y, mo - 1, d, 12, 0, 0));
+  }
   const d = new Date(date);
   return isNaN(d.getTime()) ? null : d;
 }
