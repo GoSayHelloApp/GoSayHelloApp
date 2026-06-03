@@ -401,28 +401,6 @@ const PublicEventDetails = () => {
           pb: { xs: 14, sm: 6, md: 8 },
         }}
       >
-        {isPast && (
-          <Reveal duration={500}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: { xs: 4, md: 6 } }}>
-              <Box
-                sx={{
-                  px: 1.5,
-                  py: 0.5,
-                  border: `1px solid ${tokens.color.line}`,
-                  borderRadius: `${tokens.radius.sm}px`,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: tokens.color.inkSecondary,
-                }}
-              >
-                This event has ended
-              </Box>
-            </Box>
-          </Reveal>
-        )}
-
         {/* Hero */}
         <Box
           sx={{
