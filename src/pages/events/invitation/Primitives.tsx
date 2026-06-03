@@ -422,16 +422,46 @@ export function PosterCard({
         }}
       >
         {hasImage ? (
-          <img
-            src={src}
-            alt={title || "Event poster"}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
+          <>
+            {/* Blurred backdrop — fills the card so portrait/landscape posters
+                never get cropped. The actual image renders on top with
+                object-fit: contain so it's always fully visible. */}
+            <img
+              src={src}
+              alt=""
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: "blur(38px) saturate(1.05)",
+                transform: "scale(1.15)",
+                display: "block",
+              }}
+            />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.18)",
+              }}
+            />
+            <img
+              src={src}
+              alt={title || "Event poster"}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          </>
         ) : (
           <Box
             sx={{
