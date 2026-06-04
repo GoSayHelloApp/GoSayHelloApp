@@ -78,9 +78,13 @@ const PublicEventDetails = () => {
 
   const isPast = useMemo(() => {
     if (!eventDetails?.end_date) return false;
-    const end = new Date(eventDetails.end_date);
+    // end_date/end_time have already been converted to the viewer's device
+    // timezone by applyIosTimeConversion (when address ends with ".") — so
+    // build the datetime as local (no `Z`) and compare to Date.now().
+    const time = eventDetails.end_time || "23:59";
+    const end = new Date(`${eventDetails.end_date}T${time}`);
     return !isNaN(end.getTime()) && end.getTime() < Date.now();
-  }, [eventDetails?.end_date]);
+  }, [eventDetails?.end_date, eventDetails?.end_time]);
 
   const { hasTickets } = useTicketAvailability(eventDetails?.event_id, isPast);
 
@@ -401,6 +405,28 @@ const PublicEventDetails = () => {
           pb: { xs: 14, sm: 6, md: 8 },
         }}
       >
+        {isPast && (
+          <Reveal duration={500}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: { xs: 4, md: 6 } }}>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.5,
+                  border: `1px solid ${tokens.color.line}`,
+                  borderRadius: `${tokens.radius.sm}px`,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: tokens.color.inkSecondary,
+                }}
+              >
+                This event has ended
+              </Box>
+            </Box>
+          </Reveal>
+        )}
+
         {/* Hero */}
         <Box
           sx={{
