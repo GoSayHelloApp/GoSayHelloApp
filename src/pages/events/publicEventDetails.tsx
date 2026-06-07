@@ -491,7 +491,7 @@ const PublicEventDetails = () => {
                 >
                   {!isPast && hasTickets === true && (
                     <RsvpButton
-                      label="Buy Tickets"
+                      label="Get Tickets"
                       icon="ph:ticket-fill"
                       size="md"
                       variant="dark"
@@ -685,7 +685,7 @@ const PublicEventDetails = () => {
           >
             {!isPast && hasTickets === true && (
               <RsvpButton
-                label="Buy"
+                label="Get"
                 icon="ph:ticket-fill"
                 size="md"
                 variant="dark"
