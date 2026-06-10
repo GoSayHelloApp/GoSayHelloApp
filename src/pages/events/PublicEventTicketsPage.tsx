@@ -32,6 +32,15 @@ export default function PublicEventTicketsPage() {
   const navigate = useNavigate();
   const { event, tickets, isLoading, error } = usePublicEventTickets(eventId);
 
+  // Always start at the top when entering / switching events — React Router
+  // doesn't auto-scroll, so without this the new page inherits the previous
+  // page's scroll position (e.g. tapping Buy from the bottom of event detail
+  // would land us at the bottom of the tickets screen).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [eventId]);
+
   const timeZone = useMemo(
     () => resolveEventIanaTimeZone(event?.latitude, event?.longitude),
     [event?.latitude, event?.longitude]
@@ -48,6 +57,16 @@ export default function PublicEventTicketsPage() {
     email: string;
     message: string;
   } | null>(null);
+
+  // Scroll to top when transitioning into the purchased-tickets view, so the
+  // user lands at the heading no matter where they were scrolled on the buy
+  // list when the purchase completed.
+  const justPurchased = !!purchased;
+  useEffect(() => {
+    if (!justPurchased) return;
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [justPurchased]);
 
   const nodeMap = useRef<Map<number, HTMLElement>>(new Map());
   const pdfBlobRef = useRef<Blob | null>(null);
@@ -101,7 +120,7 @@ export default function PublicEventTicketsPage() {
       email: buyerEmail,
       message,
     });
-    window.scrollTo({ top: 0, behavior: "auto" });
+    // scroll-to-top now handled by a useEffect on `purchased` (above)
   };
 
   const registerNode = (id: number, node: HTMLElement | null) => {
