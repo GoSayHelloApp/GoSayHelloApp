@@ -29,6 +29,7 @@ export interface NearbyEvent {
   latitude: number;
   longitude: number;
   distance: number;
+  is_bingo_enabled?: boolean;
   event_interested_users: NearbyEventInterestedUser[];
 }
 

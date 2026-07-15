@@ -14,24 +14,33 @@ function isTicketExpired(salesEndDate?: string): boolean {
   return Date.now() > end.getTime();
 }
 
+interface Availability {
+  hasTickets: boolean;
+  isBingoEnabled: boolean;
+}
+
 interface State {
   hasTickets: boolean | null;
+  isBingoEnabled: boolean;
   isLoading: boolean;
 }
 
-const cache = new Map<number, boolean>();
-const inflight = new Map<number, Promise<boolean>>();
+const cache = new Map<number, Availability>();
+const inflight = new Map<number, Promise<Availability>>();
 
-async function loadHasTickets(eventId: number): Promise<boolean> {
+async function loadAvailability(eventId: number): Promise<Availability> {
   try {
     const res = await fetchTicketAvailability(eventId);
-    if (!res.success) return false;
+    if (!res.success) return { hasTickets: false, isBingoEnabled: false };
     const tickets = res.tickets ?? [];
     const valid = tickets.filter((t) => !isTicketExpired(t.sales_end_date));
-    return valid.length > 0;
+    return {
+      hasTickets: valid.length > 0,
+      isBingoEnabled: Boolean(res.is_bingo_enabled),
+    };
   } catch {
-    // Network / 401 / 404 — fail closed (hide the button).
-    return false;
+    // Network / 401 / 404 — fail closed (hide the buttons).
+    return { hasTickets: false, isBingoEnabled: false };
   }
 }
 
@@ -41,45 +50,47 @@ export function useTicketAvailability(
 ): State {
   const cached =
     typeof eventId === "number" && cache.has(eventId)
-      ? (cache.get(eventId) as boolean)
+      ? (cache.get(eventId) as Availability)
       : null;
 
   const [state, setState] = useState<State>(() => {
     if (!eventId || isPastEvent) {
-      return { hasTickets: false, isLoading: false };
+      return { hasTickets: false, isBingoEnabled: false, isLoading: false };
     }
-    if (cached !== null) return { hasTickets: cached, isLoading: false };
-    return { hasTickets: null, isLoading: true };
+    if (cached !== null) {
+      return { ...cached, isLoading: false };
+    }
+    return { hasTickets: null, isBingoEnabled: false, isLoading: true };
   });
 
   useEffect(() => {
     if (!eventId) {
-      setState({ hasTickets: false, isLoading: false });
+      setState({ hasTickets: false, isBingoEnabled: false, isLoading: false });
       return;
     }
     if (isPastEvent) {
-      setState({ hasTickets: false, isLoading: false });
+      setState({ hasTickets: false, isBingoEnabled: false, isLoading: false });
       return;
     }
     if (cache.has(eventId)) {
       setState({
-        hasTickets: cache.get(eventId) as boolean,
+        ...(cache.get(eventId) as Availability),
         isLoading: false,
       });
       return;
     }
 
     let cancelled = false;
-    setState({ hasTickets: null, isLoading: true });
+    setState({ hasTickets: null, isBingoEnabled: false, isLoading: true });
 
     const existing = inflight.get(eventId);
-    const p = existing ?? loadHasTickets(eventId);
+    const p = existing ?? loadAvailability(eventId);
     if (!existing) inflight.set(eventId, p);
 
     p.then((result) => {
       cache.set(eventId, result);
       inflight.delete(eventId);
-      if (!cancelled) setState({ hasTickets: result, isLoading: false });
+      if (!cancelled) setState({ ...result, isLoading: false });
     });
 
     return () => {

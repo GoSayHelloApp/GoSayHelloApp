@@ -86,7 +86,10 @@ const PublicEventDetails = () => {
     return !isNaN(end.getTime()) && end.getTime() < Date.now();
   }, [eventDetails?.end_date, eventDetails?.end_time]);
 
-  const { hasTickets } = useTicketAvailability(eventDetails?.event_id, isPast);
+  const { hasTickets, isBingoEnabled } = useTicketAvailability(
+    eventDetails?.event_id,
+    isPast
+  );
 
   const handleDirectionsClick = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
@@ -511,6 +514,14 @@ const PublicEventDetails = () => {
                         : openWithMessage("Open the App to RSVP")
                     }
                   />
+                  {!isPast && isBingoEnabled && (
+                    <RsvpButton
+                      label="Mixer"
+                      size="md"
+                      accent={accent}
+                      onClick={() => openWithMessage("Open the app to play Mixer")}
+                    />
+                  )}
                 </Box>
               </Reveal>
             </Box>
@@ -705,6 +716,14 @@ const PublicEventDetails = () => {
                 }
               />
             </Box>
+            {!isPast && isBingoEnabled && (
+              <RsvpButton
+                label="Mixer"
+                size="md"
+                accent={accent}
+                onClick={() => openWithMessage("Open the app to play Mixer")}
+              />
+            )}
           </Box>
         </Box>
       </Box>

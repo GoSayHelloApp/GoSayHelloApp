@@ -942,27 +942,38 @@ export function RsvpButton({
   onClick: () => void;
   accent: string;
   size?: "md" | "lg";
-  variant?: "filled" | "outlined" | "dark";
+  variant?: "filled" | "outlined" | "dark" | "paper";
   icon?: string;
 }) {
   const DARK = "#14131A";
   const isOutlined = variant === "outlined";
   const isDark = variant === "dark";
+  const isPaper = variant === "paper";
 
   const background = isOutlined
     ? "transparent"
-    : isDark
-      ? `linear-gradient(180deg, #2A2730 0%, ${DARK} 60%, #050407 100%)`
-      : `linear-gradient(180deg, ${accent} 0%, ${accent} 60%, ${withAlpha(
-          "#000000",
-          0.15
-        )} 100%), ${accent}`;
+    : isPaper
+      ? tokens.color.paper
+      : isDark
+        ? `linear-gradient(180deg, #2A2730 0%, ${DARK} 60%, #050407 100%)`
+        : `linear-gradient(180deg, ${accent} 0%, ${accent} 60%, ${withAlpha(
+            "#000000",
+            0.15
+          )} 100%), ${accent}`;
 
-  const color = isOutlined ? accent : "#FFFFFF";
+  const color = isOutlined
+    ? accent
+    : isPaper
+      ? tokens.color.inkPrimary
+      : "#FFFFFF";
 
-  const border = isOutlined ? `2px solid ${accent}` : "none";
+  const border = isOutlined
+    ? `2px solid ${accent}`
+    : isPaper
+      ? `1px solid ${tokens.color.line}`
+      : "none";
 
-  const baseShadow = isOutlined
+  const baseShadow = isOutlined || isPaper
     ? "none"
     : isDark
       ? `0 1px 0 ${withAlpha(
@@ -980,7 +991,7 @@ export function RsvpButton({
           0.12
         )} inset, 0 8px 24px ${withAlpha(accent, 0.35)}`;
 
-  const hoverShadow = isOutlined
+  const hoverShadow = isOutlined || isPaper
     ? `0 8px 20px ${withAlpha(accent, 0.18)}`
     : isDark
       ? `0 1px 0 ${withAlpha(
@@ -1011,7 +1022,8 @@ export function RsvpButton({
         alignItems: "center",
         gap: 1.25,
         background,
-        backgroundBlendMode: !isOutlined && !isDark ? "overlay" : "normal",
+        backgroundBlendMode:
+          !isOutlined && !isDark && !isPaper ? "overlay" : "normal",
         border,
         color,
         fontFamily: tokens.font.sans,
@@ -1021,33 +1033,39 @@ export function RsvpButton({
         textTransform: "uppercase",
         px: size === "lg" ? 4.5 : 2.5,
         py: size === "lg" ? 2.25 : 1.25,
+        // Fixed outer height + border-box so filled/dark/outlined variants all
+        // render the exact same height (the 2px outlined border no longer
+        // pushes the button 4px taller than filled).
+        height: size === "lg" ? 60 : 44,
+        boxSizing: "border-box",
         borderRadius: `${tokens.radius.xl}px`,
         outline: "none",
         WebkitTapHighlightColor: "transparent",
         whiteSpace: "nowrap",
         boxShadow: baseShadow,
         transition: `transform 200ms ${tokens.motion.swift}, box-shadow 200ms ${tokens.motion.swift}, filter 200ms ${tokens.motion.swift}, background 200ms ${tokens.motion.swift}, color 200ms ${tokens.motion.swift}`,
-        "& .chev": {
-          display: "inline-flex",
-          transition: `transform 280ms ${tokens.motion.swift}`,
-        },
         "&:hover": isOutlined
           ? {
               transform: "translateY(-2px)",
               background: withAlpha(accent, 0.08),
               boxShadow: hoverShadow,
             }
-          : {
-              transform: "translateY(-2px)",
-              filter: "brightness(1.04) saturate(1.08)",
-              boxShadow: hoverShadow,
-            },
-        "&:hover .chev": {
-          transform: "translateX(4px)",
-        },
+          : isPaper
+            ? {
+                transform: "translateY(-2px)",
+                background: accent,
+                borderColor: accent,
+                color: "#FFFFFF",
+                boxShadow: hoverShadow,
+              }
+            : {
+                transform: "translateY(-2px)",
+                filter: "brightness(1.04) saturate(1.08)",
+                boxShadow: hoverShadow,
+              },
         "&:active": {
           transform: "translateY(1px) scale(0.985)",
-          boxShadow: isOutlined
+          boxShadow: isOutlined || isPaper
             ? "none"
             : isDark
               ? `0 1px 0 ${withAlpha("#FFFFFF", 0.08)} inset, 0 -1px 0 ${withAlpha("#000000", 0.35)} inset, 0 4px 12px rgba(20,19,26,0.3)`
@@ -1065,9 +1083,6 @@ export function RsvpButton({
         </Box>
       )}
       <span>{label}</span>
-      <Box component="span" className="chev">
-        <Icon icon="ph:arrow-right-bold" width={size === "lg" ? 20 : 16} />
-      </Box>
     </Box>
   );
 }

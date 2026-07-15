@@ -15,5 +15,6 @@ export interface TicketAvailabilityResponse {
   success: boolean;
   tickets?: TicketAvailability[];
   isScanning_authorized?: boolean;
+  is_bingo_enabled?: boolean;
   message?: string;
 }

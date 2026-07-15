@@ -9,6 +9,7 @@ import {
 } from "../../pages/events/invitation/useColorExtraction";
 import type { NearbyEvent } from "../../models/responseModels/nearbyEvents";
 import { formatEventCardDateTime } from "../../utils/dateTimeFormatter";
+import OpenApp from "../events/OpenApp";
 
 function parseDate(d?: string) {
   if (!d) return null;
@@ -24,6 +25,7 @@ export function EventCard({ event }: EventCardProps) {
   const navigate = useNavigate();
   const accent = useColorExtraction(event.image);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showMixer, setShowMixer] = useState(false);
 
   const isPast =
     parseDate(event.end_date)?.getTime() ?? Number.POSITIVE_INFINITY;
@@ -75,6 +77,7 @@ export function EventCard({ event }: EventCardProps) {
   const distanceMi = event.distance > 0 ? event.distance.toFixed(1) : null;
 
   return (
+    <>
     <Box
       onClick={handleOpenDetails}
       role="link"
@@ -206,6 +209,51 @@ export function EventCard({ event }: EventCardProps) {
         >
           <Icon icon="ph:share-fat-fill" width={14} />
         </Box>
+        {/* Mixer button — image bottom-right. Tapping opens the same
+            OpenApp modal used on the event detail screen. */}
+        {!isPastEvent && event.is_bingo_enabled && (
+          <Box
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMixer(true);
+            }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                setShowMixer(true);
+              }
+            }}
+            aria-label="Open Mixer"
+            sx={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              px: 1.25,
+              py: 0.5,
+              borderRadius: 999,
+              background: accent,
+              color: "#FFFFFF",
+              fontFamily: tokens.font.sans,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              backdropFilter: "blur(6px)",
+              boxShadow: `0 1px 0 rgba(255,255,255,0.25) inset, 0 6px 16px ${withAlpha(accent, 0.35)}`,
+              cursor: "pointer",
+              transition: `transform 200ms ${tokens.motion.swift}, box-shadow 200ms ${tokens.motion.swift}, filter 200ms ${tokens.motion.swift}`,
+              "&:hover": {
+                transform: "scale(1.06)",
+                filter: "brightness(1.05)",
+                boxShadow: `0 1px 0 rgba(255,255,255,0.25) inset, 0 10px 24px ${withAlpha(accent, 0.45)}`,
+              },
+            }}
+          >
+            Mixer
+          </Box>
+        )}
       </Box>
 
       {/* Content */}
@@ -503,5 +551,12 @@ export function EventCard({ event }: EventCardProps) {
         </Box>
       </Box>
     </Box>
+    <OpenApp
+      eventId={event.id}
+      openApp={showMixer}
+      setOpenApp={setShowMixer}
+      text="Open the app to play Mixer"
+    />
+    </>
   );
 }
