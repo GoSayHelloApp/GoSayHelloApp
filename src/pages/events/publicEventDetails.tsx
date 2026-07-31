@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
+import { useGetPublicEventGalleriesQuery } from "../../services/events/galleryApi";
 import Loader from "../../ui/components/core/screenLoader";
 import OpenApp from "../../components/events/OpenApp";
 import EventFooter from "../../components/events/eventFooter";
@@ -26,6 +27,7 @@ import {
   UnlockMore,
 } from "./invitation/Primitives";
 import { Wayfinding } from "./invitation/Wayfinding";
+import EventGalleriesSection from "./invitation/gallery/EventGalleriesSection";
 
 const PublicEventDetails = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -43,6 +45,14 @@ const PublicEventDetails = () => {
     error,
     isLoading,
   } = useGetPublicEventDetailsQuery({ event_id: Number(eventId) });
+
+  // Desktop numbers the gallery into the Ⅰ/Ⅱ/Ⅲ list; mobile shows it in the hero (no numeral).
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const { data: galleriesData } = useGetPublicEventGalleriesQuery({ event_id: Number(eventId) });
+  const hasPublicGalleries = (galleriesData?.galleries ?? []).some(
+    (g) => g.visibility === "public"
+  );
 
   const eventDetails = useMemo(
     () => (rawEventDetails ? applyIosTimeConversion(rawEventDetails) : rawEventDetails),
@@ -171,6 +181,20 @@ const PublicEventDetails = () => {
   const attendeeCount = eventDetails.no_of_users_saved_event || 0;
   const attendees = eventDetails.interestedUsersList || [];
   const headerCategory = eventDetails.event_type_name;
+
+  // Assign Roman numerals in order to the sections that render. The gallery only takes a
+  // numeral on desktop (on mobile it lives in the hero, un-numbered), so on mobile About stays Ⅰ.
+  const romans = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ"];
+  const sectionPresent = [
+    isDesktop && hasPublicGalleries, // gallery (desktop only)
+    !!eventDetails.description, // about
+    true, // who's coming
+    !!(eventDetails.d_lat && eventDetails.d_long), // wayfinding
+    true, // continue
+  ];
+  let romanIdx = 0;
+  const sectionNumeral = sectionPresent.map((present) => (present ? romans[romanIdx++] : ""));
+  const [galleryNum, aboutNum, guestNum, wayfindingNum, continueNum] = sectionNumeral;
 
   return (
     <Box
@@ -404,7 +428,7 @@ const PublicEventDetails = () => {
           maxWidth: tokens.page.maxWidth,
           mx: "auto",
           px: { xs: 2.5, sm: 5, md: 8 },
-          pt: { xs: 4, sm: 6, md: 8 },
+          pt: { xs: 2, sm: 3, md: 4 },
           pb: { xs: 14, sm: 6, md: 8 },
         }}
       >
@@ -544,6 +568,10 @@ const PublicEventDetails = () => {
                   accent={accent}
                 />
               </Reveal>
+              {/* Mobile only: event gallery sits above the date card */}
+              <Box sx={{ display: { xs: "block", md: "none" } }}>
+                <EventGalleriesSection eventId={Number(eventId)} accent={accent} />
+              </Box>
               <Reveal delay={360} duration={500}>
                 <DateStamp
                   startDate={eventDetails.start_date}
@@ -581,13 +609,18 @@ const PublicEventDetails = () => {
           </Box>
         </Box>
 
+        {/* Event gallery (desktop) — under the event URL, numbered into the Ⅰ/Ⅱ/Ⅲ list. */}
+        <Box sx={{ display: { xs: "none", md: "block" } }}>
+          <EventGalleriesSection eventId={Number(eventId)} accent={accent} numeral={galleryNum} />
+        </Box>
+
         {/* About */}
         {eventDetails.description && (
           <Box sx={{ mb: { xs: 8, md: 14 } }}>
             <Reveal>
               <Box sx={{ maxWidth: 880 }}>
                 <SectionLabel
-                  numeral="Ⅰ"
+                  numeral={aboutNum}
                   title="About this evening"
                   accent={accent}
                 />
@@ -605,7 +638,7 @@ const PublicEventDetails = () => {
           <Reveal>
             <Box sx={{ maxWidth: 880 }}>
               <SectionLabel
-                numeral="Ⅱ"
+                numeral={guestNum}
                 title="Who's coming"
                 accent={accent}
               />
@@ -627,7 +660,7 @@ const PublicEventDetails = () => {
             <Reveal>
               <Box sx={{ maxWidth: 880 }}>
                 <SectionLabel
-                  numeral="Ⅲ"
+                  numeral={wayfindingNum}
                   title="Find your way"
                   accent={accent}
                 />
@@ -652,7 +685,7 @@ const PublicEventDetails = () => {
           <Reveal>
             <Box sx={{ maxWidth: 880 }}>
               <SectionLabel
-                numeral="Ⅳ"
+                numeral={continueNum}
                 title="Continue in the app"
                 accent={accent}
               />

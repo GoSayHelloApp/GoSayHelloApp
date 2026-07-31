@@ -1,4 +1,4 @@
-﻿import { RouteObject } from "react-router-dom";
+import { RouteObject } from "react-router-dom";
 import Auth from "../pages/auth/auth";
 import HomeTown from "../pages/home-town";
 import School from "../pages/school";
@@ -13,6 +13,7 @@ import EventDetails from "../pages/events/eventDetails";
 import EventAuthorizedScanners from "../pages/events/EventAuthorizedScanners";
 import Middle from "../ui/layout/middle/middle";
 import PublicEventDetails from "../pages/events/publicEventDetails";
+import GalleryDetailPage from "../pages/events/GalleryDetailPage";
 import EventsListPage from "../pages/events/EventsListPage";
 import EventScheduler from "../pages/events/EventScheduler";
 import NotFound from "../pages/notfound/NotFound";
@@ -52,6 +53,10 @@ const routes: RouteObject[] = [
   {
     path: "/event-details/:eventId/tickets",
     element: <PublicEventTicketsPage />,
+  },
+  {
+    path: "/event-details/:eventId/gallery/:galleryId",
+    element: <GalleryDetailPage />,
   },
   {
     path: "/events-list",
