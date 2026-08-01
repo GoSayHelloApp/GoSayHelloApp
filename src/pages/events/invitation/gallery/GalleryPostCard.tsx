@@ -3,6 +3,7 @@ import { Box, CircularProgress, Menu, MenuItem } from "@mui/material";
 import { Icon } from "@iconify/react";
 import type { GalleryPost } from "../../../../models/responseModels/galleries";
 import { tokens } from "../tokens";
+import { isMobileDevice } from "../../../../utils/isMobile";
 
 // Faithful web replica of the iOS GalleryPostCell: white rounded card with a soft shadow,
 // an uploader header (avatar + name + time), a rounded photo carousel (page dots + n/N badge
@@ -24,9 +25,10 @@ interface GalleryPostCardProps {
   post: GalleryPost;
   accent: string;
   onToast?: (message: string) => void;
+  onSave?: () => void; // mobile: open the "open the app" popup instead of downloading
 }
 
-const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast }) => {
+const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast, onSave }) => {
   const photos = (post.media ?? []).filter((m) => m.media_type !== "video");
   const [page, setPage] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -48,8 +50,11 @@ const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast }) => {
   const fetchAndSave = (url: string) =>
     new Promise<boolean>((resolve) => {
       const filename = (url.split("/").pop() || "photo.jpg").split("?")[0];
+      // Cache-bust so the download is a fresh CORS request, independent of the plainly-cached
+      // display image (which loads without CORS).
+      const dlUrl = url + (url.includes("?") ? "&" : "?") + "cb=" + Date.now();
       const xhr = new XMLHttpRequest();
-      xhr.open("GET", url, true);
+      xhr.open("GET", dlUrl, true);
       xhr.responseType = "blob";
       xhr.onprogress = (e) => {
         if (e.lengthComputable) setDlPct(Math.round((e.loaded / e.total) * 100));
@@ -97,6 +102,11 @@ const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast }) => {
 
   const onDownloadClick = (e: React.MouseEvent<HTMLElement>) => {
     if (busy) return;
+    // Mobile can't save into the gallery from a browser → prompt to open the app instead.
+    if (isMobileDevice()) {
+      onSave?.();
+      return;
+    }
     if (photos.length <= 1) saveOne(photos[Math.min(page, photos.length - 1)].media_url);
     else setMenuAnchor(e.currentTarget);
   };
@@ -251,7 +261,6 @@ const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast }) => {
                 src={m.media_url}
                 alt=""
                 aria-hidden
-                crossOrigin="anonymous"
                 sx={{
                   position: "absolute",
                   inset: 0,
@@ -271,7 +280,6 @@ const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast }) => {
                 src={m.media_url}
                 alt=""
                 loading="lazy"
-                crossOrigin="anonymous"
                 sx={{
                   position: "relative",
                   zIndex: 1,

@@ -5,6 +5,7 @@ import type { GalleryPost } from "../../../../models/responseModels/galleries";
 import { tokens } from "../tokens";
 import { usePullToRefresh } from "./usePullToRefresh";
 import { PullSpinner } from "./PullSpinner";
+import { isMobileDevice } from "../../../../utils/isMobile";
 
 // Video gallery detail: the same iOS-style card (white card + uploader header + rounded
 // video), one card per screen with vertical scroll-snap so the next card peeks at the bottom.
@@ -35,9 +36,10 @@ interface ReelCardProps {
   muted: boolean;
   onToggleMute: () => void;
   onToast?: (message: string) => void;
+  onSave?: () => void; // mobile: open the "open the app" popup instead of downloading
 }
 
-const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast }) => {
+const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast, onSave }) => {
   const media = post.media?.[0];
   const videoWrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -80,11 +82,18 @@ const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast 
   };
 
   const download = () => {
+    // Mobile can't save into the gallery from a browser → prompt to open the app instead.
+    if (isMobileDevice()) {
+      onSave?.();
+      return;
+    }
     const url = media?.media_url;
     if (!url || dlPct !== null) return;
     const filename = (url.split("/").pop() || "video.mp4").split("?")[0];
+    // Cache-bust so the download is a fresh CORS request, independent of the plainly-cached video.
+    const dlUrl = url + (url.includes("?") ? "&" : "?") + "cb=" + Date.now();
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
+    xhr.open("GET", dlUrl, true);
     xhr.responseType = "blob";
     xhr.onprogress = (e) => {
       if (e.lengthComputable) setDlPct(Math.round((e.loaded / e.total) * 100));
@@ -243,7 +252,6 @@ const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast 
           ref={videoRef}
           src={media?.media_url}
           poster={media?.thumb_url ?? undefined}
-          crossOrigin="anonymous"
           playsInline
           loop
           muted={muted}
@@ -354,10 +362,11 @@ interface VideoReelProps {
   posts: GalleryPost[];
   accent: string;
   onToast?: (message: string) => void;
+  onSave?: () => void;
   onRefresh?: () => Promise<unknown> | void;
 }
 
-const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onRefresh }) => {
+const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onRefresh }) => {
   // Default to sound on. The user reached this page by tapping a gallery tile (a user gesture
   // in the same SPA document), so autoplay with audio is permitted.
   const [muted, setMuted] = useState(false);
@@ -392,7 +401,7 @@ const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onRefresh }) => {
               py: "14px",
             }}
           >
-            <ReelCard post={p} muted={muted} onToggleMute={() => setMuted((m) => !m)} onToast={onToast} />
+            <ReelCard post={p} muted={muted} onToggleMute={() => setMuted((m) => !m)} onToast={onToast} onSave={onSave} />
           </Box>
         ))}
       </Box>

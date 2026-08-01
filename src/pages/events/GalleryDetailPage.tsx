@@ -152,7 +152,13 @@ const GalleryDetailPage = () => {
             {isVideo ? "No videos yet." : "No photos yet."}
           </Box>
         ) : isVideo ? (
-          <VideoReel posts={posts} accent={accent} onToast={setToast} onRefresh={() => refetch()} />
+          <VideoReel
+            posts={posts}
+            accent={accent}
+            onToast={setToast}
+            onSave={() => promptOpenApp("Open the GoSayHELLO app to save videos to your gallery.")}
+            onRefresh={() => refetch()}
+          />
         ) : (
           <Box sx={{ position: "relative", height: "100%", overflow: "hidden" }}>
             <PullSpinner pull={pull} refreshing={refreshing} />
@@ -170,7 +176,13 @@ const GalleryDetailPage = () => {
               }}
             >
               {posts.map((p) => (
-                <GalleryPostCard key={p.id} post={p} accent={accent} onToast={setToast} />
+                <GalleryPostCard
+                  key={p.id}
+                  post={p}
+                  accent={accent}
+                  onToast={setToast}
+                  onSave={() => promptOpenApp("Open the GoSayHELLO app to save photos to your gallery.")}
+                />
               ))}
             </Box>
           </Box>
