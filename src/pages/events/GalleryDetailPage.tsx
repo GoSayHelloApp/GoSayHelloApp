@@ -149,7 +149,7 @@ const GalleryDetailPage = () => {
         <Box
           sx={{
             display: "flex",
-            alignItems: "flex-end",
+            alignItems: "center",
             justifyContent: "space-between",
             gap: 2,
             flexWrap: "nowrap",
@@ -161,13 +161,10 @@ const GalleryDetailPage = () => {
               minWidth: 0,
               fontFamily: tokens.font.serif,
               fontWeight: 500,
-              fontSize: { xs: 26, md: 34 },
+              fontSize: { xs: 18, md: 24 },
               letterSpacing: "-0.01em",
-              lineHeight: 1.05,
+              lineHeight: 1.15,
               color: tokens.color.inkPrimary,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
             }}
           >
             {title}
