@@ -26,9 +26,10 @@ interface GalleryPostCardProps {
   accent: string;
   onToast?: (message: string) => void;
   onSave?: () => void; // mobile: open the "open the app" popup instead of downloading
+  onSharePost?: () => void; // share this post
 }
 
-const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast, onSave }) => {
+const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast, onSave, onSharePost }) => {
   const photos = (post.media ?? []).filter((m) => m.media_type !== "video");
   const [page, setPage] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -168,6 +169,24 @@ const GalleryPostCard: React.FC<GalleryPostCardProps> = ({ post, onToast, onSave
             {formatTime(post.reviewed_at || post.created_at)}
           </Box>
         </Box>
+
+        {onSharePost && (
+          <Box
+            onClick={onSharePost}
+            sx={{
+              width: 30,
+              height: 30,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+            aria-label="Share photo"
+          >
+            <Icon icon="mdi:share-variant" width={19} height={19} color={ORANGE} />
+          </Box>
+        )}
 
         <Box
           onClick={onDownloadClick}

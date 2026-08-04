@@ -76,6 +76,31 @@ const GalleryDetailPage = () => {
     }
   };
 
+  // Share a single post — same gallery link with ?post=<id> (matches the iOS per-post share).
+  const sharePost = async (postId: number) => {
+    const token = gallery?.share_token;
+    if (!token) {
+      setToast("Share link isn't ready yet");
+      return;
+    }
+    const base = (process.env.REACT_APP_PYTHON_API_BASE_URL || "https://pythonapi.gosayhelloapp.com/").replace(
+      /\/?$/,
+      "/"
+    );
+    const url = `${base}share-gallery/${encodeURIComponent(token)}?post=${postId}`;
+    const shareTitle = `${gallery?.event_name || "Event"} — ${gallery?.title || "Gallery"}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setToast("Link copied ✓");
+      }
+    } catch {
+      /* dismissed — ignore */
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -259,6 +284,7 @@ const GalleryDetailPage = () => {
             accent={accent}
             onToast={setToast}
             onSave={() => promptOpenApp("Open the GoSayHELLO app to save videos to your gallery.")}
+            onSharePost={(pid) => sharePost(pid)}
             onRefresh={() => refetch()}
           />
         ) : (
@@ -284,6 +310,7 @@ const GalleryDetailPage = () => {
                   accent={accent}
                   onToast={setToast}
                   onSave={() => promptOpenApp("Open the GoSayHELLO app to save photos to your gallery.")}
+                  onSharePost={() => sharePost(p.id)}
                 />
               ))}
             </Box>

@@ -37,9 +37,10 @@ interface ReelCardProps {
   onToggleMute: () => void;
   onToast?: (message: string) => void;
   onSave?: () => void; // mobile: open the "open the app" popup instead of downloading
+  onSharePost?: () => void; // share this clip
 }
 
-const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast, onSave }) => {
+const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast, onSave, onSharePost }) => {
   const media = post.media?.[0];
   const videoWrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -178,6 +179,23 @@ const ReelCard: React.FC<ReelCardProps> = ({ post, muted, onToggleMute, onToast,
             {formatTime(post.reviewed_at || post.created_at)}
           </Box>
         </Box>
+        {onSharePost && (
+          <Box
+            onClick={onSharePost}
+            sx={{
+              width: 30,
+              height: 30,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+            aria-label="Share video"
+          >
+            <Icon icon="mdi:share-variant" width={19} height={19} color={ORANGE} />
+          </Box>
+        )}
         <Box
           onClick={download}
           sx={{
@@ -363,10 +381,11 @@ interface VideoReelProps {
   accent: string;
   onToast?: (message: string) => void;
   onSave?: () => void;
+  onSharePost?: (postId: number) => void;
   onRefresh?: () => Promise<unknown> | void;
 }
 
-const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onRefresh }) => {
+const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onSharePost, onRefresh }) => {
   // Default to sound on. The user reached this page by tapping a gallery tile (a user gesture
   // in the same SPA document), so autoplay with audio is permitted.
   const [muted, setMuted] = useState(false);
@@ -401,7 +420,14 @@ const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onRefresh
               py: "14px",
             }}
           >
-            <ReelCard post={p} muted={muted} onToggleMute={() => setMuted((m) => !m)} onToast={onToast} onSave={onSave} />
+            <ReelCard
+              post={p}
+              muted={muted}
+              onToggleMute={() => setMuted((m) => !m)}
+              onToast={onToast}
+              onSave={onSave}
+              onSharePost={onSharePost ? () => onSharePost(p.id) : undefined}
+            />
           </Box>
         ))}
       </Box>
