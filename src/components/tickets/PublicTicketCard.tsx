@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
@@ -146,23 +146,26 @@ export default function PublicTicketCard({ ticket, timeZone, onBuy }: Props) {
           </Box>
         )}
 
-        {/* description */}
+        {/* description — mobile: full text; desktop: clamped to 2 rows with full text on hover */}
         {ticket.description ? (
-          <Box
-            sx={{
-              mt: 1,
-              fontFamily: FONT,
-              fontSize: 13,
-              lineHeight: 1.5,
-              color: IOS.inkSecondary,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {ticket.description}
-          </Box>
+          <Tooltip title={ticket.description} arrow enterDelay={300} placement="top">
+            <Box
+              sx={{
+                mt: 1,
+                fontFamily: FONT,
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: IOS.inkSecondary,
+                // Mobile → show in full; desktop → clamp to 2 lines.
+                display: { xs: "block", md: "-webkit-box" },
+                WebkitLineClamp: { xs: "unset", md: "2" },
+                WebkitBoxOrient: "vertical",
+                overflow: { xs: "visible", md: "hidden" },
+              }}
+            >
+              {ticket.description}
+            </Box>
+          </Tooltip>
         ) : null}
 
         {/* availability */}
