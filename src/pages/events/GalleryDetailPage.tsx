@@ -48,6 +48,34 @@ const GalleryDetailPage = () => {
     else navigate(`/event-details/${eventId}`);
   };
 
+  const goToEvent = () => navigate(`/event-details/${eventId}`);
+
+  // Share the same link iOS shares: the /share-gallery/{token} unfurl page (rich preview,
+  // opens the app / App Store). Uses the native share sheet, else copies the link.
+  const shareGallery = async () => {
+    const token = gallery?.share_token;
+    if (!token) {
+      setToast("Share link isn't ready yet");
+      return;
+    }
+    const base = (process.env.REACT_APP_PYTHON_API_BASE_URL || "https://pythonapi.gosayhelloapp.com/").replace(
+      /\/?$/,
+      "/"
+    );
+    const url = `${base}share-gallery/${encodeURIComponent(token)}`;
+    const shareTitle = `${gallery?.event_name || "Event"} — ${gallery?.title || "Gallery"}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setToast("Link copied ✓");
+      }
+    } catch {
+      /* user dismissed the share sheet — ignore */
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -120,15 +148,87 @@ const GalleryDetailPage = () => {
         )}
         <Box
           sx={{
-            fontFamily: tokens.font.serif,
-            fontWeight: 500,
-            fontSize: { xs: 26, md: 34 },
-            letterSpacing: "-0.01em",
-            lineHeight: 1.05,
-            color: tokens.color.inkPrimary,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
           }}
         >
-          {title}
+          <Box
+            sx={{
+              fontFamily: tokens.font.serif,
+              fontWeight: 500,
+              fontSize: { xs: 26, md: 34 },
+              letterSpacing: "-0.01em",
+              lineHeight: 1.05,
+              color: tokens.color.inkPrimary,
+            }}
+          >
+            {title}
+          </Box>
+
+          {/* Event detail + Share (right side) */}
+          <Box sx={{ display: "flex", gap: 1.25, flexShrink: 0, flexWrap: "wrap" }}>
+          <Box
+            component="button"
+            type="button"
+            onClick={goToEvent}
+            sx={{
+              appearance: "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              px: 1.75,
+              py: 0.875,
+              borderRadius: 999,
+              border: `1px solid ${withAlpha(accent, 0.35)}`,
+              background: withAlpha(accent, 0.06),
+              color: accent,
+              fontFamily: tokens.font.sans,
+              fontSize: 13,
+              fontWeight: 700,
+              WebkitTapHighlightColor: "transparent",
+              transition: "background 0.15s ease, transform 0.1s ease",
+              "&:hover": { background: withAlpha(accent, 0.12) },
+              "&:active": { transform: "scale(0.97)" },
+            }}
+          >
+            <Icon icon="mdi:calendar-blank-outline" width={16} height={16} />
+            Event detail
+          </Box>
+
+          <Box
+            component="button"
+            type="button"
+            onClick={shareGallery}
+            sx={{
+              appearance: "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              px: 1.75,
+              py: 0.875,
+              borderRadius: 999,
+              border: "none",
+              background: accent,
+              color: "#fff",
+              fontFamily: tokens.font.sans,
+              fontSize: 13,
+              fontWeight: 700,
+              boxShadow: `0 4px 12px ${withAlpha(accent, 0.25)}`,
+              WebkitTapHighlightColor: "transparent",
+              transition: "transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease",
+              "&:hover": { filter: "brightness(1.05)", boxShadow: `0 6px 16px ${withAlpha(accent, 0.35)}` },
+              "&:active": { transform: "scale(0.97)" },
+            }}
+          >
+            <Icon icon="mdi:share-variant" width={16} height={16} />
+            Share
+          </Box>
+          </Box>
         </Box>
       </Box>
 
