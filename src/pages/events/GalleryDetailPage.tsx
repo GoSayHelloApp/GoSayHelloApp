@@ -152,24 +152,29 @@ const GalleryDetailPage = () => {
             alignItems: "flex-end",
             justifyContent: "space-between",
             gap: 2,
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
           }}
         >
           <Box
             sx={{
+              flex: 1,
+              minWidth: 0,
               fontFamily: tokens.font.serif,
               fontWeight: 500,
               fontSize: { xs: 26, md: 34 },
               letterSpacing: "-0.01em",
               lineHeight: 1.05,
               color: tokens.color.inkPrimary,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {title}
           </Box>
 
           {/* Event detail + Share (right side) */}
-          <Box sx={{ display: "flex", gap: 1.25, flexShrink: 0, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 1.25, flexShrink: 0 }}>
           <Box
             component="button"
             type="button"
