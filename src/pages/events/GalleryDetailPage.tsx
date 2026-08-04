@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, CircularProgress, Snackbar, Slide } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useGetPublicGalleryQuery } from "../../services/events/galleryApi";
 import { tokens } from "./invitation/tokens";
 import { withAlpha } from "./invitation/useColorExtraction";
@@ -39,9 +39,24 @@ const GalleryDetailPage = () => {
   const feedRef = useRef<HTMLDivElement>(null);
   const { pull, refreshing } = usePullToRefresh(feedRef, () => refetch());
 
+  // A shared post link (…?post=<id>) → scroll to that post once it's loaded.
+  const [searchParams] = useSearchParams();
+  const targetPostId = Number(searchParams.get("post")) || null;
+  const scrolledRef = useRef(false);
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [galleryId]);
+
+  useEffect(() => {
+    if (!targetPostId || isVideo || isLoading || posts.length === 0 || scrolledRef.current) return;
+    const el = document.getElementById(`gpost-${targetPostId}`);
+    if (el) {
+      scrolledRef.current = true;
+      // wait a tick for layout, then scroll the target card into view
+      setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    }
+  }, [targetPostId, isVideo, isLoading, posts.length]);
 
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
@@ -286,6 +301,7 @@ const GalleryDetailPage = () => {
             onSave={() => promptOpenApp("Open the GoSayHELLO app to save videos to your gallery.")}
             onSharePost={(pid) => sharePost(pid)}
             onRefresh={() => refetch()}
+            targetPostId={targetPostId}
           />
         ) : (
           <Box sx={{ position: "relative", height: "100%", overflow: "hidden" }}>
@@ -304,14 +320,15 @@ const GalleryDetailPage = () => {
               }}
             >
               {posts.map((p) => (
-                <GalleryPostCard
-                  key={p.id}
-                  post={p}
-                  accent={accent}
-                  onToast={setToast}
-                  onSave={() => promptOpenApp("Open the GoSayHELLO app to save photos to your gallery.")}
-                  onSharePost={() => sharePost(p.id)}
-                />
+                <Box key={p.id} id={`gpost-${p.id}`} sx={{ flexShrink: 0, scrollMarginTop: "8px" }}>
+                  <GalleryPostCard
+                    post={p}
+                    accent={accent}
+                    onToast={setToast}
+                    onSave={() => promptOpenApp("Open the GoSayHELLO app to save photos to your gallery.")}
+                    onSharePost={() => sharePost(p.id)}
+                  />
+                </Box>
               ))}
             </Box>
           </Box>

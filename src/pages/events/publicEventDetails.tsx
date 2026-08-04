@@ -40,6 +40,25 @@ const PublicEventDetails = () => {
     if (cameFromList) navigate(-1);
     else navigate("/events-list");
   };
+
+  // Share the event — same behavior as the listing screen (native share sheet, else copy).
+  const handleShareEvent = async () => {
+    const url = `https://events.gosayhello.app/events/${eventId}`;
+    const name = eventDetails?.venue_name || "this event";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: name, text: `Check out ${name} on GoSayHELLO`, url });
+      } catch {
+        /* user cancelled */
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        /* clipboard blocked */
+      }
+    }
+  };
   const {
     data: rawEventDetails,
     error,
@@ -481,6 +500,7 @@ const PublicEventDetails = () => {
             >
               <Box
                 sx={{
+                  position: "relative",
                   flex: { xs: "0 0 auto", md: 1 },
                   display: "flex",
                   minHeight: { xs: 420, md: 0 },
@@ -498,6 +518,42 @@ const PublicEventDetails = () => {
                   accent={accent}
                   fillHeight
                 />
+
+                {/* Share pill on the poster's top-right (same style as the gallery detail Share) */}
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={handleShareEvent}
+                  aria-label="Share event"
+                  sx={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    zIndex: 2,
+                    appearance: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.75,
+                    px: 1.75,
+                    py: 0.875,
+                    borderRadius: 999,
+                    background: accent,
+                    color: "#fff",
+                    fontFamily: tokens.font.sans,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    boxShadow: `0 4px 12px ${withAlpha(accent, 0.35)}`,
+                    WebkitTapHighlightColor: "transparent",
+                    transition: "transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease",
+                    "&:hover": { filter: "brightness(1.05)", boxShadow: `0 6px 16px ${withAlpha(accent, 0.45)}` },
+                    "&:active": { transform: "scale(0.96)" },
+                  }}
+                >
+                  <Icon icon="mdi:share-variant" width={16} height={16} />
+                  Share
+                </Box>
               </Box>
               <Reveal delay={420} duration={500}>
                 <OrganizerCredit

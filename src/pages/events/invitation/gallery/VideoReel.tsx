@@ -383,15 +383,27 @@ interface VideoReelProps {
   onSave?: () => void;
   onSharePost?: (postId: number) => void;
   onRefresh?: () => Promise<unknown> | void;
+  targetPostId?: number | null;
 }
 
-const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onSharePost, onRefresh }) => {
+const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onSharePost, onRefresh, targetPostId }) => {
   // Default to sound on. The user reached this page by tapping a gallery tile (a user gesture
   // in the same SPA document), so autoplay with audio is permitted.
   const [muted, setMuted] = useState(false);
   const clips = posts.filter((p) => p.media?.[0]?.media_type === "video");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { pull, refreshing } = usePullToRefresh(scrollRef, onRefresh ?? (() => {}));
+
+  // A shared clip link (…?post=<id>) → jump to that clip once.
+  const scrolledRef = useRef(false);
+  useEffect(() => {
+    if (!targetPostId || clips.length === 0 || scrolledRef.current) return;
+    const el = document.getElementById(`gpost-${targetPostId}`);
+    if (el) {
+      scrolledRef.current = true;
+      setTimeout(() => el.scrollIntoView({ behavior: "auto", block: "start" }), 120);
+    }
+  }, [targetPostId, clips.length]);
 
   return (
     <Box sx={{ position: "relative", height: "100%", overflow: "hidden" }}>
@@ -411,6 +423,7 @@ const VideoReel: React.FC<VideoReelProps> = ({ posts, onToast, onSave, onSharePo
         {clips.map((p) => (
           <Box
             key={p.id}
+            id={`gpost-${p.id}`}
             sx={{
               height: "94%",
               scrollSnapAlign: "start",

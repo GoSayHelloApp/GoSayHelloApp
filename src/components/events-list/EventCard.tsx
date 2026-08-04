@@ -173,7 +173,7 @@ export function EventCard({ event }: EventCardProps) {
         >
           {isPastEvent ? "Past" : isFree ? "Free" : "Paid"}
         </Box>
-        {/* Share */}
+        {/* Share — orange pill (icon + text), same style as the event/gallery pages */}
         <Box
           onClick={handleShare}
           role="button"
@@ -189,25 +189,32 @@ export function EventCard({ event }: EventCardProps) {
             position: "absolute",
             top: 12,
             right: 12,
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.6)",
-            display: "flex",
+            zIndex: 1,
+            display: "inline-flex",
             alignItems: "center",
-            justifyContent: "center",
-            color: tokens.color.inkPrimary,
+            gap: 0.75,
+            px: 1.5,
+            py: 0.75,
+            borderRadius: 999,
+            background: accent,
+            color: "#fff",
+            fontFamily: tokens.font.sans,
+            fontSize: 12.5,
+            fontWeight: 700,
+            boxShadow: `0 4px 12px ${withAlpha(accent, 0.35)}`,
             cursor: "pointer",
-            transition: `transform 200ms ${tokens.motion.swift}, background 200ms ${tokens.motion.swift}`,
+            WebkitTapHighlightColor: "transparent",
+            transition: `transform 200ms ${tokens.motion.swift}, filter 200ms, box-shadow 200ms`,
             "&:hover": {
-              background: "#FFFFFF",
-              transform: "scale(1.06)",
+              filter: "brightness(1.05)",
+              transform: "translateY(-1px)",
+              boxShadow: `0 6px 16px ${withAlpha(accent, 0.45)}`,
             },
+            "&:active": { transform: "scale(0.96)" },
           }}
         >
-          <Icon icon="ph:share-fat-fill" width={14} />
+          <Icon icon="mdi:share-variant" width={16} />
+          Share
         </Box>
         {/* Mixer button — image bottom-right. Tapping opens the same
             OpenApp modal used on the event detail screen. */}
@@ -511,19 +518,19 @@ export function EventCard({ event }: EventCardProps) {
             aria-label="Get directions"
             title="Get directions"
             sx={{
-              flexShrink: 0,
+              flex: 1,
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: { xs: 0.5, md: 0.75 },
-              px: { xs: 1.5, md: 2 },
+              gap: 0.75,
+              px: 2,
               py: 1.25,
               borderRadius: `${tokens.radius.xl}px`,
               background: tokens.color.paper,
               border: `1px solid ${tokens.color.line}`,
               color: tokens.color.inkPrimary,
               fontFamily: tokens.font.sans,
-              fontSize: { xs: 12, md: 13 },
+              fontSize: 13,
               fontWeight: 700,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
@@ -541,12 +548,7 @@ export function EventCard({ event }: EventCardProps) {
             }}
           >
             <Icon icon="ph:navigation-arrow-fill" width={14} />
-            <Box
-              component="span"
-              sx={{ display: { xs: "none", sm: "inline" } }}
-            >
-              Directions
-            </Box>
+            <Box component="span">Directions</Box>
           </Box>
         </Box>
       </Box>
