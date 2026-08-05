@@ -1,7 +1,13 @@
-/** Processing fee: max(total × 15%, $2.50). Total = unit price × quantity (dollars). */
+/**
+ * Processing fee (matches backend compute_fee_cents + iOS Constant.processingFee):
+ *   (subtotal × 5%) + $2.50 flat + (subtotal × 2.9% + $0.30).
+ * Free tickets (subtotal <= 0) incur no fee. Total = unit price × quantity (dollars).
+ */
 export function processingFeeUsd(subtotalUsd: number): number {
-  const pct = subtotalUsd * 0.15;
-  return Math.max(pct, 2.5);
+  if (!subtotalUsd || subtotalUsd <= 0) return 0;
+  const platform = subtotalUsd * 0.05;
+  const processing = subtotalUsd * 0.029 + 0.3;
+  return platform + 2.5 + processing;
 }
 
 /** HELLO value: tokens / 1000 dollars (uncapped). */

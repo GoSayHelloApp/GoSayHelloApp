@@ -10,6 +10,7 @@ import {
 import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 import type { PublicTicket } from "../../models/responseModels/publicEventTickets";
+import { processingFeeUsd } from "../../utils/ticketPricing";
 import AuthTextField from "../../ui/components/authCard/TextField";
 import { getStripe } from "../../services/stripe/stripeClient";
 import {
@@ -115,7 +116,7 @@ export default function TicketEmailModal({
   const price = ticket.price ?? 0;
   const isFree = price === 0;
   const total = price * quantity;
-  const fee = Math.max(total * 0.15, 2.5);
+  const fee = processingFeeUsd(total);
   const payable = total + fee;
 
   const valid = EMAIL_RE.test(email.trim());

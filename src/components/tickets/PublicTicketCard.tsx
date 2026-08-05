@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 import type { PublicTicket } from "../../models/responseModels/publicEventTickets";
+import { processingFeeUsd } from "../../utils/ticketPricing";
 import {
   formatSalesWindow,
   getTicketSaleState,
@@ -57,7 +58,7 @@ export default function PublicTicketCard({ ticket, timeZone, onBuy }: Props) {
   );
 
   const total = price * qty;
-  const fee = Math.max(total * 0.15, 2.5);
+  const fee = processingFeeUsd(total);
   const payable = total + fee;
 
   const soldPct = quantity > 0 ? Math.min(100, (sold / quantity) * 100) : 0;
