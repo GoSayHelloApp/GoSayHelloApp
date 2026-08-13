@@ -22,7 +22,9 @@ const GalleryTile: React.FC<{ gallery: Gallery; accent: string; onOpen: () => vo
   onOpen,
 }) => {
   const isVideo = gallery.gallery_type === "video";
-  const noun = isVideo ? "video" : "photo";
+  const isMixed = gallery.gallery_type === "mixed";
+  // Mixed holds photos AND videos → use a neutral "item" noun; others are photo/video specific.
+  const noun = isMixed ? "item" : isVideo ? "video" : "photo";
   const count = gallery.photo_count ?? 0;
   const metaText = count === 0 ? `No ${noun}s yet` : `${count} ${noun}${count === 1 ? "" : "s"}`;
   const hasImage = !!gallery.cover_image;
@@ -68,7 +70,7 @@ const GalleryTile: React.FC<{ gallery: Gallery; accent: string; onOpen: () => vo
               color: "#A8A6AD",
             }}
           >
-            <Icon icon={isVideo ? "mdi:play-box-multiple-outline" : "mdi:image-multiple-outline"} width={34} height={34} />
+            <Icon icon={isMixed ? "mdi:image-multiple-outline" : isVideo ? "mdi:play-box-multiple-outline" : "mdi:image-multiple-outline"} width={34} height={34} />
             <Box sx={{ fontFamily: tokens.font.sans, fontSize: 11, fontWeight: 600, color: "#9A96A3" }}>
               {`No ${noun}s yet`}
             </Box>

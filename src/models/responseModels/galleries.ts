@@ -2,7 +2,7 @@
 // Mirrors the FastAPI gallery endpoints. On the public site only `visibility: "public"`
 // galleries are returned (the backend uses optional auth → anonymous = public-only).
 
-export type GalleryType = "cover" | "photo" | "video";
+export type GalleryType = "cover" | "photo" | "video" | "mixed";
 export type GalleryVisibility = "public" | "rsvp_only" | "private_link";
 
 export interface GalleryMedia {

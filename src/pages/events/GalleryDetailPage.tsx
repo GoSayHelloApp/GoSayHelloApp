@@ -7,7 +7,7 @@ import { tokens } from "./invitation/tokens";
 import { withAlpha } from "./invitation/useColorExtraction";
 import PublicHeader from "../../components/events/PublicHeader";
 import OpenApp from "../../components/events/OpenApp";
-import VideoReel from "./invitation/gallery/VideoReel";
+import MediaReel from "./invitation/gallery/MediaReel";
 import GalleryPostCard from "./invitation/gallery/GalleryPostCard";
 import { usePullToRefresh } from "./invitation/gallery/usePullToRefresh";
 import { PullSpinner } from "./invitation/gallery/PullSpinner";
@@ -33,6 +33,8 @@ const GalleryDetailPage = () => {
   const { data, isLoading, isError, refetch } = useGetPublicGalleryQuery({ gallery_id: Number(galleryId) });
   const gallery = data?.gallery;
   const isVideo = gallery?.gallery_type === "video";
+  const isMixed = gallery?.gallery_type === "mixed";
+  const isReel = isVideo || isMixed;   // reel-style (one card/screen, snap) for video + mixed
   const posts = data?.posts ?? [];
   const title = gallery?.title || "Gallery";
 
@@ -49,14 +51,14 @@ const GalleryDetailPage = () => {
   }, [galleryId]);
 
   useEffect(() => {
-    if (!targetPostId || isVideo || isLoading || posts.length === 0 || scrolledRef.current) return;
+    if (!targetPostId || isReel || isLoading || posts.length === 0 || scrolledRef.current) return;
     const el = document.getElementById(`gpost-${targetPostId}`);
     if (el) {
       scrolledRef.current = true;
       // wait a tick for layout, then scroll the target card into view
       setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
     }
-  }, [targetPostId, isVideo, isLoading, posts.length]);
+  }, [targetPostId, isReel, isLoading, posts.length]);
 
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
@@ -291,14 +293,19 @@ const GalleryDetailPage = () => {
               fontFamily: tokens.font.sans,
             }}
           >
-            {isVideo ? "No videos yet." : "No photos yet."}
+            {isMixed ? "No posts yet." : isVideo ? "No videos yet." : "No photos yet."}
           </Box>
-        ) : isVideo ? (
-          <VideoReel
+        ) : isReel ? (
+          <MediaReel
             posts={posts}
             accent={accent}
+            mixed={isMixed}
             onToast={setToast}
-            onSave={() => promptOpenApp("Open the GoSayHELLO app to save videos to your gallery.")}
+            onSave={() =>
+              promptOpenApp(
+                `Open the GoSayHELLO app to save ${isMixed ? "media" : "videos"} to your gallery.`
+              )
+            }
             onSharePost={(pid) => sharePost(pid)}
             onRefresh={() => refetch()}
             targetPostId={targetPostId}
@@ -409,10 +416,12 @@ const GalleryDetailPage = () => {
         <Box
           onClick={() =>
             promptOpenApp(
-              `Open the GoSayHELLO app to add ${isVideo ? "videos" : "photos"} to this gallery.`
+              `Open the GoSayHELLO app to add ${
+                isMixed ? "photos or videos" : isVideo ? "videos" : "photos"
+              } to this gallery.`
             )
           }
-          aria-label={isVideo ? "Add videos" : "Add photos"}
+          aria-label={isMixed ? "Add posts" : isVideo ? "Add videos" : "Add photos"}
           sx={{
             pointerEvents: "auto",
             width: 56,
