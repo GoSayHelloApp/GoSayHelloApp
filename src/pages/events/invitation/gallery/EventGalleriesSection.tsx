@@ -135,7 +135,7 @@ const EventGalleriesSection: React.FC<EventGalleriesSectionProps> = ({ eventId, 
         <Box sx={{ maxWidth: 880 }}>
           <SectionLabel
             numeral={numeral}
-            title={galleries.length === 1 ? "Event Gallery" : "Event Galleries"}
+            title={galleries.length === 1 ? "Photo and Video Gallery" : "Photo and Video Galleries"}
             accent={accent}
           />
           <Box
