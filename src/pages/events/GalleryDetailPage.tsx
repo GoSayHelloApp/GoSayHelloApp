@@ -3,6 +3,7 @@ import { Box, CircularProgress, Snackbar, Slide } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useGetPublicGalleryQuery } from "../../services/events/galleryApi";
+import type { GalleryPost, PublicGalleryResponse } from "../../models/responseModels/galleries";
 import { tokens } from "./invitation/tokens";
 import { withAlpha } from "./invitation/useColorExtraction";
 import PublicHeader from "../../components/events/PublicHeader";
@@ -30,16 +31,50 @@ const GalleryDetailPage = () => {
     setOpenAppText(text);
     setOpenApp(true);
   };
-  const { data, isLoading, isError, refetch } = useGetPublicGalleryQuery({ gallery_id: Number(galleryId) });
-  const gallery = data?.gallery;
+  const PAGE_SIZE = 10;
+  const [pageNo, setPageNo] = useState(1);
+  const { data, isFetching, isError, refetch } = useGetPublicGalleryQuery({
+    gallery_id: Number(galleryId),
+    page_no: pageNo,
+  });
+
+  // Accumulate posts across pages (the API returns 10 per page). Keep the gallery meta
+  // stable so it doesn't blank while a later page is fetching.
+  const [allPosts, setAllPosts] = useState<GalleryPost[]>([]);
+  const [galleryMeta, setGalleryMeta] = useState<PublicGalleryResponse["gallery"] | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    if (!data) return;
+    if (data.gallery) setGalleryMeta(data.gallery);
+    const pagePosts = data.posts ?? [];
+    setHasMore(pageNo * PAGE_SIZE < (data.total_posts ?? 0));
+    setAllPosts((prev) => {
+      if (pageNo === 1) return pagePosts;
+      const seen = new Set(prev.map((p) => p.id));
+      return [...prev, ...pagePosts.filter((p) => !seen.has(p.id))];
+    });
+  }, [data, pageNo]);
+
+  const gallery = galleryMeta;
   const isVideo = gallery?.gallery_type === "video";
   const isMixed = gallery?.gallery_type === "mixed";
   const isReel = isVideo || isMixed;   // reel-style (one card/screen, snap) for video + mixed
-  const posts = data?.posts ?? [];
+  const posts = allPosts;
   const title = gallery?.title || "Gallery";
+  const loadingMore = isFetching && pageNo > 1;
+
+  const loadMore = () => {
+    if (isFetching || !hasMore) return;
+    setPageNo((p) => p + 1);
+  };
+  const refresh = () => {
+    setPageNo(1);
+    return refetch();
+  };
 
   const feedRef = useRef<HTMLDivElement>(null);
-  const { pull, refreshing } = usePullToRefresh(feedRef, () => refetch());
+  const { pull, refreshing } = usePullToRefresh(feedRef, () => refresh());
 
   // A shared post link (…?post=<id>) → scroll to that post once it's loaded.
   const [searchParams] = useSearchParams();
@@ -51,14 +86,14 @@ const GalleryDetailPage = () => {
   }, [galleryId]);
 
   useEffect(() => {
-    if (!targetPostId || isReel || isLoading || posts.length === 0 || scrolledRef.current) return;
+    if (!targetPostId || isReel || isFetching || posts.length === 0 || scrolledRef.current) return;
     const el = document.getElementById(`gpost-${targetPostId}`);
     if (el) {
       scrolledRef.current = true;
       // wait a tick for layout, then scroll the target card into view
       setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
     }
-  }, [targetPostId, isReel, isLoading, posts.length]);
+  }, [targetPostId, isReel, isFetching, posts.length]);
 
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
@@ -278,7 +313,7 @@ const GalleryDetailPage = () => {
 
       {/* Content */}
       <Box sx={{ position: "relative", zIndex: 1, flex: 1, minHeight: 0 }}>
-        {isLoading ? (
+        {posts.length === 0 && isFetching ? (
           <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CircularProgress sx={{ color: accent }} />
           </Box>
@@ -307,8 +342,11 @@ const GalleryDetailPage = () => {
               )
             }
             onSharePost={(pid) => sharePost(pid)}
-            onRefresh={() => refetch()}
+            onRefresh={() => refresh()}
             targetPostId={targetPostId}
+            onLoadMore={loadMore}
+            loadingMore={loadingMore}
+            hasMore={hasMore}
           />
         ) : (
           <Box sx={{ position: "relative", height: "100%", overflow: "hidden" }}>

@@ -494,9 +494,12 @@ interface MediaReelProps {
   onSharePost?: (postId: number) => void;
   onRefresh?: () => Promise<unknown> | void;
   targetPostId?: number | null;
+  onLoadMore?: () => void;
+  loadingMore?: boolean;
+  hasMore?: boolean;
 }
 
-const MediaReel: React.FC<MediaReelProps> = ({ posts, mixed, onToast, onSave, onSharePost, onRefresh, targetPostId }) => {
+const MediaReel: React.FC<MediaReelProps> = ({ posts, accent, mixed, onToast, onSave, onSharePost, onRefresh, targetPostId, onLoadMore, loadingMore, hasMore }) => {
   // Default to sound on — the user reached this page via a tap (a user gesture in the same SPA
   // document), so autoplay with audio is permitted.
   const [muted, setMuted] = useState(false);
@@ -505,6 +508,15 @@ const MediaReel: React.FC<MediaReelProps> = ({ posts, mixed, onToast, onSave, on
     : posts.filter((p) => p.media?.[0]?.media_type === "video");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { pull, refreshing } = usePullToRefresh(scrollRef, onRefresh ?? (() => {}));
+
+  // Infinite scroll: load the next page when within ~one screen of the bottom.
+  const onScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || !onLoadMore || !hasMore || loadingMore) return;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - el.clientHeight) {
+      onLoadMore();
+    }
+  }, [onLoadMore, hasMore, loadingMore]);
 
   // A shared post link (…?post=<id>) → jump to that card once.
   const scrolledRef = useRef(false);
@@ -522,6 +534,7 @@ const MediaReel: React.FC<MediaReelProps> = ({ posts, mixed, onToast, onSave, on
       <PullSpinner pull={pull} refreshing={refreshing} />
       <Box
         ref={scrollRef}
+        onScroll={onScroll}
         sx={{
           height: "100%",
           overflowY: "auto",
@@ -548,6 +561,11 @@ const MediaReel: React.FC<MediaReelProps> = ({ posts, mixed, onToast, onSave, on
             />
           </Box>
         ))}
+        {loadingMore && (
+          <Box sx={{ height: "8%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <CircularProgress size={22} sx={{ color: accent }} />
+          </Box>
+        )}
       </Box>
     </Box>
   );
