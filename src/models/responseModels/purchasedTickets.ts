@@ -9,7 +9,17 @@ export interface Purchase {
 }
 
 /** A ticket group as returned by /public/tickets/buy (one per ticket type bought). */
+/** "Add to Apple Wallet" link for up to 10 tickets (Apple's .pkpasses limit). */
+export interface AppleWalletLink {
+  url: string;
+  from: number;
+  to: number;
+  count: number;
+}
+
 export interface PurchasedTicketGroup {
+  /** Present when Apple Wallet is enabled on the server. */
+  apple_wallet_urls?: AppleWalletLink[];
   purchased_ticket_id?: number;
   user_id?: number;
   ticket_id?: number;

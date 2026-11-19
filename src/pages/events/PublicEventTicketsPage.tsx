@@ -19,6 +19,7 @@ import {
   type FlatTicket,
   type PurchasedTicketGroup,
 } from "../../models/responseModels/purchasedTickets";
+import type { AppleWalletLink } from "../../models/responseModels/purchasedTickets";
 import {
   buildTicketsPdfBlob,
   shareOrDownloadBlob,
@@ -56,6 +57,7 @@ export default function PublicEventTicketsPage() {
     tickets: FlatTicket[];
     email: string;
     message: string;
+    walletLinks: AppleWalletLink[];
   } | null>(null);
 
   // Scroll to top when transitioning into the purchased-tickets view, so the
@@ -119,6 +121,8 @@ export default function PublicEventTicketsPage() {
       tickets: flattenPurchasedTickets(groups),
       email: buyerEmail,
       message,
+      // One link per bundle of <= 10 passes — a single tap adds the whole order.
+      walletLinks: groups.flatMap((g) => g.apple_wallet_urls ?? []),
     });
     // scroll-to-top now handled by a useEffect on `purchased` (above)
   };
@@ -311,6 +315,7 @@ export default function PublicEventTicketsPage() {
             tickets={purchased.tickets}
             email={purchased.email}
             message={purchased.message}
+            walletLinks={purchased.walletLinks}
             onRegisterNode={registerNode}
             onDownloadAll={handleDownloadAll}
             downloadAllBusy={isIOS ? !iosPdfReady : downloadingAll}
@@ -545,10 +550,55 @@ export default function PublicEventTicketsPage() {
   );
 }
 
+/** Devices that can add Apple Wallet passes: iPhone / iPad (any browser) and Mac Safari. */
+/** Apple Wallet button only on iOS devices (iPhone / iPad / iPod). */
+function canAddToAppleWallet(): boolean {
+  return isIOSDevice();
+}
+
+function AppleWalletButtons({ links, total }: { links: AppleWalletLink[]; total: number }) {
+  if (!links.length || !canAddToAppleWallet()) return null;
+  return (
+    <>
+      {links.map((l) => (
+        <Box
+          key={l.url}
+          component="a"
+          href={l.url}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 1,
+            px: 2.5,
+            py: 1.2,
+            borderRadius: 999,
+            background: "#000000",
+            color: "#FFFFFF",
+            textDecoration: "none",
+            fontFamily: tokens.font.sans,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.02em",
+            "&:hover": { filter: "brightness(1.25)" },
+          }}
+        >
+          <Icon icon="ic:baseline-apple" width={18} />
+          {links.length > 1
+            ? `Add tickets ${l.from}–${l.to} to Apple Wallet`
+            : total > 1
+            ? `Add all ${total} to Apple Wallet`
+            : "Add to Apple Wallet"}
+        </Box>
+      ))}
+    </>
+  );
+}
+
 function PurchasedTicketsView({
   tickets,
   email,
   message,
+  walletLinks,
   onRegisterNode,
   onDownloadAll,
   downloadAllBusy,
@@ -557,6 +607,7 @@ function PurchasedTicketsView({
   tickets: FlatTicket[];
   email: string;
   message: string;
+  walletLinks: AppleWalletLink[];
   onRegisterNode: (id: number, node: HTMLElement | null) => void;
   onDownloadAll: () => void;
   downloadAllBusy: boolean;
@@ -640,6 +691,7 @@ function PurchasedTicketsView({
 
         {/* actions */}
         <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+          <AppleWalletButtons links={walletLinks} total={count} />
           {count > 1 ? (
             <Box
               component="button"
