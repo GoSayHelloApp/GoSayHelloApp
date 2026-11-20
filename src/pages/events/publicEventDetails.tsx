@@ -6,6 +6,7 @@ import { useGetPublicEventDetailsQuery } from "../../services/events/eventApi";
 import { useGetPublicEventGalleriesQuery } from "../../services/events/galleryApi";
 import Loader from "../../ui/components/core/screenLoader";
 import OpenApp from "../../components/events/OpenApp";
+import GuestRsvpModal from "../../components/events/GuestRsvpModal";
 import EventFooter from "../../components/events/eventFooter";
 import { tokens } from "./invitation/tokens";
 import { useColorExtraction, withAlpha } from "./invitation/useColorExtraction";
@@ -79,6 +80,19 @@ const PublicEventDetails = () => {
   );
 
   const [openRSVPModal, setOpenRSVPModal] = useState(false);
+  // Web guest RSVP (email + code). The email's "Confirm my RSVP" button lands on ?rsvp_confirm=<token>.
+  const rsvpConfirmToken = useMemo(
+    () => new URLSearchParams(location.search).get("rsvp_confirm"),
+    [location.search]
+  );
+  const [guestRsvpOpen, setGuestRsvpOpen] = useState(false);
+  useEffect(() => {
+    if (rsvpConfirmToken) setGuestRsvpOpen(true);
+  }, [rsvpConfirmToken]);
+  const closeGuestRsvp = () => {
+    setGuestRsvpOpen(false);
+    if (rsvpConfirmToken) navigate(location.pathname, { replace: true });   // drop the one-time token
+  };
   const [modalText, setModalText] = useState("");
   const [showStickyCta, setShowStickyCta] = useState(false);
 
@@ -591,7 +605,7 @@ const PublicEventDetails = () => {
                     onClick={() =>
                       isPast
                         ? handleMobileRedirection()
-                        : openWithMessage("Open the App to RSVP")
+                        : setGuestRsvpOpen(true)
                     }
                   />
                   {!isPast && isBingoEnabled && (
@@ -801,7 +815,7 @@ const PublicEventDetails = () => {
                 onClick={() =>
                   isPast
                     ? handleMobileRedirection()
-                    : openWithMessage("Open the App to RSVP")
+                    : setGuestRsvpOpen(true)
                 }
               />
             </Box>
@@ -817,6 +831,14 @@ const PublicEventDetails = () => {
         </Box>
       </Box>
 
+      <GuestRsvpModal
+        open={guestRsvpOpen}
+        onClose={closeGuestRsvp}
+        eventId={Number(eventDetails.event_id)}
+        eventName={eventDetails.venue_name}
+        accent={accent}
+        confirmToken={rsvpConfirmToken}
+      />
       <OpenApp
         eventId={eventDetails.event_id}
         openApp={openRSVPModal}
