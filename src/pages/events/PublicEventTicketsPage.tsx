@@ -25,6 +25,7 @@ import {
   shareOrDownloadBlob,
   isIOSDevice,
 } from "../../utils/ticketDownload";
+import { trackEventTraffic } from "../../services/events/eventTrafficApi";
 
 const accent = tokens.color.brandOrange;
 
@@ -117,6 +118,7 @@ export default function PublicEventTicketsPage() {
   ) => {
     nodeMap.current.clear();
     setEmailModal((s) => ({ ...s, open: false }));
+    trackEventTraffic(eventId, "convert");   // organizer Traffic tab
     setPurchased({
       tickets: flattenPurchasedTickets(groups),
       email: buyerEmail,

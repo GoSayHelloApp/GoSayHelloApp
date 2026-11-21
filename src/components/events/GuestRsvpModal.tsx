@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 import { isIOSDevice } from "../../utils/ticketDownload";
+import { trackEventTraffic } from "../../services/events/eventTrafficApi";
 import {
   confirmRsvpLink,
   RsvpConfirmResponse,
@@ -92,6 +93,7 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
       if (res.success) {
         setResult(res);
         setEmail(res.email || "");
+        if (!res.already_rsvped) trackEventTraffic(eventId, "convert");
         setStep("done");
       } else {
         setError(res.message || "This link has expired.");
@@ -150,6 +152,7 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
     setBusy(false);
     if (res.success) {
       setResult(res);
+      if (!res.already_rsvped) trackEventTraffic(eventId, "convert");
       setStep("done");
     } else {
       setError(res.message || "That code isn't right.");

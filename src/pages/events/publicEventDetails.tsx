@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -7,6 +7,7 @@ import { useGetPublicEventGalleriesQuery } from "../../services/events/galleryAp
 import Loader from "../../ui/components/core/screenLoader";
 import OpenApp from "../../components/events/OpenApp";
 import GuestRsvpModal from "../../components/events/GuestRsvpModal";
+import { detectSource, trackEventTraffic } from "../../services/events/eventTrafficApi";
 import EventFooter from "../../components/events/eventFooter";
 import { tokens } from "./invitation/tokens";
 import { useColorExtraction, withAlpha } from "./invitation/useColorExtraction";
@@ -103,6 +104,22 @@ const PublicEventDetails = () => {
     if (typeof window === "undefined") return;
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [eventId]);
+
+  // Organizer Traffic tab: one "view" per page open (the server drops repeats within 30 min).
+  const trackedViewFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!eventDetails || !eventId || trackedViewFor.current === eventId) return;
+    trackedViewFor.current = eventId;
+    trackEventTraffic(eventId, "view", detectSource(location.search));
+  }, [eventDetails, eventId, location.search]);
+  const goToTickets = () => {
+    trackEventTraffic(eventId, "cta");
+    navigate(`/event-details/${eventId}/tickets`);
+  };
+  const openGuestRsvp = () => {
+    trackEventTraffic(eventId, "cta");
+    setGuestRsvpOpen(true);
+  };
 
   useEffect(() => {
     if (!eventDetails) return;
@@ -593,9 +610,7 @@ const PublicEventDetails = () => {
                       size="md"
                       variant="dark"
                       accent={accent}
-                      onClick={() =>
-                        navigate(`/event-details/${eventId}/tickets`)
-                      }
+                      onClick={goToTickets}
                     />
                   )}
                   <RsvpButton
@@ -605,7 +620,7 @@ const PublicEventDetails = () => {
                     onClick={() =>
                       isPast
                         ? handleMobileRedirection()
-                        : setGuestRsvpOpen(true)
+                        : openGuestRsvp()
                     }
                   />
                   {!isPast && isBingoEnabled && (
@@ -804,7 +819,7 @@ const PublicEventDetails = () => {
                 size="md"
                 variant="dark"
                 accent={accent}
-                onClick={() => navigate(`/event-details/${eventId}/tickets`)}
+                onClick={goToTickets}
               />
             )}
             <Box sx={{ flexShrink: 0 }}>
@@ -815,7 +830,7 @@ const PublicEventDetails = () => {
                 onClick={() =>
                   isPast
                     ? handleMobileRedirection()
-                    : setGuestRsvpOpen(true)
+                    : openGuestRsvp()
                 }
               />
             </Box>
