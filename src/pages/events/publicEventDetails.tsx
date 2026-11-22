@@ -401,7 +401,7 @@ const PublicEventDetails = () => {
             <Box
               component="button"
               type="button"
-              onClick={() => openGoSayHelloApp(eventDetails.event_id)}
+              onClick={() => openWithMessage("Open the GoSayHELLO app to continue.")}
               sx={{
                 appearance: "none",
                 border: "none",
