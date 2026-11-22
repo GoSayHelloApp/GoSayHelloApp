@@ -26,7 +26,7 @@ import {
   isIOSDevice,
 } from "../../utils/ticketDownload";
 import { trackEventTraffic } from "../../services/events/eventTrafficApi";
-import { isInAppBrowser, openGoSayHelloApp, safariUrl } from "../../utils/openApp";
+import { isInAppBrowser, safariUrl, appLinkUrl, onAppLinkClick } from "../../utils/openApp";
 
 const accent = tokens.color.brandOrange;
 
@@ -459,10 +459,11 @@ export default function PublicEventTicketsPage() {
         {/* Members skip the email step: buy in the app */}
         {!isEmpty && (
           <Box
-            component="button"
-            type="button"
-            onClick={() => openGoSayHelloApp(eventId)}
+            component="a"
+            href={appLinkUrl(eventId)}
+            onClick={onAppLinkClick}
             sx={{
+              textDecoration: "none",
               appearance: "none",
               cursor: "pointer",
               mb: { xs: 2, md: 2.5 },
@@ -733,10 +734,11 @@ function PurchasedTicketsView({
         <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
           <AppleWalletButtons links={walletLinks} total={count} />
           <Box
-            component="button"
-            type="button"
-            onClick={() => openGoSayHelloApp(eventId)}
+            component="a"
+            href={appLinkUrl(eventId)}
+            onClick={onAppLinkClick}
             sx={{
+              textDecoration: "none",
               appearance: "none",
               border: "none",
               cursor: "pointer",

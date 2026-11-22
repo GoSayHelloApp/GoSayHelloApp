@@ -66,3 +66,14 @@ export function openGoSayHelloApp(eventId?: number | string | null): void {
   }
   window.location.href = appLinkUrl(eventId);
 }
+
+/**
+ * For <a href={appLinkUrl(id)} onClick={onAppLinkClick}>: iOS only hands a Universal Link to the
+ * app when a real link is tapped (a JavaScript redirect stays in Safari), so the buttons are links.
+ * Phones follow the link; desktop gets the App Store in a new tab.
+ */
+export function onAppLinkClick(e: { preventDefault: () => void }): void {
+  if (isIOS() || isAndroid()) return;
+  e.preventDefault();
+  window.open(IOS_APP_STORE_URL, "_blank", "noopener,noreferrer");
+}

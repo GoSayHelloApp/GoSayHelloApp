@@ -1,9 +1,8 @@
 import { Box, Button, Modal, Typography } from "@mui/material";
 import React from "react";
-import { openGoSayHelloApp } from "../utils/openApp";
+import { appLinkUrl, onAppLinkClick } from "../utils/openApp";
 
 const OpenAppHome = ({ openApp, setOpenApp, text }: any) => {
-  const handleMobileRedirection = () => openGoSayHelloApp(undefined);
   return (
     <Modal
       open={openApp}
@@ -34,7 +33,8 @@ const OpenAppHome = ({ openApp, setOpenApp, text }: any) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={handleMobileRedirection}
+          href={appLinkUrl()}
+            onClick={onAppLinkClick}
         >
           Open App
         </Button>

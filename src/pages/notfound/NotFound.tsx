@@ -2,13 +2,12 @@ import React from "react";
 import { Box, Typography, Button, Container, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
-import { openGoSayHelloApp } from "../../utils/openApp";
+import { appLinkUrl, onAppLinkClick } from "../../utils/openApp";
 
 const NotFound = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const handleMobileRedirection = () => openGoSayHelloApp(undefined);
 
   return (
     <Container maxWidth="md">
@@ -139,7 +138,8 @@ const NotFound = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={handleMobileRedirection}
+            href={appLinkUrl()}
+            onClick={onAppLinkClick}
             startIcon={<Icon icon="mdi:cellphone-link" />}
             sx={{
               backgroundColor: theme.palette.success.main,

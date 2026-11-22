@@ -30,7 +30,7 @@ import {
 } from "./invitation/Primitives";
 import { Wayfinding } from "./invitation/Wayfinding";
 import EventGalleriesSection from "./invitation/gallery/EventGalleriesSection";
-import { openGoSayHelloApp } from "../../utils/openApp";
+import { openGoSayHelloApp, appLinkUrl, onAppLinkClick } from "../../utils/openApp";
 
 const PublicEventDetails = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -399,10 +399,11 @@ const PublicEventDetails = () => {
             </Box>
 
             <Box
-              component="button"
-              type="button"
-              onClick={() => openGoSayHelloApp(eventDetails.event_id)}
+              component="a"
+              href={appLinkUrl(eventDetails.event_id)}
+              onClick={onAppLinkClick}
               sx={{
+                textDecoration: "none",
                 appearance: "none",
                 border: "none",
                 cursor: "pointer",
