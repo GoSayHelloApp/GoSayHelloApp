@@ -30,6 +30,7 @@ import {
 } from "./invitation/Primitives";
 import { Wayfinding } from "./invitation/Wayfinding";
 import EventGalleriesSection from "./invitation/gallery/EventGalleriesSection";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 const PublicEventDetails = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -160,18 +161,7 @@ const PublicEventDetails = () => {
     setModalText(msg);
     setOpenRSVPModal(true);
   };
-
-  function isMobile() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-  const handleMobileRedirection = () => {
-    if (isMobile()) {
-      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link/eventdata?event_id=${eventDetails?.event_id}&efr=1`;
-    } else {
-      window.location.href =
-        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
-    }
-  };
+  const handleMobileRedirection = () => openGoSayHelloApp(eventDetails?.event_id);
 
   if (isLoading) {
     return (
@@ -411,12 +401,13 @@ const PublicEventDetails = () => {
             <Box
               component="button"
               type="button"
-              onClick={() => openWithMessage("Open the GoSayHELLO app to continue.")}
+              onClick={() => openGoSayHelloApp(eventDetails.event_id)}
               sx={{
                 appearance: "none",
                 border: "none",
                 cursor: "pointer",
                 display: "inline-flex",
+                whiteSpace: "nowrap",
                 alignItems: "center",
                 gap: 0.75,
                 px: { xs: 1.75, md: 2.25 },
@@ -460,7 +451,7 @@ const PublicEventDetails = () => {
               component="span"
               sx={{ display: { xs: "inline", sm: "none" } }}
             >
-              Get app
+              Open app
             </Box>
             <Box component="span" className="chev" sx={{ display: "inline-flex" }}>
               <Icon icon="ph:arrow-right-bold" width={12} />

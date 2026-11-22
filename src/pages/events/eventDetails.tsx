@@ -35,6 +35,7 @@ import { useAppSelector } from "../../redux/store";
 import { alpha } from "@mui/material/styles";
 import ManageTicketsModal from "../../ui/components/modals/ManageTicketsModal";
 import BuyTicketsModal from "../../ui/components/modals/BuyTicketsModal";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 /** Tickets / scanner actions (match PurchasedTickets accent) */
 const EVENT_ORANGE = "#E67E22";
@@ -141,18 +142,7 @@ const EventDetails = () => {
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${eventDetails?.d_lat},${eventDetails?.d_long}`;
     window.open(googleMapsUrl, "_blank");
   };
-
-  function isMobile() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-  const handleMobileRedirection = () => {
-    if (isMobile()) {
-      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link/eventdata?event_id=${eventDetails?.event_id}&efr=1`;
-    } else {
-      window.location.href =
-        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
-    }
-  };
+  const handleMobileRedirection = () => openGoSayHelloApp(eventDetails?.event_id);
 
   const detectDevice = () => {
     const userAgent = navigator.userAgent.toLowerCase();

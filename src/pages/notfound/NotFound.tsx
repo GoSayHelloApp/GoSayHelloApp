@@ -2,19 +2,13 @@ import React from "react";
 import { Box, Typography, Button, Container, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 const NotFound = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const handleMobileRedirection = () => {
-    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link`;
-    } else {
-      window.location.href =
-        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
-    }
-  };
+  const handleMobileRedirection = () => openGoSayHelloApp(undefined);
 
   return (
     <Container maxWidth="md">

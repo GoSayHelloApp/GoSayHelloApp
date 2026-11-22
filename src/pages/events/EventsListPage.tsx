@@ -10,6 +10,7 @@ import { useNearbyEvents } from "../../hooks/useNearbyEvents";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { tokens } from "./invitation/tokens";
 import { withAlpha } from "./invitation/useColorExtraction";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 function useFiltersFromUrl(): [FiltersState, (next: FiltersState) => void] {
   const [params, setParams] = useSearchParams();
@@ -160,12 +161,15 @@ export default function EventsListPage() {
           >
             {/* Open app — primary filled */}
             <Box
-              component="a"
-              href="https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833"
-              target="_blank"
-              rel="noopener noreferrer"
+              component="button"
+              type="button"
+              onClick={() => openGoSayHelloApp()}
               sx={{
+                appearance: "none",
+                border: "none",
+                cursor: "pointer",
                 display: "inline-flex",
+                whiteSpace: "nowrap",
                 alignItems: "center",
                 gap: 0.75,
                 px: { xs: 1.75, md: 2.25 },
@@ -216,7 +220,7 @@ export default function EventsListPage() {
                 component="span"
                 sx={{ display: { xs: "inline", sm: "none" } }}
               >
-                Get app
+                Open app
               </Box>
               <Box component="span" className="chev" sx={{ display: "inline-flex" }}>
                 <Icon icon="ph:arrow-right-bold" width={12} />

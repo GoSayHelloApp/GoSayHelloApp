@@ -3,6 +3,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
 import logo from "../../assets/gosayhello_logo.svg";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 interface OpenAppProps {
   eventId?: number | string | null;
@@ -11,24 +12,13 @@ interface OpenAppProps {
   text: string;
 }
 
-function isMobile() {
-  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 const OpenApp: React.FC<OpenAppProps> = ({
   eventId,
   openApp,
   setOpenApp,
   text,
 }) => {
-  const handleMobileRedirection = () => {
-    if (isMobile()) {
-      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link/eventdata?event_id=${eventId}&efr=1`;
-    } else {
-      window.location.href =
-        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
-    }
-  };
+  const handleMobileRedirection = () => openGoSayHelloApp(eventId);
 
   return (
     <Modal

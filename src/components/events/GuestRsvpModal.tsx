@@ -5,6 +5,7 @@ import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 import { isIOSDevice } from "../../utils/ticketDownload";
 import { trackEventTraffic } from "../../services/events/eventTrafficApi";
+import { isInAppBrowser, openGoSayHelloApp, safariUrl } from "../../utils/openApp";
 import {
   confirmRsvpLink,
   RsvpConfirmResponse,
@@ -25,13 +26,6 @@ interface GuestRsvpModalProps {
 }
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
-function appStoreUrl() {
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  return /Android/i.test(ua)
-    ? "https://play.google.com/store/apps/details?id=com.gosayhello"
-    : "https://apps.apple.com/app/id1585044833";
-}
 
 /** White field with a visible border; accent ring when focused. */
 const fieldSx = (accent: string) => ({
@@ -200,6 +194,8 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
 
   const walletUrl = result?.apple_wallet_url;
   const showWallet = !!walletUrl && isIOSDevice();
+  // Instagram / Facebook … in-app browsers download the pass but can't hand it to Wallet.
+  const inAppBrowser = isInAppBrowser();
 
   return (
     <Modal
@@ -278,8 +274,17 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                     Enter your email — we'll send a 6-digit code to confirm it's you.
                   </Typography>
                 </Box>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => openGoSayHelloApp(eventId)}
+                  sx={memberBtnSx(accent)}
+                >
+                  <Icon icon="ph:device-mobile-fill" width={18} />
+                  Already a member? RSVP in the app
+                </Box>
+                <Box sx={orDividerSx}>or RSVP with your email</Box>
                 <InputBase
-                  autoFocus
                   type="email"
                   inputMode="email"
                   autoComplete="email"
@@ -370,7 +375,7 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                 {showWallet && (
                   <Box
                     component="a"
-                    href={walletUrl as string}
+                    href={inAppBrowser ? safariUrl(walletUrl as string) : (walletUrl as string)}
                     sx={{
                       width: "100%",
                       height: 52,
@@ -389,13 +394,16 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                     }}
                   >
                     <Icon icon="ic:baseline-apple" width={20} />
-                    Add to Apple Wallet
+                    {inAppBrowser ? "Open in Safari to add to Apple Wallet" : "Add to Apple Wallet"}
                   </Box>
                 )}
                 <Box
-                  component="a"
-                  href={appStoreUrl()}
+                  component="button"
+                  type="button"
+                  onClick={() => openGoSayHelloApp(eventId)}
                   sx={{
+                    appearance: "none",
+                    cursor: "pointer",
                     width: "100%",
                     height: 48,
                     borderRadius: 999,
@@ -411,7 +419,7 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                     fontWeight: 600,
                   }}
                 >
-                  Get the app to see who's going
+                  Open the app to chat with who's going
                 </Box>
               </>
             )}
@@ -458,5 +466,37 @@ const linkBtnSx = (disabled: boolean) => ({
   color: disabled ? tokens.color.inkMuted : tokens.color.inkPrimary,
   textDecoration: disabled ? "none" : "underline",
 });
+
+const memberBtnSx = (accent: string) => ({
+  appearance: "none",
+  width: "100%",
+  minHeight: 50,
+  px: 2,
+  py: 1,
+  borderRadius: 999,
+  border: `1.5px solid ${accent}`,
+  background: withAlpha(accent, 0.08),
+  color: tokens.color.inkPrimary,
+  cursor: "pointer",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 1,
+  fontFamily: tokens.font.sans,
+  fontSize: 14.5,
+  fontWeight: 700,
+  "&:hover": { background: withAlpha(accent, 0.14) },
+});
+
+const orDividerSx = {
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: 1.5,
+  fontFamily: tokens.font.sans,
+  fontSize: 12,
+  color: tokens.color.inkSecondary,
+  "&::before, &::after": { content: '""', flex: 1, height: "1px", background: tokens.color.line },
+};
 
 export default GuestRsvpModal;

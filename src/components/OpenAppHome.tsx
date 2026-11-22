@@ -1,18 +1,9 @@
 import { Box, Button, Modal, Typography } from "@mui/material";
 import React from "react";
+import { openGoSayHelloApp } from "../utils/openApp";
 
 const OpenAppHome = ({ openApp, setOpenApp, text }: any) => {
-  function isMobile() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-  const handleMobileRedirection = () => {
-    if (isMobile()) {
-      window.location.href = `https://gosayhello.page.link/?ibi=com.saee.GoSayHELLO&isi=1585044833&apn=com.gosayhello&link=https://gosayhello.page.link`;
-    } else {
-      window.location.href =
-        "https://apps.apple.com/pk/app/gosayhello-networking-nearby/id1585044833";
-    }
-  };
+  const handleMobileRedirection = () => openGoSayHelloApp(undefined);
   return (
     <Modal
       open={openApp}

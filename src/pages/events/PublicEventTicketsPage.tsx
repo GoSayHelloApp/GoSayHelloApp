@@ -26,6 +26,7 @@ import {
   isIOSDevice,
 } from "../../utils/ticketDownload";
 import { trackEventTraffic } from "../../services/events/eventTrafficApi";
+import { isInAppBrowser, openGoSayHelloApp, safariUrl } from "../../utils/openApp";
 
 const accent = tokens.color.brandOrange;
 
@@ -318,6 +319,7 @@ export default function PublicEventTicketsPage() {
             email={purchased.email}
             message={purchased.message}
             walletLinks={purchased.walletLinks}
+            eventId={eventId}
             onRegisterNode={registerNode}
             onDownloadAll={handleDownloadAll}
             downloadAllBusy={isIOS ? !iosPdfReady : downloadingAll}
@@ -454,6 +456,36 @@ export default function PublicEventTicketsPage() {
           ) : null}
         </Box>
 
+        {/* Members skip the email step: buy in the app */}
+        {!isEmpty && (
+          <Box
+            component="button"
+            type="button"
+            onClick={() => openGoSayHelloApp(eventId)}
+            sx={{
+              appearance: "none",
+              cursor: "pointer",
+              mb: { xs: 2, md: 2.5 },
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              px: 2.25,
+              py: 1.25,
+              borderRadius: 999,
+              border: `1.5px solid ${accent}`,
+              background: withAlpha(accent, 0.08),
+              color: tokens.color.inkPrimary,
+              fontFamily: tokens.font.sans,
+              fontSize: 14,
+              fontWeight: 700,
+              "&:hover": { background: withAlpha(accent, 0.14) },
+            }}
+          >
+            <Icon icon="ph:device-mobile-fill" width={18} />
+            Already a member? Get your tickets in the app
+          </Box>
+        )}
+
         {/* Grid */}
         {isLoading ? (
           <Box
@@ -560,13 +592,15 @@ function canAddToAppleWallet(): boolean {
 
 function AppleWalletButtons({ links, total }: { links: AppleWalletLink[]; total: number }) {
   if (!links.length || !canAddToAppleWallet()) return null;
+  // Instagram / Facebook … in-app browsers download the pass but can't hand it to Wallet.
+  const inApp = isInAppBrowser();
   return (
     <>
       {links.map((l) => (
         <Box
           key={l.url}
           component="a"
-          href={l.url}
+          href={inApp ? safariUrl(l.url) : l.url}
           sx={{
             display: "inline-flex",
             alignItems: "center",
@@ -585,7 +619,9 @@ function AppleWalletButtons({ links, total }: { links: AppleWalletLink[]; total:
           }}
         >
           <Icon icon="ic:baseline-apple" width={18} />
-          {links.length > 1
+          {inApp
+            ? "Open in Safari to add to Apple Wallet"
+            : links.length > 1
             ? `Add tickets ${l.from}–${l.to} to Apple Wallet`
             : total > 1
             ? `Add all ${total} to Apple Wallet`
@@ -601,6 +637,7 @@ function PurchasedTicketsView({
   email,
   message,
   walletLinks,
+  eventId,
   onRegisterNode,
   onDownloadAll,
   downloadAllBusy,
@@ -610,6 +647,7 @@ function PurchasedTicketsView({
   email: string;
   message: string;
   walletLinks: AppleWalletLink[];
+  eventId?: string;
   onRegisterNode: (id: number, node: HTMLElement | null) => void;
   onDownloadAll: () => void;
   downloadAllBusy: boolean;
@@ -694,6 +732,32 @@ function PurchasedTicketsView({
         {/* actions */}
         <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
           <AppleWalletButtons links={walletLinks} total={count} />
+          <Box
+            component="button"
+            type="button"
+            onClick={() => openGoSayHelloApp(eventId)}
+            sx={{
+              appearance: "none",
+              border: "none",
+              cursor: "pointer",
+              background: tokens.color.inkPrimary,
+              color: "#FFFFFF",
+              fontFamily: tokens.font.sans,
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+              px: 2.5,
+              py: 1.2,
+              borderRadius: 999,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              "&:hover": { filter: "brightness(1.25)" },
+            }}
+          >
+            <Icon icon="ph:chats-circle-fill" width={18} />
+            Open the app to chat with who&apos;s going
+          </Box>
           {count > 1 ? (
             <Box
               component="button"
