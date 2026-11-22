@@ -3,7 +3,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { tokens } from "../../pages/events/invitation/tokens";
 import logo from "../../assets/gosayhello_logo.svg";
-import { appLinkUrl, onAppLinkClick } from "../../utils/openApp";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 interface OpenAppProps {
   eventId?: number | string | null;
@@ -18,6 +18,7 @@ const OpenApp: React.FC<OpenAppProps> = ({
   setOpenApp,
   text,
 }) => {
+  const handleMobileRedirection = () => openGoSayHelloApp(eventId);
 
   return (
     <Modal
@@ -154,13 +155,10 @@ const OpenApp: React.FC<OpenAppProps> = ({
             </Box>
 
             <Box
-              component="a"
-              href={appLinkUrl(eventId)}
-              onClick={onAppLinkClick}
+              component="button"
+              onClick={handleMobileRedirection}
               sx={{
                 mt: 0.5,
-                textDecoration: "none",
-                boxSizing: "border-box",
                 appearance: "none",
                 cursor: "pointer",
                 width: "100%",

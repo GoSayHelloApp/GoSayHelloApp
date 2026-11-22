@@ -10,7 +10,7 @@ import { useNearbyEvents } from "../../hooks/useNearbyEvents";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { tokens } from "./invitation/tokens";
 import { withAlpha } from "./invitation/useColorExtraction";
-import { appLinkUrl, onAppLinkClick } from "../../utils/openApp";
+import { openGoSayHelloApp } from "../../utils/openApp";
 
 function useFiltersFromUrl(): [FiltersState, (next: FiltersState) => void] {
   const [params, setParams] = useSearchParams();
@@ -161,9 +161,9 @@ export default function EventsListPage() {
           >
             {/* Open app — primary filled */}
             <Box
-              component="a"
-              href={appLinkUrl()}
-              onClick={onAppLinkClick}
+              component="button"
+              type="button"
+              onClick={() => openGoSayHelloApp()}
               sx={{
                 appearance: "none",
                 border: "none",

@@ -5,7 +5,7 @@ import { tokens } from "../../pages/events/invitation/tokens";
 import { withAlpha } from "../../pages/events/invitation/useColorExtraction";
 import { isIOSDevice } from "../../utils/ticketDownload";
 import { trackEventTraffic } from "../../services/events/eventTrafficApi";
-import { isInAppBrowser, safariUrl, appLinkUrl, onAppLinkClick } from "../../utils/openApp";
+import { isInAppBrowser, openGoSayHelloApp, safariUrl } from "../../utils/openApp";
 import {
   confirmRsvpLink,
   RsvpConfirmResponse,
@@ -275,9 +275,9 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                   </Typography>
                 </Box>
                 <Box
-                  component="a"
-                  href={appLinkUrl(eventId)}
-                  onClick={onAppLinkClick}
+                  component="button"
+                  type="button"
+                  onClick={() => openGoSayHelloApp(eventId)}
                   sx={memberBtnSx(accent)}
                 >
                   <Icon icon="ph:device-mobile-fill" width={18} />
@@ -398,9 +398,9 @@ const GuestRsvpModal: React.FC<GuestRsvpModalProps> = ({
                   </Box>
                 )}
                 <Box
-                  component="a"
-                  href={appLinkUrl(eventId)}
-                  onClick={onAppLinkClick}
+                  component="button"
+                  type="button"
+                  onClick={() => openGoSayHelloApp(eventId)}
                   sx={{
                     appearance: "none",
                     cursor: "pointer",
@@ -469,8 +469,6 @@ const linkBtnSx = (disabled: boolean) => ({
 
 const memberBtnSx = (accent: string) => ({
   appearance: "none",
-  textDecoration: "none",
-  boxSizing: "border-box",
   width: "100%",
   minHeight: 50,
   px: 2,
